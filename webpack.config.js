@@ -2,7 +2,7 @@ const path = require('path')
 
 module.exports = {
   entry: {
-    path: './core/simple.ts'
+    path: './src/index.js'
   },
   module: {
     rules: [
@@ -15,7 +15,7 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         query: {
-          presets: [['es2015', {modules: false}]]
+          presets: ['env', ['es2015', {modules: false}]]
         }
       }
     ]
