@@ -1,2 +1,1 @@
-# simplejs
-simple mvvm framework
+# Simple.js
