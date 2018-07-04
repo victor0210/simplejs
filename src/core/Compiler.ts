@@ -2,16 +2,15 @@ import transToFragment from "../utils/domTransfer";
 import nodeType from "../statics/nodeType";
 import {compileElement, compileText} from "../utils/compileUtils";
 import equal from "../utils/equal";
-import {setCurrentContext} from "./RenderCurrent";
+import {getCurrentContext} from "./RenderCurrent";
 
 export default class Compiler {
     private dangerousHTML: string
     public fragment: DocumentFragment
-    public contextVM: any
+    public current: any
 
-    constructor(dangerousHTML: string, contextVM: any) {
-        this.contextVM = contextVM
-        setCurrentContext(null)
+    constructor(dangerousHTML: string) {
+        this.current = getCurrentContext()
 
         this.setDangerousHTML(dangerousHTML)
         this.fragment = transToFragment(this.dangerousHTML)
@@ -26,7 +25,7 @@ export default class Compiler {
             if (equal(child.nodeType, nodeType.ElementNode)) {
                 compileElement(child)
             } else if (equal(child.nodeType, nodeType.TextNode)) {
-                compileText(child, this.contextVM)
+                compileText(child, this.current)
             }
 
             if (child.childNodes) this.compile(child)

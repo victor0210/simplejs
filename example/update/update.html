@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Base</title>
+    <title>Update</title>
     <script src="../../dist/bundle.js"></script>
 </head>
 <body>
@@ -12,14 +12,21 @@
         el: 'app',
         data: {
         	version: 'v1.0.0',
-            name: 'Simple Js'
+            name: 'Simple Js',
+            count: 0
         },
 
 		render: function (h) {
+        	setInterval(() => {
+                this.setState({count: this.state.count + 1})
+            }, 1000)
+
             return h(`<div>
-                Welcome to
+                <p>Welcome to</p>
                 <br>
-                {'Name: ' + name + " version: " + version}
+                <p>{'Name: ' + name + " version: " + version}</p>
+                <br>
+                <p>You are stay for {count} s</p>
             </div>`)
         }
 	})

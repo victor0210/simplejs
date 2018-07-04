@@ -6,9 +6,11 @@ import lifeCycle from "../statics/lifeCycle";
 import baseType from "../statics/baseType";
 import throwIf from "../loggers/throwIf";
 import createComponent from "../utils/createComponent"
-import mountInto from "../utils/mountInto";
 import matchType from "../utils/matchType";
 import {setCurrentContext} from './RenderCurrent'
+import merge from "../utils/merge";
+import WatcherHub from "./WatcherHub";
+import {Watcher} from "./Watcher";
 
 /**
  * component uid counter
@@ -25,17 +27,19 @@ export default class SimpleNativeComponent extends SimpleComponent {
     private _lifeCycle: string = null
 
     //context for the whole component's lifecycle
-    private _context: any
     private _markup: any
+    public context: any = {}
+    public state: any = {}
+    private watcherHub: WatcherHub
 
     constructor(spec: any) {
         super();
-
         ifKeysAllBelongValidator(spec, initSpecComparisonObject)
 
         ComponentDictionary.registerComponent(this)
 
-        this.initContext(spec)
+        this.watcherHub = new WatcherHub()
+        this.initVM(spec)
         this.mountComponent()
     }
 
@@ -48,10 +52,19 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public updateComponent(): void {
+        this.watcherHub.notify()
     }
 
     public unmountComponent(): void {
         ComponentDictionary.cancelComponent(this)
+    }
+
+    pushWatcher(watcher: Watcher) {
+        this.watcherHub.addWatcher(watcher)
+    }
+
+    public setState(state: object):void {
+        if (merge(this.state, state)) this.updateComponent()
     }
 
     private setLifeCycle(lifeCycle: string) {
@@ -59,24 +72,25 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.runLifeCycleHook()
     }
 
-    private initContext(spec: any) {
-        this._context = spec
+    private initVM(spec: any) {
+        merge(this.context, spec)
+        merge(this.state, spec.data)
     }
 
     private runLifeCycleHook() {
-        let lifeCycleHook = this._context[this._lifeCycle]
+        let lifeCycleHook = this.context[this._lifeCycle]
         if (lifeCycleHook && matchType(lifeCycleHook, baseType.Function)) {
             lifeCycleHook.call(this)
         }
     }
 
     private renderComponent() {
-        throwIf(!this._context.render,
+        throwIf(!this.context.render,
             'not found "render" function when init a component'
         )
 
-        setCurrentContext(this._context)
-        this._markup = this._context.render.call(this, createComponent)
-        mountInto(this._context.el, this._markup.innerHTML)
+        setCurrentContext(this)
+        this._markup = this.context.render.call(this, createComponent)
+        // mountInto(this.state.el, this._markup.innerHTML)
     }
 }

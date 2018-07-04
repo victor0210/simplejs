@@ -1,9 +1,9 @@
-let CurrentContext = {}
+let Current = {}
 
-export const setCurrentContext = (context: object): void => {
-    CurrentContext = context
+export const setCurrentContext = (component: any): void => {
+    Current = component
 }
 
 export const getCurrentContext = ():any => {
-    return CurrentContext
+    return Current
 }
