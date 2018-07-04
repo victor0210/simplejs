@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    let component = new Simple({
+        data: {
+        	version: 'v1.0.0',
+            name: 'Simple Js',
+            count: 0
+        },
+
+		render: function (h) {
+        	setInterval(() => {
+                this.setState({count: ++this.state.count})
+
+                // below is a not recommend way to set new state
+                // this.setState({count: ++this.state.count})
+            }, 1000)
+
+            return h(`<div>
+                <p>Welcome to {name}</p>
+                <p>{"version: " + version}</p>
+                <p>You are stay for {count}s</p>
+            </div>`)
+        }
+	})
+
+    Simple.mount('#app', component)
+</script>
+</body>
+</html>
