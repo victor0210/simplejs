@@ -1,16 +1,12 @@
 import SimpleNativeComponent from './SimpleNativeComponent'
 
-import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
+import applyMixin from "../utils/applyMixin";
+import ComponentRendererMixins from "./ComponentRenderer";
 
-import initSpecComparisonObject from '../statics/initSpecComparisonObject'
-import getGlobalCompositeSimpleInstance from "../utils/getGlobalCompositeSimpleInstance";
-
-export default function Simple(spec: any) {
-    ifKeysAllBelongValidator(spec, initSpecComparisonObject)
-
-    if (this instanceof Simple) {
-        return new SimpleNativeComponent(spec)
-    }
-
-    return getGlobalCompositeSimpleInstance(spec)
+function Simple(spec: any): SimpleNativeComponent {
+    return new SimpleNativeComponent(spec)
 }
+
+applyMixin(Simple, ComponentRendererMixins)
+
+export default Simple

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const Component_1 = new Simple({
+        el: 'app',
+        data: {
+        	hello: 'hello value',
+            name: 'humengtao'
+        },
+		//someKey is not registered would throw an error
+		render: function (h) {
+        	console.log('reren', this)
+            return h(`<div>{hello + "hello simple"}
+                i am no temp {name}
+                <component-2/>
+            </div>`)
+        }
+	})
+
+	// const Component_2 = new Simple({
+	// 	//someKey is not registered would throw an error
+     //    render: function (h) {
+     //      return h(`
+     //        <div>component-2</div>
+     //      `)
+     //    }
+	// })
+
+
+	Simple.bind('app', Component_1)
+
+</script>
+</body>
+</html>

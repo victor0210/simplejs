@@ -1,20 +1,19 @@
 import CompositeComparisonObject from "../implements/CompositeComparisonObject";
+import lifeCycle from "./lifeCycle";
+import mergeObjToArr from "../utils/mergeObjToArr";
 
-const keyMap = [
+const baseMap = [
     'el',
     'methods',
     'template',
     'render',
-    'beforeMount',
-    'mounted',
-    'beforeUpdate',
-    'updated',
-    'beforeDestroy',
-    'destroyed',
+    'data'
 ]
+
+mergeObjToArr(lifeCycle, baseMap)
 
 const assertion = 'is not allowed in SimpleComponent initialization'
 
-const initSpecComparisonObject = new CompositeComparisonObject(keyMap, assertion)
+const initSpecComparisonObject = new CompositeComparisonObject(baseMap, assertion)
 
 export default initSpecComparisonObject

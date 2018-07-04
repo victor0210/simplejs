@@ -7,6 +7,7 @@ const generateKeyNotBelongMsg = (key: string, assertion: string, assertionSugges
 }
 
 /**
+ * validate if input options' keys beyond comparison object
  * @param tester is who needs validate
  * @param source is standard of comparison
  * */
