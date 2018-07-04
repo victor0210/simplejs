@@ -25,12 +25,12 @@ let componentUID = 0
 export default class SimpleNativeComponent extends SimpleComponent {
     readonly _uid: number = ++componentUID
     private _lifeCycle: string = null
-
-    //context for the whole component's lifecycle
     private _markup: any
+    private _watcherHub: WatcherHub
+    private _pendingState: any = {}
+
     public context: any = {}
     public state: any = {}
-    private watcherHub: WatcherHub
 
     constructor(spec: any) {
         super();
@@ -38,7 +38,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         ComponentDictionary.registerComponent(this)
 
-        this.watcherHub = new WatcherHub()
+        this._watcherHub = new WatcherHub()
         this.initVM(spec)
         this.mountComponent()
     }
@@ -52,19 +52,23 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public updateComponent(): void {
-        this.watcherHub.notify()
+        this._watcherHub.notify()
     }
 
     public unmountComponent(): void {
         ComponentDictionary.cancelComponent(this)
     }
 
-    pushWatcher(watcher: Watcher) {
-        this.watcherHub.addWatcher(watcher)
+    public pushWatcher(watcher: Watcher) {
+        this._watcherHub.addWatcher(watcher)
     }
 
     public setState(state: object):void {
-        if (merge(this.state, state)) this.updateComponent()
+        console.log(state, this._pendingState)
+        if (merge(this._pendingState, state)) {
+            merge(this.state, state)
+            this.updateComponent()
+        }
     }
 
     private setLifeCycle(lifeCycle: string) {
@@ -75,6 +79,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     private initVM(spec: any) {
         merge(this.context, spec)
         merge(this.state, spec.data)
+        merge(this._pendingState, spec.data)
     }
 
     private runLifeCycleHook() {

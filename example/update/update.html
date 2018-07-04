@@ -18,15 +18,16 @@
 
 		render: function (h) {
         	setInterval(() => {
-                this.setState({count: this.state.count + 1})
+                this.setState({count: ++this.state.count})
+
+                // below is a not recommend way to set new state
+                // this.setState({count: ++this.state.count})
             }, 1000)
 
             return h(`<div>
-                <p>Welcome to</p>
-                <br>
-                <p>{'Name: ' + name + " version: " + version}</p>
-                <br>
-                <p>You are stay for {count} s</p>
+                <p>Welcome to {name}</p>
+                <p>{"version: " + version}</p>
+                <p>You are stay for {count}s</p>
             </div>`)
         }
 	})
