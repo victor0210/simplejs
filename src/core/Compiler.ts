@@ -15,9 +15,6 @@ export default class Compiler {
         this.setDangerousHTML(dangerousHTML)
         this.fragment = transToFragment(this.dangerousHTML)
         this.compile(this.fragment)
-
-        //test append
-        document.getElementById('app').appendChild(this.fragment)
     }
 
     private compile(rootFragment: any) {

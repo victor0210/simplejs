@@ -3,7 +3,7 @@
  * */
 const applyMixin = (target: any, source: any) => {
     for (let key in source) {
-        target.prototype[key] = source[key].bind(target)
+        target[key] = source[key]
     }
 }
 

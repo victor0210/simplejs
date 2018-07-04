@@ -1,7 +1,8 @@
 import Compiler from "../core/Compiler";
 
 const createComponent = (dangerousHTML: string) => {
-    return new Compiler(dangerousHTML)
+    let renderComponent = new Compiler(dangerousHTML)
+    return renderComponent.fragment
 }
 
 export default createComponent

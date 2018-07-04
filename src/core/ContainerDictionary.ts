@@ -3,19 +3,26 @@ import throwIf from "../loggers/throwIf";
 
 let containerMaps: any = {}
 
-export const registerContainer = (container: SimpleNativeComponent) => {
-    containerMaps[container._uid] = container
+let rootIdCounter: number = 0
+
+export const registerContainer = (selector: string) => {
+    let root = document.querySelector(selector)
+    const rootId = ++rootIdCounter
+
+    containerMaps[selector] = {
+        _rootId: rootId,
+        _root: root
+    }
+
+    return root
 }
 
-export const cancelContainer = (container: SimpleNativeComponent) => {
-    delete containerMaps[container._uid]
+export const cancelContainer = (selector: string) => {
+    delete containerMaps[selector]
 }
 
-export const getContainerByRootId = (rootId: number) => {
-    throwIf(
-        !containerMaps.hasOwnProperty(rootId),
-        `RootId: "${rootId}" is not registered in componentMaps`
-        )
+export const getContainerByRootId = (selector: string) => {
+    return containerMaps[selector]
 }
 
 /**

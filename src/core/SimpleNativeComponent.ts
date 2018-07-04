@@ -23,14 +23,14 @@ let componentUID = 0
  * component should be mounted manually if there is not has el option
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    readonly _uid: number = ++componentUID
+    private _uid: number = ++componentUID
+    private _watcherHub: WatcherHub = new WatcherHub()
     private _lifeCycle: string = null
-    private _markup: any
-    private _watcherHub: WatcherHub
     private _pendingState: any = {}
 
     public context: any = {}
     public state: any = {}
+    public markup: any
 
     constructor(spec: any) {
         super();
@@ -38,9 +38,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         ComponentDictionary.registerComponent(this)
 
-        this._watcherHub = new WatcherHub()
         this.initVM(spec)
-        this.mountComponent()
     }
 
     public mountComponent(): void {
@@ -64,7 +62,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public setState(state: object):void {
-        console.log(state, this._pendingState)
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
             this.updateComponent()
@@ -95,7 +92,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         )
 
         setCurrentContext(this)
-        this._markup = this.context.render.call(this, createComponent)
-        // mountInto(this.state.el, this._markup.innerHTML)
+        this.markup = this.context.render.call(this, createComponent)
+        // mountInto(this.state.el, this.markup.innerHTML)
     }
 }
