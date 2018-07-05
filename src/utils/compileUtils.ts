@@ -10,6 +10,7 @@ export const compileText = (textNode: any, current: any): void => {
 
     let updater = function () {
         text(textNode, replacer.replace(compileReg, (m: any, exp: any) => {
+            console.log(m, exp)
             return extractVariable(exp, current.state)
         }))
         replacer = template

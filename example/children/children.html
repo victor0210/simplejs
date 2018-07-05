@@ -22,12 +22,18 @@
 
     let childComponent2 = new Simple({
 		data: {
-			msg: 'I am child "2"',
+          msg: 'I am child "2"',
+          count: 0
 		},
 
 		render: function (h) {
+			setInterval(() => {
+				this.setState({
+                  count: ++this.state.count
+                })
+            }, 1000)
 			return h(`<div id="child">
-		           <p>Message: {msg}</p>
+		           <p>Message: {msg} Counter: {count}</p>
 		       </div>`)
 		}
 	})

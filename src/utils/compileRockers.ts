@@ -7,17 +7,20 @@ import {escaped} from "./escaped";
 export const extractVariable = (exp: string, vm: any): string => {
     let duckVariables: Array<string> = exp.split(expSeparator)
 
-    let escapedString = ''
     console.log(duckVariables)
+    let escapedString = ''
+
     duckVariables.forEach((duck: string, idx: number) => {
+        duck = duck.trim()
+
         if (!isTempString(duck)) {
-            throwIf(!(duck.trim() in vm),
-                `"${duck.trim()}" is not defined but use in the instance`
+            throwIf(!(duck in vm),
+                `"${duck}" is not defined but use in the instance`
             )
 
-            escapedString += vm[duck.trim()]
+            escapedString += vm[duck]
         } else {
-            escapedString += duck.trim().slice(1, -1)
+            escapedString += duck.slice(1, -1)
         }
     })
 
