@@ -8,6 +8,7 @@ export const extractVariable = (exp: string, vm: any): string => {
     let duckVariables: Array<string> = exp.split(expSeparator)
 
     let escapedString = ''
+    console.log(duckVariables)
     duckVariables.forEach((duck: string, idx: number) => {
         if (!isTempString(duck)) {
             throwIf(!(duck.trim() in vm),
@@ -16,7 +17,7 @@ export const extractVariable = (exp: string, vm: any): string => {
 
             escapedString += vm[duck.trim()]
         } else {
-            escapedString += duck
+            escapedString += duck.trim().slice(1, -1)
         }
     })
 
