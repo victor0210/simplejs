@@ -1,13 +1,10 @@
 import throwIf from "../loggers/throwIf";
 import {expSeparator} from "../statics/separators";
 import isTempString from "./isTempString";
-import {escaped} from "./escaped";
-
 
 export const extractVariable = (exp: string, vm: any): string => {
     let duckVariables: Array<string> = exp.split(expSeparator)
 
-    console.log(duckVariables)
     let escapedString = ''
 
     duckVariables.forEach((duck: string, idx: number) => {

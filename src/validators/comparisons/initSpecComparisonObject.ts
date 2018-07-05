@@ -1,11 +1,11 @@
-import CompositeComparisonObject from "../implements/CompositeComparisonObject";
-import lifeCycle from "./lifeCycle";
-import mergeKeyToArr from "../utils/mergeKeyToArr";
+import CompositeComparisonObject from "../../implements/CompositeComparisonObject";
+import lifeCycle from "../../statics/lifeCycle";
+import mergeKeyToArr from "../../utils/mergeKeyToArr";
 
 const initApiMap = [
     'el',
     'components',
-    'data',
+    'state',
     'methods',
     'template',
     'render'

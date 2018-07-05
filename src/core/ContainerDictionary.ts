@@ -7,14 +7,17 @@ let containerMaps: any = {}
 let rootIdCounter: number = 0
 
 export const registerContainer = (rootContainer: any) => {
-    const rootId = ++rootIdCounter
+    const rootId = rootIdCounter
 
+    console.log(rootId, rootContainer)
     rootContainer.setAttribute(componentKey, rootId)
 
     containerMaps[rootId] = {
         _rootId: rootId,
         _root: rootContainer
     }
+
+    rootIdCounter+=1
 }
 
 export const cancelContainer = (selector: string) => {

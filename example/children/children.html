@@ -9,7 +9,7 @@
 <div id="app"></div>
 <script>
 	let childComponent1 = new Simple({
-		data: {
+		state: {
 			msg: 'I am child 1',
 		},
 
@@ -21,7 +21,7 @@
 	})
 
     let childComponent2 = new Simple({
-		data: {
+		state: {
           msg: 'I am child "2"',
           count: 0
 		},
@@ -33,7 +33,7 @@
                 })
             }, 1000)
 			return h(`<div id="child">
-		           <p>Message: {msg} Counter: {count}</p>
+		           <p>Message: {msg} - Counter: {count}</p>
 		       </div>`)
 		}
 	})
@@ -43,7 +43,7 @@
 			'child-one': childComponent1,
 			'child-two': childComponent2,
 		},
-		data: {
+		state: {
 			version: 'v1.0.0',
 			name: 'Simple Js',
 			count: 0
@@ -61,7 +61,9 @@
 	})
 
 
+    let start = new Date().getTime()
 	Simple.mount('#app', component)
+    console.log(new Date().getTime() - start, 'render time')
 </script>
 </body>
 </html>
