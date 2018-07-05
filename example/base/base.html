@@ -9,7 +9,6 @@
 <div id="app"></div>
 <script>
 	const Component_1 = new Simple({
-        el: 'app',
         data: {
         	version: 'v1.0.0',
             name: 'Simple Js'
@@ -24,7 +23,7 @@
         }
 	})
 
-	Simple.bind('app', Component_1)
+	Simple.mount('#app', Component_1)
 </script>
 </body>
 </html>
