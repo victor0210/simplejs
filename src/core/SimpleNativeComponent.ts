@@ -23,13 +23,14 @@ let componentUID = 0
  * component should be mounted manually if there is not has el option
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    private _uid: number = ++componentUID
+    readonly _uid: number = ++componentUID
     private _watcherHub: WatcherHub = new WatcherHub()
     private _lifeCycle: string = null
     private _pendingState: any = {}
 
     public context: any = {}
     public state: any = {}
+    public injectionComponents: any = {}
     public markup: any
 
     constructor(spec: any) {
@@ -77,6 +78,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         merge(this.context, spec)
         merge(this.state, spec.data)
         merge(this._pendingState, spec.data)
+        merge(this.injectionComponents, spec.components)
     }
 
     private runLifeCycleHook() {

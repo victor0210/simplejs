@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let childComponent1 = new Simple({
+		data: {
+			msg: 'I am child 1',
+		},
+
+		render: function (h) {
+			return h(`<div id="child">
+		           <p>Message: {msg}</p>
+		       </div>`)
+		}
+	})
+
+    let childComponent2 = new Simple({
+		data: {
+			msg: 'I am child "2"',
+		},
+
+		render: function (h) {
+			return h(`<div id="child">
+		           <p>Message: {msg}</p>
+		       </div>`)
+		}
+	})
+
+	let component = new Simple({
+		components: {
+			'child-one': childComponent1,
+			'child-two': childComponent2,
+		},
+		data: {
+			version: 'v1.0.0',
+			name: 'Simple Js',
+			count: 0
+		},
+
+		render: function (h) {
+			return h(`<div id="parent">
+                <p>Welcome to {name}</p>
+                <p>{"version: " + version}</p>
+                <p>You are stay for {count}s</p>
+                <child-one></child-one>
+                <child-two></child-two>
+            </div>`)
+		}
+	})
+
+
+	Simple.mount('#app', component)
+</script>
+</body>
+</html>

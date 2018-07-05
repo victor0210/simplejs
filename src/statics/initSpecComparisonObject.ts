@@ -4,10 +4,11 @@ import mergeKeyToArr from "../utils/mergeKeyToArr";
 
 const initApiMap = [
     'el',
+    'components',
+    'data',
     'methods',
     'template',
-    'render',
-    'data'
+    'render'
 ]
 
 mergeKeyToArr(lifeCycle, initApiMap)

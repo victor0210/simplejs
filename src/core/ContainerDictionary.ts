@@ -1,28 +1,28 @@
 import SimpleNativeComponent from "./SimpleNativeComponent";
 import throwIf from "../loggers/throwIf";
+import {componentKey} from "../statics/injectionKey";
 
 let containerMaps: any = {}
 
 let rootIdCounter: number = 0
 
-export const registerContainer = (selector: string) => {
-    let root = document.querySelector(selector)
+export const registerContainer = (rootContainer: any) => {
     const rootId = ++rootIdCounter
 
-    containerMaps[selector] = {
-        _rootId: rootId,
-        _root: root
-    }
+    rootContainer.setAttribute(componentKey, rootId)
 
-    return root
+    containerMaps[rootId] = {
+        _rootId: rootId,
+        _root: rootContainer
+    }
 }
 
 export const cancelContainer = (selector: string) => {
     delete containerMaps[selector]
 }
 
-export const getContainerByRootId = (selector: string) => {
-    return containerMaps[selector]
+export const getContainerByRootId = (rootId: string) => {
+    return containerMaps[rootId]
 }
 
 /**

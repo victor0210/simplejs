@@ -3,6 +3,7 @@ import nodeType from "../statics/nodeType";
 import {compileElement, compileText} from "../utils/compileUtils";
 import equal from "../utils/equal";
 import {getCurrentContext} from "./RenderCurrent";
+import {escaped} from "../utils/escaped";
 
 export default class Compiler {
     private dangerousHTML: string
@@ -20,7 +21,7 @@ export default class Compiler {
     private compile(rootFragment: any) {
         rootFragment.childNodes.forEach((child: any) => {
             if (equal(child.nodeType, nodeType.ElementNode)) {
-                compileElement(child)
+                compileElement(child, this.current)
             } else if (equal(child.nodeType, nodeType.TextNode)) {
                 compileText(child, this.current)
             }
