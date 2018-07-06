@@ -5,7 +5,7 @@ import {extractVariable} from "./compileRockers";
 import ComponentRendererMixins from "../core/ComponentRendererMixins";
 import {getCurrentContext} from "../core/RenderCurrent";
 
-export const compileText = (textNode: any, current: any = getCurrentContext()): void => {
+export const compileText = (textNode: any, current: any): void => {
     let template = textNode.textContent
 
     let updater = function () {
@@ -18,11 +18,11 @@ export const compileText = (textNode: any, current: any = getCurrentContext()): 
     current.pushWatcher(new Watcher(updater))
 }
 
-export const compileElement = (elementNode: any, current: any = getCurrentContext()): void => {
+export const compileElement = (elementNode: any, current: any): void => {
     //compile directive / events / props
 }
 
-export const compileCustomComponent = (customEl: any, current: any = getCurrentContext()) => {
+export const compileCustomComponent = (customEl: any, current: any) => {
     let tagName = customEl.tagName.toLowerCase()
 
     if (tagName in current.injectionComponents) {
