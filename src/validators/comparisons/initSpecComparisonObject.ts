@@ -1,6 +1,6 @@
 import CompositeComparisonObject from "../../implements/CompositeComparisonObject";
 import lifeCycle from "../../statics/lifeCycle";
-import mergeKeyToArr from "../../utils/mergeKeyToArr";
+import mergeToArr from "../../utils/mergeToArr";
 
 const initApiMap = [
     'el',
@@ -11,7 +11,7 @@ const initApiMap = [
     'render'
 ]
 
-mergeKeyToArr(lifeCycle, initApiMap)
+mergeToArr(lifeCycle, initApiMap)
 
 const assertion = 'is not allowed in SimpleComponent initialization'
 

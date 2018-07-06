@@ -1,5 +1,5 @@
-import {utilDescribe} from "../assrtions/describeConfig";
-import applyMixin from "../../src/utils/applyMixin";
+import {utilDescribe} from "../../assrtions/describeConfig";
+import applyMixin from "../../../src/utils/applyMixin";
 
 function A() {}
 
