@@ -16,4 +16,11 @@ describe(utilDescribe('hasKey'), () => {
             age: '20'
         })).toBe(true)
     })
+
+    test('object test key', () => {
+        expect(hasKey('sex', {
+            name: 'bennnis',
+            age: '20'
+        })).toBe(false)
+    })
 })
