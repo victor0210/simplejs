@@ -3,9 +3,19 @@
   "version": "1.0.0",
   "description": "fe web mvvm framework",
   "main": "index.js",
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/test/.*-test\\.ts$"
+  },
   "scripts": {
     "dev": "webpack -w --mode=development",
-    "test": "jest"
+    "test": "jest --notify --coverage"
   },
   "repository": {
     "type": "git",

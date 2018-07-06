@@ -19,17 +19,16 @@ export const compileText = (textNode: any, current: any = getCurrentContext()): 
 }
 
 export const compileElement = (elementNode: any, current: any = getCurrentContext()): void => {
-    //compile directive / events
+    //compile directive / events / props
 }
 
 export const compileCustomComponent = (customEl: any, current: any = getCurrentContext()) => {
     let tagName = customEl.tagName.toLowerCase()
 
     if (tagName in current.injectionComponents) {
-        // customEl.parentNode.removeChild(customEl)
         ComponentRendererMixins.mountChild(customEl.parentNode, current.injectionComponents[tagName])
 
-        //remove inject component html tag from root
+        // remove inject component html tag from root
         customEl.remove()
     }
 }
