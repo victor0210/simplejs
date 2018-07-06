@@ -8,7 +8,7 @@ import hasKey from "../utils/hasKey";
 export default class Compiler {
     private dangerousHTML: string
     public fragment: DocumentFragment
-    public current: any
+    public current: any = getCurrentContext()
 
     constructor(dangerousHTML: string) {
         this.setDangerousHTML(dangerousHTML)
@@ -18,12 +18,14 @@ export default class Compiler {
 
     private compile(rootFragment: any) {
         rootFragment.childNodes.forEach((child: any) => {
-            if (isCustomComponent(child.tagName)) {
-                compileCustomComponent(child)
-            } else if (equal(child.nodeType, nodeType.ElementNode)) {
-                compileElement(child)
+            if (equal(child.nodeType, nodeType.ElementNode)) {
+                if (isCustomComponent(child.tagName, this.current)) {
+                    compileCustomComponent(child, this.current)
+                } else {
+                    compileElement(child, this.current)
+                }
             } else if (equal(child.nodeType, nodeType.TextNode)) {
-                compileText(child)
+                compileText(child, this.current)
             }
 
             if (child.childNodes) this.compile(child)
@@ -38,6 +40,8 @@ export default class Compiler {
     }
 }
 
-const isCustomComponent = (tagName: string, current: any = getCurrentContext()): boolean => {
-    return tagName in current.injectionComponents
+const isCustomComponent = (tagName: string, current: any): boolean => {
+    console.log(current.injectionComponents)
+
+    return tagName.toLowerCase() in current.injectionComponents
 }
