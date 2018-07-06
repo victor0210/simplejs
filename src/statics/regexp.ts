@@ -1,7 +1,7 @@
 /**
  * match template
  * */
-export const compileReg: RegExp = /\{(.*)\}/g
+export const compileReg: RegExp = /{([^}]+)?}/g
 
 /**
  * match string of template

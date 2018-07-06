@@ -1,7 +1,7 @@
 import SimpleComponent from "../implements/SimpleComponent"
 import ComponentDictionary from "./ComponentDictionary";
 import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
-import initSpecComparisonObject from "../statics/initSpecComparisonObject";
+import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
 import lifeCycle from "../statics/lifeCycle";
 import baseType from "../statics/baseType";
 import throwIf from "../loggers/throwIf";
@@ -23,13 +23,14 @@ let componentUID = 0
  * component should be mounted manually if there is not has el option
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    private _uid: number = ++componentUID
+    readonly _uid: number = ++componentUID
     private _watcherHub: WatcherHub = new WatcherHub()
     private _lifeCycle: string = null
     private _pendingState: any = {}
 
     public context: any = {}
     public state: any = {}
+    public injectionComponents: any = {}
     public markup: any
 
     constructor(spec: any) {
@@ -38,7 +39,8 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         ComponentDictionary.registerComponent(this)
 
-        this.initVM(spec)
+        this.init(spec)
+        this.mergeFromSpec(spec)
     }
 
     public mountComponent(): void {
@@ -61,7 +63,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._watcherHub.addWatcher(watcher)
     }
 
-    public setState(state: object):void {
+    public setState(state: object): void {
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
             this.updateComponent()
@@ -73,10 +75,21 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.runLifeCycleHook()
     }
 
-    private initVM(spec: any) {
+    private init(spec: any) {
+        this._watcherHub = new WatcherHub()
+        this._pendingState = {}
+
+        this.context = {}
+        this.state = {}
+        this.injectionComponents = {}
+        this.markup = null
+    }
+
+    private mergeFromSpec(spec: any) {
         merge(this.context, spec)
-        merge(this.state, spec.data)
-        merge(this._pendingState, spec.data)
+        merge(this.state, spec.state)
+        merge(this._pendingState, spec.state)
+        merge(this.injectionComponents, spec.components)
     }
 
     private runLifeCycleHook() {
@@ -86,7 +99,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         }
     }
 
-    private renderComponent() {
+    renderComponent() {
         throwIf(!this.context.render,
             'not found "render" function when init a component'
         )

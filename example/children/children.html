@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let childComponent1 = new Simple({
+		state: {
+			msg: 'I am child 1',
+		},
+
+		render: function (h) {
+			return h(`<div id="child">
+		           <p>Message: {msg}</p>
+		       </div>`)
+		}
+	})
+
+    let childComponent2 = new Simple({
+		state: {
+          msg: 'I am child "2"',
+          count: 0
+		},
+
+		render: function (h) {
+			setInterval(() => {
+				this.setState({
+                  count: ++this.state.count
+                })
+            }, 1000)
+			return h(`<div id="child">
+		           <p>Message: {msg} - Counter: {count}</p>
+		       </div>`)
+		}
+	})
+
+	let component = new Simple({
+		components: {
+			'child-one': childComponent1,
+			'child-two': childComponent2,
+		},
+		state: {
+			version: 'v1.0.0',
+			name: 'Simple Js',
+			count: 0
+		},
+
+		render: function (h) {
+			return h(`<div id="parent">
+                <p>Welcome to {name}</p>
+                <p>{"version: " + version}</p>
+                <p>You are stay for {count}s</p>
+                <child-one></child-one>
+                <child-two></child-two>
+            </div>`)
+		}
+	})
+
+
+    let start = new Date().getTime()
+	Simple.mount('#app', component)
+    console.log(new Date().getTime() - start, 'render time')
+</script>
+</body>
+</html>

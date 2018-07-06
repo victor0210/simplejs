@@ -9,8 +9,7 @@
 <div id="app"></div>
 <script>
 	const Component_1 = new Simple({
-        el: 'app',
-        data: {
+        state: {
         	version: 'v1.0.0',
             name: 'Simple Js'
         },
@@ -19,12 +18,12 @@
             return h(`<div>
                 Welcome to
                 <br>
-                {'Name: ' + name + " version: " + version}
+                {"Name: " + name + " version: " + version}
             </div>`)
         }
 	})
 
-	Simple.bind('app', Component_1)
+	Simple.mount('#app', Component_1)
 </script>
 </body>
 </html>
