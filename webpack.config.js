@@ -1,4 +1,4 @@
-const path = require('path')
+const resolve = dir => require('path').join(__dirname, '..', dir)
 
 module.exports = {
   entry: {
@@ -7,13 +7,15 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.(ts|tsx|js)$/,
         use: 'ts-loader',
         exclude: /node_modules/
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        loader: 'babel-loader?cacheDirectory=true',
+        exclude: /node_modules/,
+        include: [resolve('/src')],
         query: {
           presets: ['env', ['es2015', {modules: false}]]
         }
@@ -21,10 +23,17 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js']
+    extensions: ['.ts', '.js'],
+    modules: [
+      resolve('/src'),
+      resolve('/node_modules')
+    ],
+    alias: {
+      'src': resolve('/src')
+    }
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: resolve('/dist')
   }
 }

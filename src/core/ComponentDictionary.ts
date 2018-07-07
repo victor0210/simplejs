@@ -21,10 +21,10 @@ export const getComponentByUID = (componentUID: number) => {
 /**
  * A dictionary for the convenience of the basic routine
  * */
-const Componentdictionary = {
+const ComponentDictionary = {
     registerComponent: registerComponent,
     cancelComponent: cancelComponent,
     getComponentByUID: getComponentByUID
 }
 
-export default Componentdictionary
+export default ComponentDictionary

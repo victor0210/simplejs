@@ -50,6 +50,11 @@
 		},
 
 		render: function (h) {
+			setInterval(() => {
+				this.setState({
+                  count: this.state.count + 1
+                })
+            }, 1000)
 			return h(`<div id="parent">
                 <p>Welcome to {name}</p>
                 <p>{"version: " + version}</p>
@@ -61,9 +66,7 @@
 	})
 
 
-    let start = new Date().getTime()
 	Simple.mount('#app', component)
-    console.log(new Date().getTime() - start, 'render time')
 </script>
 </body>
 </html>
