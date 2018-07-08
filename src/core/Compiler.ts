@@ -41,7 +41,5 @@ export default class Compiler {
 }
 
 const isCustomComponent = (tagName: string, current: any): boolean => {
-    console.log(current.injectionComponents)
-
     return tagName.toLowerCase() in current.injectionComponents
 }

@@ -1,4 +1,3 @@
-import SimpleComponent from "../implements/SimpleComponent"
 import ComponentDictionary from "./ComponentDictionary";
 import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
 import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
@@ -22,7 +21,7 @@ let componentUID = 0
  * return a component instance
  * component should be mounted manually if there is not has el option
  * */
-export default class SimpleNativeComponent extends SimpleComponent {
+export default class SimpleNativeComponent {
     readonly _uid: number = ++componentUID
     private _watcherHub: WatcherHub = new WatcherHub()
     private _lifeCycle: string = null
@@ -34,13 +33,13 @@ export default class SimpleNativeComponent extends SimpleComponent {
     public markup: any
 
     constructor(spec: any) {
-        super();
         ifKeysAllBelongValidator(spec, initSpecComparisonObject)
 
         ComponentDictionary.registerComponent(this)
 
         this.init(spec)
         this.mergeFromSpec(spec)
+        this.setLifeCycle(lifeCycle.CREATED)
     }
 
     public mountComponent(): void {
@@ -52,7 +51,11 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public updateComponent(): void {
+        this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
+
         this._watcherHub.notify()
+
+        this.setLifeCycle(lifeCycle.UPDATED)
     }
 
     public unmountComponent(): void {

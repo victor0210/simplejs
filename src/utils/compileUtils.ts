@@ -32,3 +32,15 @@ export const compileCustomComponent = (customEl: any, current: any) => {
         customEl.remove()
     }
 }
+
+const compileInline = () => {
+    //[].slice.call(node.attributes).forEach(attr => {
+    //     if (isEvent) {
+    //         injectEvent
+    //     } else if (isProp) {
+    //         injectProp
+    //     } else if (isDirective) {
+    //         compileDirective
+    //     }
+    // })
+}

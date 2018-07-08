@@ -8,6 +8,12 @@
 <body>
 <div id="app"></div>
 <script>
+	// TODO: 1. how to use prop beautiful ? ({props.msg} || {prop.msg} || {msg} must filter key with state)
+    // TODO: 2. how to deal with props mutation
+    // TODO: 3. how to update component by props' mutation
+    // TODO: 4. props option level (if child component could mutate the parent prop)
+    // TODO: 5. pass prop (from self's parent to self's child) in a convenient way
+
 	let childComponent1 = new Simple({
 		state: {
 			msg: 'I am child 1',
@@ -15,23 +21,24 @@
 
 		render: function (h) {
 			return h(`<div id="child">
-		           <p>Message: {msg}</p>
+		           <p>Message from State: {msg}</p>
+		           <p>Message from Props : {msg}</p>
 		       </div>`)
 		}
 	})
 
-    let childComponent2 = new Simple({
+	let childComponent2 = new Simple({
 		state: {
-          msg: 'I am child "2"',
-          count: 0
+			msg: 'I am child "2"',
+			count: 0
 		},
 
 		render: function (h) {
 			setInterval(() => {
 				this.setState({
-                  count: ++this.state.count
-                })
-            }, 1000)
+					count: ++this.state.count
+				})
+			}, 1000)
 			return h(`<div id="child">
 		           <p>Message: {msg} - Counter: {count}</p>
 		       </div>`)
@@ -48,29 +55,18 @@
 			name: 'Simple Js',
 			count: 0
 		},
-        created () {
-			console.log('created')
-        },
-
-        beforeMount () {
-			console.log('beforeMount')
-        },
-
-        mounted () {
-		    console.log('mounted', this)
-        },
 
 		render: function (h) {
 			setInterval(() => {
 				this.setState({
-                  count: this.state.count + 1
-                })
-            }, 1000)
+					count: this.state.count + 1
+				})
+			}, 1000)
 			return h(`<div id="parent">
                 <p>Welcome to {name}</p>
                 <p>{"version: " + version}</p>
                 <p>You are stay for {count}s</p>
-                <child-one></child-one>
+                <child-one think="ok"></child-one>
                 <child-two></child-two>
             </div>`)
 		}
