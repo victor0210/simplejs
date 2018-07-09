@@ -20,6 +20,9 @@ let componentUID = 0
  * @description
  * return a component instance
  * component should be mounted manually if there is not has el option
+ *
+ * @param context: user spec during the whole component lifeCycle
+ * @param this.state / this.props / this.someMethod
  * */
 export default class SimpleNativeComponent {
     readonly _uid: number = ++componentUID
@@ -29,6 +32,16 @@ export default class SimpleNativeComponent {
 
     public context: any = {}
     public state: any = {}
+
+    // blow could be injected
+    public props: any = {}
+    public events: any = {}
+
+    public injections: any = {
+        props: {},
+        events: {}
+    }
+
     public injectionComponents: any = {}
     public markup: any
 
@@ -37,14 +50,29 @@ export default class SimpleNativeComponent {
 
         ComponentDictionary.registerComponent(this)
 
-        this.init(spec)
         this.mergeFromSpec(spec)
         this.setLifeCycle(lifeCycle.CREATED)
+    }
+
+    public injectProps(props: any) {
+        console.log('inject props', props)
+        this.injections.prop = props
+    }
+
+    public injectEvents(events: any) {
+        console.log('inject events', events)
+        this.injections.events = events
+    }
+
+    private _inject() {
+        this.props = this.injections.props
+        this.events = this.injections.events
     }
 
     public mountComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
+        this._inject()
         this.renderComponent()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
@@ -76,16 +104,6 @@ export default class SimpleNativeComponent {
     private setLifeCycle(lifeCycle: string) {
         this._lifeCycle = lifeCycle
         this.runLifeCycleHook()
-    }
-
-    private init(spec: any) {
-        this._watcherHub = new WatcherHub()
-        this._pendingState = {}
-
-        this.context = {}
-        this.state = {}
-        this.injectionComponents = {}
-        this.markup = null
     }
 
     private mergeFromSpec(spec: any) {
