@@ -10,6 +10,7 @@ import {setCurrentContext} from './RenderCurrent'
 import merge from "../utils/merge";
 import WatcherHub from "./WatcherHub";
 import {Watcher} from "./Watcher";
+import SimpleComponent from "./SimpleComponent";
 
 /**
  * component uid counter
@@ -24,55 +25,56 @@ let componentUID = 0
  * @param context: user spec during the whole component lifeCycle
  * @param this.state / this.props / this.someMethod
  * */
-export default class SimpleNativeComponent {
+export default class SimpleNativeComponent extends SimpleComponent {
     readonly _uid: number = ++componentUID
+
     private _watcherHub: WatcherHub = new WatcherHub()
-    private _lifeCycle: string = null
     private _pendingState: any = {}
 
-    public context: any = {}
+    public $el: any
+    public $vm: any
+
+    // only state could be mutated
     public state: any = {}
 
-    // blow could be injected
-    public props: any = {}
-    public events: any = {}
-
-    public injections: any = {
-        props: {},
-        events: {}
-    }
-
-    public injectionComponents: any = {}
-    public markup: any
-
     constructor(spec: any) {
-        ifKeysAllBelongValidator(spec, initSpecComparisonObject)
+        super(spec);
 
-        ComponentDictionary.registerComponent(this)
+        /**
+         * inject self injections / component && mixins
+         * */
+        this.injectCurrent()
 
-        this.mergeFromSpec(spec)
+        this._initVM()
+        this._initState()
+
         this.setLifeCycle(lifeCycle.CREATED)
     }
 
-    public injectProps(props: any) {
-        console.log('inject props', props)
-        this.injections.prop = props
+    private injectCurrent(): void {
+        merge(this.$injections.mixins, Object.assign({},
+            this.$context.mixins,
+            this.$context.state,
+            this.$context.methods,
+        ))
+
+        merge(this.$injections.components, this.$context.components)
     }
 
-    public injectEvents(events: any) {
-        console.log('inject events', events)
-        this.injections.events = events
+    private _initVM() {
+        this.$vm = Object.assign({}, this.$injections.mixins)
     }
 
-    private _inject() {
-        this.props = this.injections.props
-        this.events = this.injections.events
+    private _initState() {
+        this.state = Object.assign({}, this.$context.state)
+
+        // _pendingState is an old state for setState compare
+        this._pendingState = Object.assign({}, this.$context.state)
     }
 
     public mountComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
-        this._inject()
         this.renderComponent()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
@@ -85,48 +87,32 @@ export default class SimpleNativeComponent {
 
         this.setLifeCycle(lifeCycle.UPDATED)
     }
-
-    public unmountComponent(): void {
-        ComponentDictionary.cancelComponent(this)
-    }
-
+    //
+    // public unmountComponent(): void {
+    //     ComponentDictionary.cancelComponent(this)
+    // }
+    //
     public pushWatcher(watcher: Watcher) {
         this._watcherHub.addWatcher(watcher)
     }
 
+    /**
+     * state change emit vm change
+     * */
     public setState(state: object): void {
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
+            merge(this.$vm, state)
             this.updateComponent()
         }
     }
 
-    private setLifeCycle(lifeCycle: string) {
-        this._lifeCycle = lifeCycle
-        this.runLifeCycleHook()
-    }
-
-    private mergeFromSpec(spec: any) {
-        merge(this.context, spec)
-        merge(this.state, spec.state)
-        merge(this._pendingState, spec.state)
-        merge(this.injectionComponents, spec.components)
-    }
-
-    private runLifeCycleHook() {
-        let lifeCycleHook = this.context[this._lifeCycle]
-        if (lifeCycleHook && matchType(lifeCycleHook, baseType.Function)) {
-            lifeCycleHook.call(this)
-        }
-    }
-
-    renderComponent() {
-        throwIf(!this.context.render,
+    private renderComponent() {
+        throwIf(!this.$context.render,
             'not found "render" function when init a component'
         )
 
         setCurrentContext(this)
-        this.markup = this.context.render.call(this, createComponent)
-        // mountInto(this.state.el, this.markup.innerHTML)
+        this.$el = this.$context.render.call(this, createComponent)
     }
 }

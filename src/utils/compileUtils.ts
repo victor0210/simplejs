@@ -6,12 +6,15 @@ import ComponentRendererMixins from "../core/ComponentRendererMixins";
 import {getCurrentContext} from "../core/RenderCurrent";
 import {isAvailableIDentifier, isDirective, isEvent, isProps} from "./attributeUtils";
 
+/**
+ * @description: compile text node , replace vm to variable
+ * */
 export const compileText = (textNode: any, current: any): void => {
     let template = textNode.textContent
 
     let updater = function () {
         text(textNode, template.replace(compileReg, (m: any, exp: any) => {
-            return extractVariable(exp, current.state)
+            return extractVariable(exp, current.$vm)
         }))
     }
 
@@ -19,24 +22,30 @@ export const compileText = (textNode: any, current: any): void => {
     current.pushWatcher(new Watcher(updater))
 }
 
+/**
+ * @description: compile native element's directive && events bind
+ * */
 export const compileElement = (elementNode: any, current: any): void => {
     //compile directive / events / props
+    // console.log(elementNode, current)
 }
 
+/**
+ * @description: compile custom components with directive && events && props
+ * */
 export const compileCustomComponent = (customEl: any, current: any) => {
     let tagName = customEl.tagName.toLowerCase()
 
-    if (tagName in current.injectionComponents) {
-        let childComponent = current.injectionComponents[tagName]
-
+    if (tagName in current.$injections.components) {
+        let childComponent = current.$injections.components[tagName]
         // compileInline(customEl, childComponent)
-        ComponentRendererMixins.mountChild(customEl.parentNode, childComponent)
-
-        // remove inject component html tag from root
-        customEl.remove()
+        ComponentRendererMixins.mountChild(customEl, childComponent)
     }
 }
 
+/**
+ * @description: directive / event / props compile util
+ * */
 const compileInline = (el: any, component: any) => {
     //[].slice.call(node.attributes).forEach(attr => {
     //     if (isEvent) {

@@ -8,70 +8,73 @@
 <body>
 <div id="app"></div>
 <script>
-	let childComponent1 = new Simple({
+	let childComponent2 = new Simple({
 		state: {
-			msg: 'I am child 1',
-		},
-
-		render: function (h) {
-			return h(`<div id="child">
-		           <p>Message: {msg}</p>
-		       </div>`)
-		}
-	})
-
-    let childComponent2 = new Simple({
-		state: {
-          msg: 'I am child "2"',
-          count: 0
+			msg: 'I am child "2"',
+			count: 0
 		},
 
 		render: function (h) {
 			setInterval(() => {
 				this.setState({
-                  count: ++this.state.count
-                })
-            }, 1000)
-			return h(`<div id="child">
+					count: ++this.state.count
+				})
+			}, 1000)
+			return h(`<div id="child1">
 		           <p>Message: {msg} - Counter: {count}</p>
+		       </div>`)
+		}
+	})
+
+	let childComponent1 = new Simple({
+		components: {
+			'child-two': childComponent2
+		},
+		state: {
+			msg: 'I am child 1',
+		},
+
+		render: function (h) {
+			return h(`<div id="child2">
+		           <p>Message: {msg}</p>
+                   <child-two></child-two>
+                   <!--<child-two/> : single close tag will not work fine, would be stronger compiler-->
 		       </div>`)
 		}
 	})
 
 	let component = new Simple({
 		components: {
-			'child-one': childComponent1,
-			'child-two': childComponent2,
+			'child-one': childComponent1
 		},
 		state: {
 			version: 'v1.0.0',
 			name: 'Simple Js',
 			count: 0
 		},
-        created () {
+		created() {
 			console.log('created')
-        },
+		},
 
-        beforeMount () {
+		beforeMount() {
 			console.log('beforeMount')
-        },
+		},
 
-        mounted () {
-		    console.log('mounted', this)
-        },
+		mounted() {
+			console.log('mounted', this)
+		},
 
 		render: function (h) {
 			setInterval(() => {
 				this.setState({
-                  count: this.state.count + 1
-                })
-            }, 1000)
+					count: this.state.count + 1
+				})
+			}, 1000)
 			return h(`<div id="parent">
                 <p>Welcome to {name}</p>
                 <p>{"version: " + version}</p>
                 <p>You are stay for {count}s</p>
                 <child-one></child-one>
-                <child-two></child-two>
             </div>`)
 		}
 	})
