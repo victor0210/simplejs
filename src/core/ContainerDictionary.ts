@@ -9,7 +9,6 @@ let rootIdCounter: number = 0
 export const registerContainer = (rootContainer: any) => {
     const rootId = rootIdCounter
 
-    console.log(rootId, rootContainer)
     rootContainer.setAttribute(componentKey, rootId)
 
     containerMaps[rootId] = {

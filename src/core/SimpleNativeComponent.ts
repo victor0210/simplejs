@@ -1,4 +1,4 @@
-import ComponentDictionary from "./ComponentDictionary";
+import ComponentDictionary, {getComponentByUID} from "./ComponentDictionary";
 import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
 import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
 import lifeCycle from "../statics/lifeCycle";
@@ -11,6 +11,7 @@ import merge from "../utils/merge";
 import WatcherHub from "./WatcherHub";
 import {Watcher} from "./Watcher";
 import SimpleComponent from "./SimpleComponent";
+import removeFromArr from "../utils/removeFromArr";
 
 /**
  * component uid counter
@@ -51,6 +52,8 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._initVM()
         this._initState()
 
+        ComponentDictionary.registerComponent(this)
+
         this.setLifeCycle(lifeCycle.CREATED)
     }
 
@@ -90,11 +93,34 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this.setLifeCycle(lifeCycle.UPDATED)
     }
-    //
-    // public unmountComponent(): void {
-    //     ComponentDictionary.cancelComponent(this)
-    // }
-    //
+
+    public unmountComponent(): void {
+        this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
+
+        this._teardown()
+        this._destroy()
+
+        ComponentDictionary.destroyComponent(this)
+
+        this.setLifeCycle(lifeCycle.DESTROYED)
+    }
+
+    public teardownChild(child: SimpleNativeComponent) {
+        removeFromArr(this.$children, child)
+    }
+
+    private _teardown(): void {
+        if (this.$parent) {
+            this.$parent.teardownChild(this)
+        } else {
+
+        }
+    }
+
+    private _destroy(): void {
+        this.$el.remove()
+    }
+
     public pushWatcher(watcher: Watcher): void {
         this._watcherHub.addWatcher(watcher)
     }
@@ -103,6 +129,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
      * state change emit vm change
      * */
     public setState(state: object): void {
+        // console.log(this)
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
             merge(this.$vm, state)
@@ -132,7 +159,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         )
 
         setCurrentContext(this)
-        this.$el = this.$context.render.call(this, createComponent)
+        this.$el = this.$context.render.call(this, createComponent).firstChild
     }
 
     private _updateComponent() {

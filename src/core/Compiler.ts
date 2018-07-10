@@ -8,6 +8,7 @@ import hasKey from "../utils/hasKey";
 export default class Compiler {
     private dangerousHTML: string
     public fragment: DocumentFragment
+    public el: any
     public current: any = getCurrentContext()
 
     constructor(dangerousHTML: string) {

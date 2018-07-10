@@ -20,6 +20,10 @@
 		},
 
 		render: function (h) {
+			setTimeout(() => {
+				this.unmountComponent()
+			}, 3000)
+
 			return h(`<div id="child">
 		           <p>Message from State: {msg}</p>
 		           <p>Message from Props: {think}</p>

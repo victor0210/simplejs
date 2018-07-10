@@ -52,11 +52,6 @@ export default class SimpleComponent {
         this.$context = Object.assign({}, spec)
     }
 
-    setLifeCycle(lifeCycle: string): void {
-        this._lifeCycle = lifeCycle
-        this.runLifeCycleHook()
-    }
-
     private runLifeCycleHook(): void {
         if (this._lifeCycle === lifeCycle.UNMOUNT) return
 
@@ -64,5 +59,10 @@ export default class SimpleComponent {
         if (lifeCycleHook && matchType(lifeCycleHook, baseType.Function)) {
             lifeCycleHook.call(this)
         }
+    }
+
+    public setLifeCycle(lifeCycle: string): void {
+        this._lifeCycle = lifeCycle
+        this.runLifeCycleHook()
     }
 }
