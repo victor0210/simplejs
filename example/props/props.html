@@ -9,10 +9,10 @@
 <div id="app"></div>
 <script>
 	// TODO: 1. how to use prop beautiful ? ({props.msg} || {prop.msg} || {msg} must filter key with state)
-    // TODO: 2. how to deal with props mutation
-    // TODO: 3. how to update component by props' mutation
-    // TODO: 4. props option level (if child component could mutate the parent prop)
-    // TODO: 5. pass prop (from self's parent to self's child) in a convenient way
+	// TODO: 2. how to deal with props mutation
+	// TODO: 3. how to update component by props' mutation
+	// TODO: 4. props option level (if child component could mutate the parent prop)
+	// TODO: 5. pass prop (from self's parent to self's child) in a convenient way
 
 	let childComponent1 = new Simple({
 		state: {
@@ -20,7 +20,6 @@
 		},
 
 		render: function (h) {
-			console.log(this)
 			return h(`<div id="child">
 		           <p>Message from State: {msg}</p>
 		           <p>Message from Props: {think}</p>
@@ -37,7 +36,7 @@
 		render: function (h) {
 			setInterval(() => {
 				this.setState({
-					count: ++this.state.count
+					count: this.state.count + 1
 				})
 			}, 1000)
 			return h(`<div id="child">
@@ -54,17 +53,18 @@
 		state: {
 			version: 'v1.0.0',
 			name: 'Simple Js',
-            obj: [
-              {name: 'in obj'}
-            ],
+			obj: [
+				{name: 'in obj'}
+			],
 			count: 0,
-            count2: 10
+			count2: 10
 		},
 
 		render: function (h) {
 			setInterval(() => {
 				this.setState({
-					count: this.state.count + 1
+					count: this.state.count + 1,
+                    count2: this.state.count + 1
 				})
 			}, 1000)
 			return h(`<div id="parent">

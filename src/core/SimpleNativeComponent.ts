@@ -33,6 +33,8 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     public $el: any
     public $vm: any
+    public $parent: SimpleNativeComponent
+    public $children: Array<SimpleNativeComponent> = []
 
     // only state could be mutated
     public state: any = {}
@@ -93,7 +95,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     //     ComponentDictionary.cancelComponent(this)
     // }
     //
-    public pushWatcher(watcher: Watcher) {
+    public pushWatcher(watcher: Watcher): void {
         this._watcherHub.addWatcher(watcher)
     }
 
@@ -108,9 +110,20 @@ export default class SimpleNativeComponent extends SimpleComponent {
         }
     }
 
-    public injectPropsFromParent(props: object) {
+    public injectPropsFromParent(parent: any, props: object) {
+        this._injectParent(parent)
         merge(this.props, props)
         merge(this.$vm, props)
+    }
+
+    private _injectParent(parent: SimpleNativeComponent) {
+        if (!this.$parent) this.$parent = parent
+    }
+
+    public injectChild(child: SimpleNativeComponent) {
+        if (this.$children.indexOf(child) === -1) {
+            this.$children.push(child)
+        }
     }
 
     private _renderComponent() {

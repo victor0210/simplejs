@@ -73,5 +73,6 @@ const compileInline = (el: any, component: SimpleNativeComponent, current: any) 
         }
     })
 
-    component.injectPropsFromParent(props)
+    current.injectChild(component)
+    component.injectPropsFromParent(current, props)
 }
