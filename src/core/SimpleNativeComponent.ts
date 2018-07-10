@@ -36,6 +36,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     // only state could be mutated
     public state: any = {}
+    public props: any = {}
 
     constructor(spec: any) {
         super(spec);
@@ -75,7 +76,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     public mountComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
-        this.renderComponent()
+        this._renderComponent()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
     }
@@ -83,7 +84,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     public updateComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
 
-        this._watcherHub.notify()
+        this._updateComponent()
 
         this.setLifeCycle(lifeCycle.UPDATED)
     }
@@ -107,12 +108,21 @@ export default class SimpleNativeComponent extends SimpleComponent {
         }
     }
 
-    private renderComponent() {
+    public injectPropsFromParent(props: object) {
+        merge(this.props, props)
+        merge(this.$vm, props)
+    }
+
+    private _renderComponent() {
         throwIf(!this.$context.render,
             'not found "render" function when init a component'
         )
 
         setCurrentContext(this)
         this.$el = this.$context.render.call(this, createComponent)
+    }
+
+    private _updateComponent() {
+        this._watcherHub.notify()
     }
 }

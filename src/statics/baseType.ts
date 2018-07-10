@@ -4,4 +4,6 @@ export default class baseType {
     static Object: string = 'object'
 
     static String: string = 'string'
+
+    static Number: string = 'number'
 }

@@ -3,6 +3,7 @@
  * */
 export const compileReg: RegExp = /{([^}]+)?}/g
 
+export const vmValRegexp = /\[|\]/g
 /**
  * match string of template
  * */

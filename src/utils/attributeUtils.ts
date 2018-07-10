@@ -12,7 +12,7 @@ export const isDirective = (attrName: string): boolean => {
     return attrName.slice(0, 1) === DIRECTIVE_TAG
 }
 
-export const isAvailableIDentifier = (IDentifier: string): boolean => {
+export const isReactiveIDentifier = (IDentifier: string): boolean => {
     return IDentifier === PROP_TAG
         || IDentifier === EVENT_TAG
         || IDentifier === DIRECTIVE_TAG

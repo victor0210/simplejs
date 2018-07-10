@@ -20,9 +20,10 @@
 		},
 
 		render: function (h) {
+			console.log(this)
 			return h(`<div id="child">
 		           <p>Message from State: {msg}</p>
-		           <p>Message from Props : {msg}</p>
+		           <p>Message from Props: {think}</p>
 		       </div>`)
 		}
 	})
@@ -53,7 +54,11 @@
 		state: {
 			version: 'v1.0.0',
 			name: 'Simple Js',
-			count: 0
+            obj: [
+              {name: 'in obj'}
+            ],
+			count: 0,
+            count2: 10
 		},
 
 		render: function (h) {
@@ -66,7 +71,7 @@
                 <p>Welcome to {name}</p>
                 <p>{"version: " + version}</p>
                 <p>You are stay for {count}s</p>
-                <child-one :think="ok"></child-one>
+                <child-one :think="count + count2"></child-one>
                 <child-two></child-two>
             </div>`)
 		}
