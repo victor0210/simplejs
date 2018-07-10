@@ -2,7 +2,11 @@
  * native component lifecycle map
  * */
 const lifeCycle = {
-    UNMOUNTED: 'unmounted',
+    UNMOUNT: 'unmount',
+
+    BEFORE_CREATE: 'beforeCreate',
+
+    CREATED: 'created',
 
     BEFORE_MOUNT: 'beforeMount',
 

@@ -16,8 +16,8 @@
         },
 
 		render: function (h) {
-        	setInterval(() => {
-                this.setState({count: ++this.state.count})
+            setInterval(() => {
+                this.setState({count: this.state.count + 1})
 
                 // below is a not recommend way to set new state
                 // this.setState({count: ++this.state.count})

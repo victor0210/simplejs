@@ -3,7 +3,7 @@ import ContainerDictionary from "./ContainerDictionary";
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
 import {componentKey} from "../statics/injectionKey";
-import {getDom, getDomAttr, isParentNode, pushToDom} from "../utils/domTransfer";
+import {getDom, getDomAttr, isParentNode, pushToDom, replaceChild} from "../utils/domTransfer";
 
 const ComponentRendererMixins: any = {
     /**
@@ -36,9 +36,10 @@ const ComponentRendererMixins: any = {
     teardown(): void {
     },
 
-    mountChild(parent: any, childComponent: SimpleNativeComponent): void {
+    mountChild(node: any, childComponent: SimpleNativeComponent): void {
         childComponent.mountComponent()
-        pushToDom(parent, childComponent)
+
+        replaceChild(node.parentNode, childComponent.$el, node)
     }
 }
 

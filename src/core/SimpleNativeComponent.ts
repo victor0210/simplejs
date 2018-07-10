@@ -1,5 +1,4 @@
-import SimpleComponent from "../implements/SimpleComponent"
-import ComponentDictionary from "./ComponentDictionary";
+import ComponentDictionary, {getComponentByUID} from "./ComponentDictionary";
 import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
 import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
 import lifeCycle from "../statics/lifeCycle";
@@ -11,6 +10,8 @@ import {setCurrentContext} from './RenderCurrent'
 import merge from "../utils/merge";
 import WatcherHub from "./WatcherHub";
 import {Watcher} from "./Watcher";
+import SimpleComponent from "./SimpleComponent";
+import removeFromArr from "../utils/removeFromArr";
 
 /**
  * component uid counter
@@ -21,91 +22,147 @@ let componentUID = 0
  * @description
  * return a component instance
  * component should be mounted manually if there is not has el option
+ *
+ * @param context: user spec during the whole component lifeCycle
+ * @param this.state / this.props / this.someMethod
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
     readonly _uid: number = ++componentUID
+
     private _watcherHub: WatcherHub = new WatcherHub()
-    private _lifeCycle: string = null
     private _pendingState: any = {}
 
-    public context: any = {}
+    public $el: any
+    public $vm: any
+    public $parent: SimpleNativeComponent
+    public $children: Array<SimpleNativeComponent> = []
+
+    // only state could be mutated
     public state: any = {}
-    public injectionComponents: any = {}
-    public markup: any
+    public props: any = {}
 
     constructor(spec: any) {
-        super();
-        ifKeysAllBelongValidator(spec, initSpecComparisonObject)
+        super(spec);
+
+        /**
+         * inject self injections / component && mixins
+         * */
+        this.injectCurrent()
+
+        this._initVM()
+        this._initState()
 
         ComponentDictionary.registerComponent(this)
 
-        this.init(spec)
-        this.mergeFromSpec(spec)
+        this.setLifeCycle(lifeCycle.CREATED)
+    }
+
+    private injectCurrent(): void {
+        merge(this.$injections.mixins, Object.assign({},
+            this.$context.mixins,
+            this.$context.state,
+            this.$context.methods,
+        ))
+
+        merge(this.$injections.components, this.$context.components)
+    }
+
+    private _initVM() {
+        this.$vm = Object.assign({}, this.$injections.mixins)
+    }
+
+    private _initState() {
+        this.state = Object.assign({}, this.$context.state)
+
+        // _pendingState is an old state for setState compare
+        this._pendingState = Object.assign({}, this.$context.state)
     }
 
     public mountComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
-        this.renderComponent()
+        this._renderComponent()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
     }
 
     public updateComponent(): void {
-        this._watcherHub.notify()
+        this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
+
+        this._updateComponent()
+
+        this.setLifeCycle(lifeCycle.UPDATED)
     }
 
     public unmountComponent(): void {
-        ComponentDictionary.cancelComponent(this)
+        this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
+
+        this._teardown()
+        this._destroy()
+
+        ComponentDictionary.destroyComponent(this)
+
+        this.setLifeCycle(lifeCycle.DESTROYED)
     }
 
-    public pushWatcher(watcher: Watcher) {
+    public teardownChild(child: SimpleNativeComponent) {
+        removeFromArr(this.$children, child)
+    }
+
+    private _teardown(): void {
+        if (this.$parent) {
+            this.$parent.teardownChild(this)
+        } else {
+
+        }
+    }
+
+    private _destroy(): void {
+        this.$el.remove()
+    }
+
+    public pushWatcher(watcher: Watcher): void {
         this._watcherHub.addWatcher(watcher)
     }
 
+    /**
+     * state change emit vm change
+     * */
     public setState(state: object): void {
+        // console.log(this)
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
+            merge(this.$vm, state)
             this.updateComponent()
         }
     }
 
-    private setLifeCycle(lifeCycle: string) {
-        this._lifeCycle = lifeCycle
-        this.runLifeCycleHook()
+    public injectPropsFromParent(parent: any, props: object) {
+        this._injectParent(parent)
+        merge(this.props, props)
+        merge(this.$vm, props)
     }
 
-    private init(spec: any) {
-        this._watcherHub = new WatcherHub()
-        this._pendingState = {}
-
-        this.context = {}
-        this.state = {}
-        this.injectionComponents = {}
-        this.markup = null
+    private _injectParent(parent: SimpleNativeComponent) {
+        if (!this.$parent) this.$parent = parent
     }
 
-    private mergeFromSpec(spec: any) {
-        merge(this.context, spec)
-        merge(this.state, spec.state)
-        merge(this._pendingState, spec.state)
-        merge(this.injectionComponents, spec.components)
-    }
-
-    private runLifeCycleHook() {
-        let lifeCycleHook = this.context[this._lifeCycle]
-        if (lifeCycleHook && matchType(lifeCycleHook, baseType.Function)) {
-            lifeCycleHook.call(this)
+    public injectChild(child: SimpleNativeComponent) {
+        if (this.$children.indexOf(child) === -1) {
+            this.$children.push(child)
         }
     }
 
-    renderComponent() {
-        throwIf(!this.context.render,
+    private _renderComponent() {
+        throwIf(!this.$context.render,
             'not found "render" function when init a component'
         )
 
         setCurrentContext(this)
-        this.markup = this.context.render.call(this, createComponent)
-        // mountInto(this.state.el, this.markup.innerHTML)
+        this.$el = this.$context.render.call(this, createComponent).firstChild
+    }
+
+    private _updateComponent() {
+        this._watcherHub.notify()
     }
 }

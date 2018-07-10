@@ -1,6 +1,9 @@
 import throwIf from "../loggers/throwIf";
 import {expSeparator} from "../statics/separators";
 import isTempString from "./isTempString";
+import {getVM} from "./vmUtils";
+import baseType from "../statics/baseType";
+import matchType from "./matchType";
 
 export const extractVariable = (exp: string, vm: any): string => {
     let duckVariables: Array<string> = exp.split(expSeparator)
@@ -15,7 +18,7 @@ export const extractVariable = (exp: string, vm: any): string => {
                 `"${duck}" is not defined but use in the instance`
             )
 
-            escapedString += vm[duck]
+            escapedString = escapedString === '' ? getVM(duck, vm) : escapedString + getVM(duck, vm)
         } else {
             escapedString += duck.slice(1, -1)
         }

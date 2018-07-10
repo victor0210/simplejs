@@ -26,7 +26,11 @@ export const getDomAttr = (dom: any, key: string) => {
 }
 
 export const pushToDom = (dom: any, component: SimpleNativeComponent) => {
-    dom.append(component.markup)
+    dom.append(component.$el)
+}
+
+export const replaceChild = (parent: any, newDom: any, oldDom: any) => {
+    parent.replaceChild(newDom, oldDom)
 }
 
 export const isParentNode = (selectorOrEl: any): boolean => {
