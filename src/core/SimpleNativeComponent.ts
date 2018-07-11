@@ -164,15 +164,15 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     private _bindEvent() {
         this._events.forEach((event: any) => {
-            let {el, handler, cb, args} = event
-            bindEvent(el, handler, cb, args, this.$vm)
+            let {el, handler, cb} = event
+            bindEvent(el, handler, cb)
         })
     }
 
     private _unbindEvent() {
         this._events.forEach((event: any) => {
-            let {el, handler, cb, args} = event
-            unbindEvent(el, handler, cb, args, this.$vm)
+            let {el, handler, cb} = event
+            unbindEvent(el, handler, cb)
         })
 
         delete this._events

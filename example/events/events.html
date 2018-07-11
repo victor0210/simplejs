@@ -11,29 +11,39 @@
 	let component = new Simple({
 		state: {
 			msg: 'I am child 1',
+			name: 'bennnis',
+            obj: {
+				name: 'objname'
+            }
 		},
 
 		render: function (h) {
-
 			setTimeout(() => {
 				this.setState({
-                  msg: 'djsalkdjsalkdjsal'
-                })
-              console.log('change msg')
-            }, 3000)
+					msg: 'djsalkdjsalkdjsal',
+				})
+				console.log('change msg')
+			}, 3000)
+
+			//TODO method contained in method
 			return h(`<div id="parent">
+		           <p @click="sayHello">Click Me!</p>
 		           <p @click="sayHello(msg)">Click Me!</p>
+		           <p @click="sayHello(obj.name)">Click Me!</p>
+		           <p @click="sayHello(getName())">Click Me!</p>
 		           <p>{msg}</p>
 		       </div>`)
 		},
 
 		methods: {
-			sayHello(e) {
-				alert(e)
-                console.log(this)
-                setTimeout(() => {
-                	this.unmountComponent()
-                }, 5000)
+			sayHello(a) {
+				console.log('run say')
+				alert(a)
+			},
+
+			getName() {
+				console.log('run get')
+				return this.state
 			}
 		}
 	})

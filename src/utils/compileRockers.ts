@@ -3,6 +3,7 @@ import {EXP_SEPARATOR} from "../statics/separators";
 import isTempString from "./isTempString";
 import {getVM} from "./vmUtils";
 import {STRING_NULL} from "../statics/helperType";
+import listenerGenerator from "./listenerGenerator";
 
 export const extractVariable = (exp: string, vm: any): string => {
     let duckVariables: Array<string> = exp.split(EXP_SEPARATOR)
@@ -27,19 +28,12 @@ export const extractVariable = (exp: string, vm: any): string => {
 }
 
 export const extractFunction = (exp: string, current: any): any => {
-    let duckVariables: Array<string> = exp.split(/\(|\,|\)/)
-    arrayExpFormat(duckVariables)
-
-    let cbName: string = duckVariables[0]
-    let cbArgs: Array<any> = duckVariables.slice(1)
-
     return {
-        cb: getVM(cbName, current.$vm).bind(current),
-        args: cbArgs
+        cb: listenerGenerator(exp, current)
     }
 }
 
-const arrayExpFormat = (arr: Array<string>): void => {
+export const arrayExpFormat = (arr: Array<string>): void => {
     if (arr[arr.length - 1].trim() === STRING_NULL) arr.pop()
     arr.forEach((el: string, idx: number) => {
         if (!!el.length) {

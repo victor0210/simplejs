@@ -1,19 +1,17 @@
-import listenerGenerator from "./listenerGenerator";
-
-export const bindEvent = (el: any, handler: string, cb: Function, args: Array<any>, vm: any) => {
+export const bindEvent = (el: any, handler: string, cb: Function) => {
     if (el.addEventListener) {
-        el.addEventListener(handler, listenerGenerator(args, vm, cb));
+        el.addEventListener(handler, cb);
     } else if (el.attachEvent) {
         // for less than ie8
-        el.attachEvent(`on${handler}`, listenerGenerator(args, vm, cb));
+        el.attachEvent(`on${handler}`, cb);
     }
 }
 
-export const unbindEvent = (el: any, handler: string, cb: Function, args: Array<any>, vm: any) => {
+export const unbindEvent = (el: any, handler: string, cb: Function) => {
     if (el.removeEventListener) {
-        el.removeEventListener(handler, listenerGenerator(args, vm, cb));
+        el.removeEventListener(handler, cb);
     } else if (el.detach) {
         // for less than ie8
-        el.detach(`on${handler}`, listenerGenerator(args, vm, cb));
+        el.detach(`on${handler}`, cb);
     }
 }
