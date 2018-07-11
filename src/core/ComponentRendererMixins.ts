@@ -2,7 +2,7 @@ import SimpleNativeComponent from "./SimpleNativeComponent";
 import ContainerDictionary from "./ContainerDictionary";
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
-import {componentKey} from "../statics/injectionKey";
+import {COMPONENT_KEY} from "../statics/injectionKey";
 import {getDom, getDomAttr, isParentNode, pushToDom, replaceChild} from "../utils/domTransfer";
 
 const ComponentRendererMixins: any = {
@@ -15,7 +15,7 @@ const ComponentRendererMixins: any = {
      * */
     mount(selector: any, component: SimpleNativeComponent): void {
         let rootDom = getDom(selector)
-        let rootKey = getDomAttr(rootDom, componentKey)
+        let rootKey = getDomAttr(rootDom, COMPONENT_KEY)
         let container
 
         if (isParentNode(selector)) {

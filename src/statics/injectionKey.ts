@@ -1,1 +1,1 @@
-export const componentKey: string = "__rootId"
+export const COMPONENT_KEY: string = "__rootId"

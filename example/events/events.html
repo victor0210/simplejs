@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let component = new Simple({
+		state: {
+			msg: 'I am child 1',
+		},
+
+		render: function (h) {
+
+			setTimeout(() => {
+				this.setState({
+                  msg: 'djsalkdjsalkdjsal'
+                })
+              console.log('change msg')
+            }, 3000)
+			return h(`<div id="parent">
+		           <p @click="sayHello(msg)">Click Me!</p>
+		           <p>{msg}</p>
+		       </div>`)
+		},
+
+		methods: {
+			sayHello(e) {
+				alert(e)
+                console.log(this)
+                setTimeout(() => {
+                	this.unmountComponent()
+                }, 5000)
+			}
+		}
+	})
+
+	Simple.mount('#app', component)
+</script>
+</body>
+</html>

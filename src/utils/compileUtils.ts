@@ -1,21 +1,20 @@
 import {Watcher} from "../core/Watcher";
 import {text} from "./compileSetters";
-import {compileReg} from "../statics/regexp";
-import {extractVariable} from "./compileRockers";
+import {COMPILE_REG} from "../statics/regexp";
+import {extractFunction, extractVariable} from "./compileRockers";
 import ComponentRendererMixins from "../core/ComponentRendererMixins";
-import {getCurrentContext} from "../core/RenderCurrent";
-import {isDirective, isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
+import {isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
-import {getVM} from "./vmUtils";
+import {removeAttr} from "./domTransfer";
 
 /**
  * @description: compile text node , replace vm to variable
  * */
-export const compileText = (textNode: any, current: any): void => {
+export const compileText = (textNode: any, current: SimpleNativeComponent): void => {
     let template = textNode.textContent
 
     let updater = function () {
-        text(textNode, template.replace(compileReg, (m: any, exp: any) => {
+        text(textNode, template.replace(COMPILE_REG, (m: any, exp: any) => {
             return extractVariable(exp, current.$vm)
         }))
     }
@@ -27,24 +26,32 @@ export const compileText = (textNode: any, current: any): void => {
 /**
  * @description: compile native element's directive && events bind
  * */
-export const compileElement = (elementNode: any, current: any): void => {
-    // compile directive / events / props
-    // console.log(elementNode, current)
+
+export const compileElement = (el: any, current: SimpleNativeComponent): void => {
+    const compiler = compileInline(el, current, true)
+
+    current.injectEvents(compiler.events)
 }
 
 /**
  * @description: compile custom components with directive && events && props
  * */
-export const compileCustomComponent = (customEl: any, current: any) => {
+export const compileCustomComponent = (customEl: any, current: SimpleNativeComponent) => {
     let tagName = customEl.tagName.toLowerCase()
     let childComponent = current.$injections.components[tagName]
 
-    let updater = function () {
-        compileInline(customEl, childComponent, current)
+    const compiler = () => {
+        const {props} = compileInline(customEl, current)
+        current.injectChild(childComponent)
+        childComponent.injectPropsAndParent(current, props)
+    }
+
+    let updater = () => {
+        compiler()
         childComponent.updateComponent()
     }
 
-    compileInline(customEl, childComponent, current)
+    compiler()
 
     current.pushWatcher(new Watcher(updater))
     // compileInline(customEl, childComponent)
@@ -54,10 +61,11 @@ export const compileCustomComponent = (customEl: any, current: any) => {
 /**
  * @description: directive / event / props compile util
  * */
-const compileInline = (el: any, component: SimpleNativeComponent, current: any) => {
+const compileInline = (el: any, current: SimpleNativeComponent, isElement: boolean = false): any => {
     let props: any = {};
+    let events: Array<any> = [];
 
-    [].slice.call(el.attributes).forEach((attr: any) => {
+    Array.from(el.attributes).forEach((attr: any) => {
         let exp = attr.name
         let val = attr.value
 
@@ -67,12 +75,24 @@ const compileInline = (el: any, component: SimpleNativeComponent, current: any) 
 
             if (isProps(exp)) {
                 props[key] = extractVariable(val, current.$vm)
+            } else if (isEvent(exp)) {
+                let event = isElement
+                    ? Object.assign({
+                        el: el,
+                        handler: key
+                    }, extractFunction(val, current))
+                    : extractFunction(val, current)
+
+                events.push(event)
+                removeAttr(el, exp)
             }
         } else {
             props[exp] = val
         }
     })
 
-    current.injectChild(component)
-    component.injectPropsFromParent(current, props)
+    return {
+        props: props,
+        events: events
+    }
 }
