@@ -13,6 +13,9 @@ import {Watcher} from "./Watcher";
 import SimpleComponent from "./SimpleComponent";
 import removeFromArr from "../utils/removeFromArr";
 import {bindEvent, unbindEvent} from "../utils/eventUtils";
+import createVNode from "../utils/createVNode";
+import diff from "../utils/diff";
+import {applyPatch} from "../utils/patchUtils";
 
 /**
  * component uid counter
@@ -34,6 +37,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     private _pendingState: any = {}
     private _events: any = []
 
+    public $vnode: any
     public $el: any
     public $vm: any
     public $parent: SimpleNativeComponent
@@ -194,10 +198,24 @@ export default class SimpleNativeComponent extends SimpleComponent {
         )
 
         setCurrentContext(this)
-        this.$el = this.$context.render.call(this, createComponent).firstChild
+
+        this.$vnode = this.$context.render.call(this, createVNode)
+        this.$el = this.$vnode.render().firstChild
+        // this.$el = this.$context.render.call(this, createComponent).firstChild
     }
 
     private _updateComponent() {
-        this._watcherHub.notify()
+        // this._watcherHub.notify()
+        let newVNode = this.$context.render.call(this, createVNode)
+
+        let newEl = applyPatch(
+            diff(
+                this.$vnode,
+                newVNode
+            )
+        )
+
+        this.$vnode = newVNode
+        if (newEl) this.$el = newEl
     }
 }
