@@ -8,7 +8,7 @@ import {diffInProps, diffInTag, diffInText} from "./diffUtils";
 const diff = (oldVNode: VNode, newVNode: VNode): Array<Patch> => {
     let patches: Array<any> = []
 
-    addPatch(patches, diffCore(oldVNode, newVNode))
+    addPatch(patches, diffCore(oldVNode, newVNode, null ,true))
 
     runDiffChildren(oldVNode, newVNode, patches)
 
@@ -27,13 +27,13 @@ const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
     }
 }
 
-const diffCore = (oldVNode: any, newVNode: any, parent: any = null) => {
+const diffCore = (oldVNode: any, newVNode: any, parent: any = null, isRoot: boolean = false) => {
     if (!newVNode) {
         return new Patch(diffType.REMOVE, null, oldVNode.orDom)
     } else if (!oldVNode && newVNode) {
         return new Patch(diffType.INSERT, newVNode, parent)
     } else if (diffInTag(oldVNode, newVNode)) {
-        return new Patch(diffType.REPLACE, newVNode, oldVNode.orDom, true)
+        return new Patch(diffType.REPLACE, newVNode, oldVNode.orDom, isRoot)
     } else if (diffInProps(oldVNode, newVNode)) {
         return new Patch(diffType.PROPS, newVNode.props, oldVNode.orDom)
     } else if (diffInText(oldVNode, newVNode)) {
