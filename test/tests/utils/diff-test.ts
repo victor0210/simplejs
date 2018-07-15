@@ -15,7 +15,10 @@ const t2 = new VNode('div', {}, ['hell'])
 
 const t3 = new VNode('p', {}, ['hell'])
 
-const t4 = new VNode('div', {}, ['hello', new VNode('p', {}, ['pt'])])
+const t4_new_vnode = new VNode('p', {}, ['pt'])
+const t4 = new VNode('div', {}, ['hello', t4_new_vnode])
+
+const t5 = new VNode('div', {}, [])
 
 /**
  * mixin object into class
@@ -52,27 +55,26 @@ describe(utilDescribe('diff vnode'), () => {
             )
         ).toBe(true)
     })
-    //
-    // test('remove diff', () => {
-    //     expect(
-    //         equal(
-    //             diff(source, t4),
-    //             [
-    //                 new Patch(diffType.REMOVE, null, sourceDom.childNodes[0]),
-    //             ]
-    //         )
-    //     ).toBe(true)
-    // })
-    //
-    // test('remove diff', () => {
-    //     expect(
-    //         equal(
-    //             diff(source, t4),
-    //             [
-    //                 new Patch(diffType.INSERT, t4.children[1], sourceDom),
-    //             ]
-    //         )
-    //     ).toBe(true)
-    //     expect(diff(source, t4)).toBe(true)
-    // })
+
+    test('insert diff', () => {
+        expect(
+            equal(
+                diff(source, t4),
+                [
+                    new Patch(diffType.INSERT, t4_new_vnode, sourceDom),
+                ]
+            )
+        ).toBe(true)
+    })
+
+    test('remove diff', () => {
+        expect(
+            equal(
+                diff(source, t5),
+                [
+                    new Patch(diffType.REMOVE, null, sourceDom.childNodes[0]),
+                ]
+            )
+        ).toBe(true)
+    })
 })
