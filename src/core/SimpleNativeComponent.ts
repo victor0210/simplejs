@@ -16,6 +16,7 @@ import {bindEvent, unbindEvent} from "../utils/eventUtils";
 import createVNode from "../utils/createVNode";
 import diff from "../utils/diff";
 import {applyPatch} from "../utils/patchUtils";
+import VNode from "./VNode";
 
 /**
  * component uid counter
@@ -134,9 +135,9 @@ export default class SimpleNativeComponent extends SimpleComponent {
         merge(this.$vm, props)
     }
 
-    public injectEvents(events: Array<any>) {
-        this._events = [...this._events, ...events]
-    }
+    // public injectEvents(events: Array<any>) {
+    //     this._events = [...this._events, ...events]
+    // }
 
     // private _bindEvent() {
     //     this._events.forEach((event: any) => {
@@ -164,15 +165,36 @@ export default class SimpleNativeComponent extends SimpleComponent {
         }
     }
 
+    private _bindEl(el: any) {
+        this.$el = el
+    }
+
+    private _bindVNode(vnode: VNode) {
+        this.$vnode = vnode
+    }
+
     private _renderComponent() {
         throwIf(!this.$context.render,
             'not found "render" function when init a component'
         )
 
-        this.$vnode = this.$context.render.call(this, createVNode)
-        this.$el = this.$vnode.render().firstChild
+        setCurrentContext(this)
 
+        this._bindVNode(this.$context.render.call(this, createVNode))
+        this._bindEl(this.$vnode.render().firstChild)
+
+        this._injectChildren(this.$vnode)
         // this._bindEvent()
+    }
+
+    private _injectChildren(parent: any) {
+        parent.children.forEach((child: VNode) => {
+            if (child.tagName instanceof SimpleNativeComponent) {
+                this.injectChild(child.tagName)
+            } else {
+                if (child.children) this._injectChildren(child)
+            }
+        })
     }
 
     private _updateComponent() {

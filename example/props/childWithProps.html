@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const Component_1 = new Simple({
+		state: {
+			name: 'Simple Js'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: 'state name is true'
+				}
+			}, [
+				`Welcome to ${this.state.name}`,
+			])
+		}
+	})
+
+	const Component_2 = new Simple({
+		state: {
+			name: 'Simple Js'
+		},
+
+		render: function (h) {
+			return h('div', {}, [
+				'I am parent',
+				h(Component_1, {}, [])
+			])
+		}
+	})
+
+	Simple.mount('#app', Component_2)
+</script>
+</body>
+</html>

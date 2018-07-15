@@ -30,7 +30,7 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): void
 export const compileElement = (el: any, current: SimpleNativeComponent): void => {
     const compiler = compileInline(el, current, true)
 
-    current.injectEvents(compiler.events)
+    // current.injectEvents(compiler.events)
 }
 
 /**
