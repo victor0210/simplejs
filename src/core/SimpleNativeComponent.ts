@@ -33,7 +33,7 @@ let componentUID = 0
 export default class SimpleNativeComponent extends SimpleComponent {
     readonly _uid: number = ++componentUID
 
-    private _watcherHub: WatcherHub = new WatcherHub()
+    // private _watcherHub: WatcherHub = new WatcherHub()
     private _pendingState: any = {}
     private _events: any = []
 
@@ -89,8 +89,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this._renderComponent()
 
-        this._bindEvent()
-
         this.setLifeCycle(lifeCycle.MOUNTED)
     }
 
@@ -102,43 +100,17 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.setLifeCycle(lifeCycle.UPDATED)
     }
 
-    public unmountComponent(): void {
+    public destroy(): void {
         this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
 
-        this._teardown()
         this._destroy()
-
-        ComponentDictionary.destroyComponent(this)
 
         this.setLifeCycle(lifeCycle.DESTROYED)
     }
 
-    public teardownChild(child: SimpleNativeComponent) {
-        // this.$children.forEach()
-    }
-
-    private _teardown(): void {
-        // TODO
-        // TODO teardown events listener => done
-        // TODO teardown watchers
-        // TODO teardown relationship
-        // TODO teardown pass data (props)
-        //
-        // if (this.$parent) {
-        //     this.$parent.teardownChild(this)
-        // } else {
-        //
-        // }
-        this._unbindEvent()
-    }
-
-    private _destroy(): void {
-        this.$el.remove()
-    }
-
-    public pushWatcher(watcher: Watcher): void {
-        this._watcherHub.addWatcher(watcher)
-    }
+    // public pushWatcher(watcher: Watcher): void {
+    //     this._watcherHub.addWatcher(watcher)
+    // }
 
     /**
      * state change emit vm change
@@ -166,21 +138,21 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._events = [...this._events, ...events]
     }
 
-    private _bindEvent() {
-        this._events.forEach((event: any) => {
-            let {el, handler, cb} = event
-            bindEvent(el, handler, cb)
-        })
-    }
+    // private _bindEvent() {
+    //     this._events.forEach((event: any) => {
+    //         let {el, handler, cb} = event
+    //         bindEvent(el, handler, cb)
+    //     })
+    // }
 
-    private _unbindEvent() {
-        this._events.forEach((event: any) => {
-            let {el, handler, cb} = event
-            unbindEvent(el, handler, cb)
-        })
-
-        delete this._events
-    }
+    // private _unbindEvent() {
+    //     this._events.forEach((event: any) => {
+    //         let {el, handler, cb} = event
+    //         unbindEvent(el, handler, cb)
+    //     })
+    //
+    //     delete this._events
+    // }
 
     public injectParent(parent: SimpleNativeComponent) {
         if (!this.$parent) this.$parent = parent
@@ -197,11 +169,10 @@ export default class SimpleNativeComponent extends SimpleComponent {
             'not found "render" function when init a component'
         )
 
-        setCurrentContext(this)
-
         this.$vnode = this.$context.render.call(this, createVNode)
         this.$el = this.$vnode.render().firstChild
-        // this.$el = this.$context.render.call(this, createComponent).firstChild
+
+        // this._bindEvent()
     }
 
     private _updateComponent() {
@@ -217,5 +188,9 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this.$vnode = newVNode
         if (newEl) this.$el = newEl
+    }
+
+    private _destroy() {
+        this.$el.remove()
     }
 }

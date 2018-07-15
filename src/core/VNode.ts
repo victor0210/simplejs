@@ -1,6 +1,5 @@
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
-import any = jasmine.any;
 
 export default class VNode {
     public tagName: string

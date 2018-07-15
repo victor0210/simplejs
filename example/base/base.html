@@ -9,18 +9,19 @@
 <div id="app"></div>
 <script>
 	const Component_1 = new Simple({
-        state: {
-        	version: 'v1.0.0',
-            name: 'Simple Js'
-        },
+		state: {
+			name: 'Simple Js'
+		},
 
 		render: function (h) {
-            return h(`<div>
-                Welcome to
-                <br>
-                {"Name: " + name + " version: " + version}
-            </div>`)
-        }
+			return h('div', {
+				props: {
+					name: 'state name is true'
+				}
+			}, [
+				`Welcome to ${this.state.name}`,
+			])
+		}
 	})
 
 	Simple.mount('#app', Component_1)

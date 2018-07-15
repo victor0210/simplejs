@@ -34,23 +34,25 @@ describe(utilDescribe('diff vnode'), () => {
     })
 
     test('text diff', () => {
+        let child: any = t2.children[0]
         expect(
             equal(
                 diff(source, t2),
                 [
-                    new Patch(diffType.TEXT, t2.children[0].tagName, sourceDom.childNodes[0])
+                    new Patch(diffType.TEXT, child.tagName, sourceDom.childNodes[0])
                 ]
             )
         ).toBe(true)
     })
 
     test('tag diff', () => {
+        let child: any = t3.children[0]
         expect(
             equal(
                 diff(source, t3),
                 [
                     new Patch(diffType.REPLACE, t3, sourceDom, true),
-                    new Patch(diffType.TEXT, t3.children[0].tagName, sourceDom.childNodes[0])
+                    new Patch(diffType.TEXT, child.tagName, sourceDom.childNodes[0])
                 ]
             )
         ).toBe(true)

@@ -2,15 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Base</title>
+    <title>Update</title>
     <script src="../../dist/bundle.js"></script>
 </head>
 <body>
+<button onclick="des()">destroy</button>
 <div id="app"></div>
 <script>
+	function des() {
+		Component_1.destroy()
+	}
+
 	const Component_1 = new Simple({
 		state: {
-			name: true
+			name: true,
+			count: 1
 		},
 		/**
 		 * render base
@@ -27,7 +33,7 @@
 						'first level p',
 						h('p', {}, ['second level p'])
 					]),
-					'hahah'
+					`count is ${this.state.count}`
 				])
 			} else {
 				return h('p', {
@@ -47,9 +53,10 @@
 		 * */
 	})
 
-	setTimeout(() => {
+	setInterval(() => {
 		Component_1.setState({
-			name: !Component_1.state.name
+			name: !Component_1.state.name,
+			count: Component_1.state.count + 1
 		})
 	}, 1000)
 	Simple.mount('#app', Component_1)

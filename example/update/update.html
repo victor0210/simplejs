@@ -8,30 +8,53 @@
 <body>
 <div id="app"></div>
 <script>
-    let component = new Simple({
-        state: {
-        	version: 'v1.0.0',
-            name: 'Simple Js',
-            count: 0
-        },
-
+	const Component_1 = new Simple({
+		state: {
+			name: true,
+			count: 1
+		},
+		/**
+		 * render base
+		 * */
 		render: function (h) {
-            setInterval(() => {
-                this.setState({count: this.state.count + 1})
+			if (this.state.name) {
+				return h('div', {
+					props: {
+						name: 'state name is true'
+					}
+				}, [
+					'hello vnode',
+					h('p', {}, [
+						'first level p',
+						h('p', {}, ['second level p'])
+					]),
+					`count is ${this.state.count}`
+				])
+			} else {
+				return h('p', {
+					props: {
+						name: 'state name is false'
+					}
+				}, ['state name is true'])
+			}
+		}
 
-                // below is a not recommend way to set new state
-                // this.setState({count: ++this.state.count})
-            }, 1000)
+		/**
+		 * render children
+		 * */
 
-            return h(`<div>
-                <p>Welcome to {name}</p>
-                <p>{"version: " + version}</p>
-                <p>You are stay for {count}s</p>
-            </div>`)
-        }
+		/**
+		 * update with vnode diff
+		 * */
 	})
 
-    Simple.mount('#app', component)
+	setInterval(() => {
+		Component_1.setState({
+			name: !Component_1.state.name,
+			count: Component_1.state.count + 1
+		})
+	}, 1000)
+	Simple.mount('#app', Component_1)
 </script>
 </body>
 </html>

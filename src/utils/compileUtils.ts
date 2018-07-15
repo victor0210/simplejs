@@ -20,7 +20,7 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): void
     }
 
     updater()
-    current.pushWatcher(new Watcher(updater))
+    // current.pushWatcher(new Watcher(updater))
 }
 
 /**
@@ -53,7 +53,7 @@ export const compileCustomComponent = (customEl: any, current: SimpleNativeCompo
 
     compiler()
 
-    current.pushWatcher(new Watcher(updater))
+    // current.pushWatcher(new Watcher(updater))
     // compileInline(customEl, childComponent)
     ComponentRendererMixins.mountChild(customEl, childComponent)
 }
