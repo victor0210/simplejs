@@ -1,6 +1,6 @@
 import matchType from "./matchType";
 import baseType from "../statics/baseType";
-import {componentKey} from "../statics/injectionKey";
+import {COMPONENT_KEY} from "../statics/injectionKey";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
 const rootTag: string = 'div'
@@ -22,7 +22,7 @@ export const getDom = (selectorOrEl: any) => {
 }
 
 export const getDomAttr = (dom: any, key: string) => {
-    return dom.attributes[componentKey]
+    return dom.attributes[COMPONENT_KEY]
 }
 
 export const pushToDom = (dom: any, component: SimpleNativeComponent) => {
@@ -35,4 +35,8 @@ export const replaceChild = (parent: any, newDom: any, oldDom: any) => {
 
 export const isParentNode = (selectorOrEl: any): boolean => {
     return !matchType(selectorOrEl, baseType.String)
+}
+
+export const removeAttr = (el: any, attr: string) => {
+    el.removeAttribute(attr)
 }

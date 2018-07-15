@@ -1,3 +1,5 @@
-export const expSeparator = '+'
+export const EXP_SEPARATOR = '+'
 
-export const vmValPointSeparator = '.'
+export const VM_VAL_POINT_SEPARATOR = '.'
+
+export const ASSERTION_SEPARATOR: string = ' | '

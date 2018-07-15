@@ -1,9 +1,8 @@
 import {transToFragment} from "../utils/domTransfer";
-import nodeType from "../statics/nodeType";
 import {compileCustomComponent, compileElement, compileText} from "../utils/compileUtils";
 import equal from "../utils/equal";
 import {getCurrentContext} from "./RenderCurrent";
-import hasKey from "../utils/hasKey";
+import {ElementNodeType, TextNodeType} from "../statics/nodeType";
 
 export default class Compiler {
     private dangerousHTML: string
@@ -19,13 +18,13 @@ export default class Compiler {
 
     private compile(rootFragment: any) {
         rootFragment.childNodes.forEach((child: any) => {
-            if (equal(child.nodeType, nodeType.ElementNode)) {
+            if (equal(child.nodeType, ElementNodeType)) {
                 if (isCustomComponent(child.tagName, this.current)) {
                     compileCustomComponent(child, this.current)
                 } else {
                     compileElement(child, this.current)
                 }
-            } else if (equal(child.nodeType, nodeType.TextNode)) {
+            } else if (equal(child.nodeType, TextNodeType)) {
                 compileText(child, this.current)
             }
 

@@ -1,5 +1,3 @@
-export default class nodeType {
-    static TextNode: number = 3
+export const TextNodeType: number = 3
 
-    static ElementNode: number = 1
-}
+export const ElementNodeType: number = 1

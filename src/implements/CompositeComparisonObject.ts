@@ -1,8 +1,11 @@
+import {STRING_NULL} from "../statics/helperType";
+import {ASSERTION_SEPARATOR} from "../statics/separators";
+
 export default class CompositeComparisonObject {
     private comparision: Array<string>
     private assertion: string
-    private assertionSeparator: string = ' | '
-    private assertionSuggestion: string = ''
+    private assertionSeparator: string = ASSERTION_SEPARATOR
+    private assertionSuggestion: string = STRING_NULL
 
     constructor(comparision: Array<string>, assertion: string) {
         this.setAssertion(assertion)

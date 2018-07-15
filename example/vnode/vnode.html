@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const Component_1 = new Simple({
+		state: {
+			name: true
+		},
+		/**
+		 * render base
+		 * */
+		render: function (h) {
+			if (this.state.name) {
+				return h('div', {
+					props: {
+						name: 'state name is true'
+					}
+				}, [
+					'hello vnode',
+					h('p', {}, [
+						'first level p',
+						h('p', {}, ['second level p'])
+					]),
+					'hahah'
+				])
+			} else {
+				return h('p', {
+					props: {
+						name: 'state name is false'
+					}
+				}, ['state name is true'])
+			}
+		}
+
+		/**
+		 * render children
+		 * */
+
+		/**
+		 * update with vnode diff
+		 * */
+	})
+
+	setTimeout(() => {
+		Component_1.setState({
+			name: !Component_1.state.name
+		})
+	}, 1000)
+	Simple.mount('#app', Component_1)
+</script>
+</body>
+</html>

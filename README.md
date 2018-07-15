@@ -16,15 +16,15 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * init reactivities self and global state / methods / comoponents
 * **LifeCycle: created** (Suggest to do some data or event initialize)
 * start to mount (autoBind if with el option or by component.mount(el) method)
-* render (compile virtual dom: **compile event, components, props, directive...**)
 * **LifeCycle: beforeMount** (with all component options but $el)
-* create el mount to container
+* render function: "create new vnode"
+* render vnode to dom
 * **LifeCycle: mounted** (can do all)
 * on state / prop change
 * **LifeCycle: beforeUpdate** (can do all)
-* render component with diff
+* create new vnode && compare with old vnode && patch diff
 * **LifeCycle: updated** (can do all)
 * on destroy calling
 * **LifeCycle: beforeDestory** (can use component options in the last time)
 * teardown injects / set lifeCycle 'unmount'
-* **LifeCycle: destroyed** (suggest to clear global setter)er)
+* **LifeCycle: destroyed** (suggest to clear global setter))

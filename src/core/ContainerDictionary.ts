@@ -1,6 +1,6 @@
 import SimpleNativeComponent from "./SimpleNativeComponent";
 import throwIf from "../loggers/throwIf";
-import {componentKey} from "../statics/injectionKey";
+import {COMPONENT_KEY} from "../statics/injectionKey";
 
 let containerMaps: any = {}
 
@@ -9,7 +9,7 @@ let rootIdCounter: number = 0
 export const registerContainer = (rootContainer: any) => {
     const rootId = rootIdCounter
 
-    rootContainer.setAttribute(componentKey, rootId)
+    rootContainer.setAttribute(COMPONENT_KEY, rootId)
 
     containerMaps[rootId] = {
         _rootId: rootId,

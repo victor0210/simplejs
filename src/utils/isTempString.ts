@@ -1,7 +1,7 @@
-import {stringRegDoubleQute, stringRegSingleQute} from "../statics/regexp";
+import {STRING_REG_DOUBLE_QUOTE, STRING_REG_SINGLE_QUOTE} from "../statics/regexp";
 
 const isTempString = (t: string):boolean => {
-    return stringRegDoubleQute.test(t) || stringRegSingleQute.test(t)
+    return STRING_REG_DOUBLE_QUOTE.test(t) || STRING_REG_SINGLE_QUOTE.test(t)
 }
 
 export default isTempString
