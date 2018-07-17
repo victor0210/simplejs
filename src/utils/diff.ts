@@ -7,37 +7,39 @@ import {diffInProps, diffInTag, diffInText} from "./diffUtils";
 
 const diff = (oldVNode: VNode, newVNode: VNode): Array<Patch> => {
     let patches: Array<any> = []
+    let level = 0
 
-    addPatch(patches, diffCore(oldVNode, newVNode, null ,true))
+    addPatch(patches, level, diffCore(oldVNode, newVNode, null, true))
 
-    runDiffChildren(oldVNode, newVNode, patches)
+    runDiffChildren(oldVNode, newVNode, patches, level + 1)
 
+    console.log(patches)
     return patches
 }
 
-const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
+const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>, level: number) => {
     let levelLen = max(oldVNode.children.length, newVNode.children.length)
 
     for (let i = 0; i < levelLen; i++) {
-        addPatch(patches, diffCore(oldVNode.children[i], newVNode.children[i], oldVNode.orDom))
+        addPatch(patches, level, diffCore(oldVNode.children[i], newVNode.children[i], oldVNode.orDom))
 
         if (oldVNode.children[i] && newVNode.children[i]) {
-            runDiffChildren(oldVNode.children[i], newVNode.children[i], patches)
+            runDiffChildren(oldVNode.children[i], newVNode.children[i], patches, level + 1)
         }
     }
 }
 
 const diffCore = (oldVNode: any, newVNode: any, parent: any = null, isRoot: boolean = false) => {
     if (!newVNode) {
-        return new Patch(diffType.REMOVE, null, oldVNode.orDom)
+        return new Patch(diffType.REMOVE, null)
     } else if (!oldVNode && newVNode) {
-        return new Patch(diffType.INSERT, newVNode, parent)
+        return new Patch(diffType.INSERT, newVNode)
     } else if (diffInTag(oldVNode, newVNode)) {
-        return new Patch(diffType.REPLACE, newVNode, oldVNode.orDom, isRoot)
+        return new Patch(diffType.REPLACE, newVNode)
     } else if (diffInProps(oldVNode, newVNode)) {
-        return new Patch(diffType.PROPS, newVNode.props, oldVNode.orDom)
+        return new Patch(diffType.PROPS, newVNode.props)
     } else if (diffInText(oldVNode, newVNode)) {
-        return new Patch(diffType.TEXT, newVNode.tagName, oldVNode.orDom)
+        return new Patch(diffType.TEXT, newVNode.tagName)
     }
 }
 

@@ -8,7 +8,6 @@ export default class VNode {
     public tagName: any
     public props: any
     public children: Array<string | VNode>
-    public orDom: any
     public isText: boolean
 
     constructor(tagName: any, props: any, children: Array<any>, isText: boolean = false) {
@@ -46,36 +45,46 @@ export default class VNode {
 
         if (this.children) this._renderChildren(node)
 
-        this.orDom = node
-
         return root
     }
 
     private _renderChildren(parent: any) {
         this.children.forEach((child: any, idx: number) => {
-            if (child instanceof SimpleNativeComponent) {
-                child.mountComponent()
-                this.children[idx] = child.$el
-                parent.appendChild(child.$el)
-            } else {
-                parent.appendChild(child.render())
-            }
+            parent.appendChild(child.render())
         })
     }
 
     private _convertToTextVNode(children: Array<any>) {
         children.forEach((child: any, idx: number) => {
+            if (matchType(child, baseType.Function)) {
+                child = child.call(getCurrentContext())
+                if (
+                    !(child instanceof SimpleNativeComponent) ||
+                    !(child.tagName instanceof SimpleNativeComponent)
+                ) {
+                    children[idx] = child
+                    return
+                }
+            }
+
             if (matchType(child, baseType.String)) {
-                this.children[idx] = new VNode(child, {}, [], true)
+                children[idx] = new VNode(child, {}, [], true)
             }
 
             if (child instanceof SimpleNativeComponent) {
-                this.children[idx] = new VNode(child, {}, [])
+                children[idx] = new VNode(child, {}, [])
+            }
+
+            if (child.tagName instanceof SimpleNativeComponent) {
+                child.tagName.injectProps(child.props.props)
+                children[idx] = child
             }
 
             if (child.children) {
                 this._convertToTextVNode(child.children)
             }
+
+
         })
     }
 }

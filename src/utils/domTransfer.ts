@@ -40,3 +40,9 @@ export const isParentNode = (selectorOrEl: any): boolean => {
 export const removeAttr = (el: any, attr: string) => {
     el.removeAttribute(attr)
 }
+
+export const setAttrs = (el: any, attrs: any) => {
+    for (let key in attrs) {
+        el.setAttribute(key, attrs[key])
+    }
+}

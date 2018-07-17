@@ -1,21 +1,12 @@
-import ComponentDictionary, {getComponentByUID} from "./ComponentDictionary";
-import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
-import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
+import ComponentDictionary from "./ComponentDictionary";
 import lifeCycle from "../statics/lifeCycle";
-import baseType from "../statics/baseType";
 import throwIf from "../loggers/throwIf";
-import createComponent from "../utils/createComponent"
-import matchType from "../utils/matchType";
 import {setCurrentContext} from './RenderCurrent'
 import merge from "../utils/merge";
-import WatcherHub from "./WatcherHub";
-import {Watcher} from "./Watcher";
 import SimpleComponent from "./SimpleComponent";
-import removeFromArr from "../utils/removeFromArr";
-import {bindEvent, unbindEvent} from "../utils/eventUtils";
 import createVNode from "../utils/createVNode";
 import diff from "../utils/diff";
-import {applyPatch} from "../utils/patchUtils";
+import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
 
 /**
@@ -199,17 +190,19 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     private _updateComponent() {
         // this._watcherHub.notify()
+        setCurrentContext(this)
+
         let newVNode = this.$context.render.call(this, createVNode)
 
-        let newEl = applyPatch(
-            diff(
-                this.$vnode,
-                newVNode
-            )
+        let diffPatch = diff(
+            this.$vnode,
+            newVNode
         )
 
+        let npe = applyPatches(diffPatch, this.$el)
+
         this.$vnode = newVNode
-        if (newEl) this.$el = newEl
+        if (npe) this.$el = npe
     }
 
     private _destroy() {
