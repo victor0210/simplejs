@@ -3,6 +3,7 @@ import baseType from "../statics/baseType";
 import {bindEvent} from "../utils/eventUtils";
 import {getCurrentContext} from "./RenderCurrent";
 import SimpleNativeComponent from "./SimpleNativeComponent";
+import {instanceOf} from "../utils/instanceOf";
 
 export default class VNode {
     public tagName: any
@@ -59,8 +60,8 @@ export default class VNode {
             if (matchType(child, baseType.Function)) {
                 child = child.call(getCurrentContext())
                 if (
-                    !(child instanceof SimpleNativeComponent) ||
-                    !(child.tagName instanceof SimpleNativeComponent)
+                    !instanceOf(child, SimpleNativeComponent) ||
+                    !instanceOf(child.tagName, SimpleNativeComponent)
                 ) {
                     children[idx] = child
                     return

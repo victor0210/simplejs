@@ -6,25 +6,25 @@ import {addPatch} from "./patchUtils";
 import {diffInProps, diffInTag, diffInText} from "./diffUtils";
 
 const diff = (oldVNode: VNode, newVNode: VNode): Array<Patch> => {
-    let patches: Array<any> = []
-    let level = 0
+    let patches: any = {}
 
-    addPatch(patches, level, diffCore(oldVNode, newVNode, null, true))
+    addPatch(patches, diffCore(oldVNode, newVNode, null, true))
 
-    runDiffChildren(oldVNode, newVNode, patches, level + 1)
+    runDiffChildren(oldVNode, newVNode, patches.sub)
 
     console.log(patches)
     return patches
 }
 
-const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>, level: number) => {
+const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
     let levelLen = max(oldVNode.children.length, newVNode.children.length)
 
     for (let i = 0; i < levelLen; i++) {
-        addPatch(patches, level, diffCore(oldVNode.children[i], newVNode.children[i], oldVNode.orDom))
+        if (!patches[i]) patches[i] = {}
+        addPatch(patches[i], diffCore(oldVNode.children[i], newVNode.children[i], oldVNode.orDom))
 
         if (oldVNode.children[i] && newVNode.children[i]) {
-            runDiffChildren(oldVNode.children[i], newVNode.children[i], patches, level + 1)
+            runDiffChildren(oldVNode.children[i], newVNode.children[i], patches[i].sub)
         }
     }
 }

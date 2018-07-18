@@ -2,53 +2,46 @@ import Patch from "../core/Patch";
 import diffType from "../statics/diffType";
 import {setAttrs} from "./domTransfer";
 
-export const addPatch = (patches: Array<any>, level: number, patch: Patch) => {
-    if (!patches[level]) patches[level] = []
-    patches[level].push(patch)
+export const addPatch = (patches: any, patch: Patch = undefined) => {
+    patches.patch = patch
+    patches.sub = []
 }
 
-export const applyPatches = (patches: Array<any>, rootNode: any): any => {
-    let level = 0
+export const applyPatches = (patches: any, rootNode: any): any => {
     let npe
 
-    if (patches[level]) {
-        npe = applyPatch(patches[level][0], rootNode, true)
+    if (patches.patch) {
+        npe = applyPatch(patches.patch, rootNode, true)
     }
 
-    applyChildren(rootNode.childNodes, patches, 1, 0)
+    applyChildren(rootNode, rootNode.childNodes, patches.sub)
 
     return npe
 }
 
 //TODO: children patch
-const applyChildren = (children: Array<any>, patches: Array<any>, level: number, step: number) => {
-    // let s = step
-    // let prevChildNode: any
-    // children.forEach((childNode, index) => {
-    //     if (prevChildNode) {
-    //         step += prevChildNode.childNodes.length
-    //     } else {
-    //         step += 0
-    //     }
-    //
-    //     while (patches[level][index + s] && patches[level][index + s].type === diffType.REMOVE) {
-    //         applyPatch(patches[level][index + s], childNode)
-    //         patches[level].splice(index + s, 1)
-    //     }
-    //
-    //     // while (patches[level][index + step] && (patches[level][index + step].type === diffType.INSERT)) {
-    //     //     applyPatch(patches[level][step], childNode.childNodes[0])
-    //     //     step++
-    //     // }
-    //
-    //     prevChildNode = childNode
-    //
-    //     if (childNode.childNodes && childNode.childNodes.length > 0 && patches[level + 1]) {
-    //         applyChildren(childNode.childNodes, patches, level + 1, step)
-    //     }
-    // })
+const applyChildren = (parent: any, children: Array<any>, patches: Array<any>) => {
+    let childPosOff = 0
 
-    // let lastChild = children[children.length - 1]
+    patches.forEach((patch, index) => {
+        if (patch.patch) {
+            if (patch.patch.type === diffType.INSERT) {
+                applyPatch(patch.patch, parent)
+            } else {
+                applyPatch(patch.patch, children[index + childPosOff])
+                if (patch.patch.type === diffType.REMOVE) {
+                    childPosOff -= 1
+                }
+            }
+        }
+
+        if (patch.sub && children[index + childPosOff])
+            applyChildren(
+                children[index + childPosOff],
+                children[index + childPosOff].childNodes,
+                patch.sub
+            )
+    })
 }
 
 const applyPatch = (patch: Patch, node: any, isRoot: boolean = false) => {
