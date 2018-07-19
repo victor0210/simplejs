@@ -8,6 +8,7 @@ import createVNode from "../utils/createVNode";
 import diff from "../utils/diff";
 import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
+import {instanceOf} from "../utils/instanceOf";
 
 /**
  * component uid counter
@@ -92,6 +93,12 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.setLifeCycle(lifeCycle.UPDATED)
     }
 
+    public updateChildren(): void {
+        this.$children && this.$children.forEach((child: SimpleNativeComponent) => {
+            child.updateComponent()
+        })
+    }
+
     public destroy(): void {
         this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
 
@@ -99,10 +106,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this.setLifeCycle(lifeCycle.DESTROYED)
     }
-
-    // public pushWatcher(watcher: Watcher): void {
-    //     this._watcherHub.addWatcher(watcher)
-    // }
 
     /**
      * state change emit vm change
@@ -126,34 +129,12 @@ export default class SimpleNativeComponent extends SimpleComponent {
         merge(this.$vm, props)
     }
 
-    // public injectEvents(events: Array<any>) {
-    //     this._events = [...this._events, ...events]
-    // }
-
-    // private _bindEvent() {
-    //     this._events.forEach((event: any) => {
-    //         let {el, handler, cb} = event
-    //         bindEvent(el, handler, cb)
-    //     })
-    // }
-
-    // private _unbindEvent() {
-    //     this._events.forEach((event: any) => {
-    //         let {el, handler, cb} = event
-    //         unbindEvent(el, handler, cb)
-    //     })
-    //
-    //     delete this._events
-    // }
-
     public injectParent(parent: SimpleNativeComponent) {
         if (!this.$parent) this.$parent = parent
     }
 
     public injectChild(child: SimpleNativeComponent) {
-        if (this.$children.indexOf(child) === -1) {
-            this.$children.push(child)
-        }
+        this.$children.push(child)
     }
 
     private _bindEl(el: any) {
@@ -180,7 +161,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     private _injectChildren(parent: any) {
         parent.children.forEach((child: VNode) => {
-            if (child.tagName instanceof SimpleNativeComponent) {
+            if (instanceOf(child.tagName, SimpleNativeComponent)) {
                 this.injectChild(child.tagName)
             } else {
                 if (child.children) this._injectChildren(child)
@@ -189,7 +170,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     private _updateComponent() {
-        // this._watcherHub.notify()
         setCurrentContext(this)
 
         let newVNode = this.$context.render.call(this, createVNode)
@@ -200,6 +180,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         )
 
         let npe = applyPatches(diffPatch, this.$el)
+        this.updateChildren()
 
         this.$vnode = newVNode
         if (npe) this.$el = npe

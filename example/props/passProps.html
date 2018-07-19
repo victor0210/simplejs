@@ -10,16 +10,42 @@
 <script>
 	const Component_1 = new Simple({
 		state: {
-			name: 'Simple Js'
+			name: 'Simple Js 1'
 		},
 
 		render: function (h) {
 			return h('div', {
 				domProps: {
-					name: 'state name is true'
+					name: this.props.age
+				},
+				events: {
+					click: () => {
+						this.props.up()
+					}
 				}
 			}, [
-				`My name is: ${this.state.name}, I am ${this.props.age} years old`,
+				`My name is: ${this.state.name}, I am ${this.props.age} years old`
+			])
+		}
+	})
+
+	const Component_11 = new Simple({
+		state: {
+			name: 'Simple Js 11'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: this.props.age
+				},
+				events: {
+					click: () => {
+						console.log('hello')
+					}
+				}
+			}, [
+				`My name is: ${this.state.name}, I am ${this.props.age} years old`
 			])
 		}
 	})
@@ -36,6 +62,21 @@
 					props: {
 						age: this.state.age
 					}
+				}),
+				(function () {
+					if (this.state.age === 10) {
+						return h(Component_1, {
+							props: {
+								age: this.state.age
+							}
+						})
+					} else {
+						return h(Component_11, {
+							props: {
+								age: this.state.age
+							}
+						})
+					}
 				})
 			])
 		}
@@ -43,7 +84,7 @@
 
 	setTimeout(() => {
 		Component_2.setState({
-			age: 20
+			age: 20,
 		})
 	}, 1000)
 
