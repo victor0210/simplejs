@@ -12,7 +12,6 @@ const diff = (oldVNode: VNode, newVNode: VNode): Array<Patch> => {
 
     runDiffChildren(oldVNode, newVNode, patches.sub)
 
-    console.log(patches)
     return patches
 }
 

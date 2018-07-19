@@ -7,7 +7,6 @@ import Patch from "../../../src/core/Patch";
 import diff from "../../../src/utils/diff";
 
 const source = new VNode('div', {}, ['hello'])
-const sourceDom = source.render().firstChild
 
 const t1 = new VNode('div', {}, ['hello'])
 
@@ -28,65 +27,79 @@ describe(utilDescribe('diff vnode'), () => {
         expect(
             equal(
                 diff(source, t1),
-                [
-                    {
-                        patch: undefined,
-                        sub: [
-                            {
-                                patch: undefined,
-                                sub: []
-                            }
-                        ]
-                    }
-                ]
+                {
+                    patch: undefined,
+                    sub: [
+                        {patch: undefined, sub: []}
+                    ]
+                }
             )
         ).toBe(true)
     })
-    //
-    // test('text diff', () => {
-    //     let child: any = t2.children[0]
-    //     expect(
-    //         equal(
-    //             diff(source, t2),
-    //             [
-    //                 // new Patch(diffType.TEXT, child.tagName, sourceDom.childNodes[0])
-    //             ]
-    //         )
-    //     ).toBe(true)
-    // })
-    //
-    // test('tag diff', () => {
-    //     let child: any = t3.children[0]
-    //     expect(
-    //         equal(
-    //             diff(source, t3),
-    //             [
-    //                 // new Patch(diffType.REPLACE, t3, sourceDom, true),
-    //                 // new Patch(diffType.TEXT, child.tagName, sourceDom.childNodes[0])
-    //             ]
-    //         )
-    //     ).toBe(true)
-    // })
-    //
-    // test('insert diff', () => {
-    //     expect(
-    //         equal(
-    //             diff(source, t4),
-    //             [
-    //                 // new Patch(diffType.INSERT, t4_new_vnode, sourceDom),
-    //             ]
-    //         )
-    //     ).toBe(true)
-    // })
-    //
-    // test('remove diff', () => {
-    //     expect(
-    //         equal(
-    //             diff(source, t5),
-    //             [
-    //                 // new Patch(diffType.REMOVE, null, sourceDom.childNodes[0]),
-    //             ]
-    //         )
-    //     ).toBe(true)
-    // })
+
+    test('text diff', () => {
+        expect(
+            equal(
+                diff(source, t2),
+                {
+                    patch: undefined,
+                    sub: [
+                        {patch: new Patch(diffType.TEXT, 'hell'), sub: []}
+                    ]
+                }
+            )
+        ).toBe(true)
+    })
+
+    test('tag diff', () => {
+        expect(
+            equal(
+                diff(source, t3),
+                {
+                    patch: new Patch(diffType.REPLACE, t3),
+                    sub: [{
+                        patch: new Patch(diffType.TEXT, 'hell'),
+                        sub: []
+                    }]
+                }
+            )
+        ).toBe(true)
+    })
+
+    test('insert diff', () => {
+        expect(
+            equal(
+                diff(source, t4),
+                {
+                    patch: undefined,
+                    sub: [
+                        {
+                            patch: undefined,
+                            sub: []
+                        }, {
+                            patch: new Patch(diffType.INSERT, t4_new_vnode),
+                            sub: []
+                        }
+                    ]
+                }
+            )
+        ).toBe(true)
+    })
+
+    test('remove diff', () => {
+        expect(
+            equal(
+                diff(source, t5),
+                {
+                    patch: undefined,
+                    sub: [
+                        {
+                            patch: new Patch(diffType.REMOVE, null),
+                            sub: []
+                        }
+                    ]
+                }
+            )
+        ).toBe(true)
+    })
 })
