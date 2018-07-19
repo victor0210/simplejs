@@ -1,9 +1,8 @@
 import SimpleNativeComponent from "./SimpleNativeComponent";
 import ContainerDictionary from "./ContainerDictionary";
-import matchType from "../utils/matchType";
-import baseType from "../statics/baseType";
 import {COMPONENT_KEY} from "../statics/injectionKey";
 import {getDom, getDomAttr, isParentNode, pushToDom, replaceChild} from "../utils/domTransfer";
+import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
 
 const ComponentRendererMixins: any = {
     /**
@@ -13,7 +12,7 @@ const ComponentRendererMixins: any = {
      * 1. TODO: register (doing)
      * 2. TODO: update
      * */
-    mount(selector: any, component: SimpleNativeComponent): void {
+    mount(selector: any, componentCreator: SimpleNativeComponentCreator): void {
         let rootDom = getDom(selector)
         let rootKey = getDomAttr(rootDom, COMPONENT_KEY)
         let container
@@ -26,7 +25,9 @@ const ComponentRendererMixins: any = {
             // dom's first mounted
             ContainerDictionary.registerContainer(rootDom)
 
+            let component = componentCreator.fuck()
             component.mountComponent()
+
             pushToDom(rootDom, component)
         } else {
             // dom's update

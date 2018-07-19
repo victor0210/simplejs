@@ -24,7 +24,7 @@ let componentUID = 0
  * @param this.state / this.props / this.someMethod
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    readonly _uid: number = ++componentUID
+    public _uid: number
 
     // private _watcherHub: WatcherHub = new WatcherHub()
     private _pendingState: any = {}
@@ -40,8 +40,8 @@ export default class SimpleNativeComponent extends SimpleComponent {
     public state: any = {}
     public props: any = {}
 
-    constructor(spec: any) {
-        super(spec);
+    constructor(spec: any, creatorHash: any) {
+        super(spec, creatorHash);
 
         /**
          * inject self injections / component && mixins
@@ -77,9 +77,14 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._pendingState = Object.assign({}, this.$context.state)
     }
 
+    private _countUID() {
+        this._uid = ++componentUID
+    }
+
     public mountComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
+        this._countUID()
         this._renderComponent()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
@@ -93,6 +98,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.setLifeCycle(lifeCycle.UPDATED)
     }
 
+    //not replace the same component creator but should reinject new props
     public updateChildren(): void {
         this.$children && this.$children.forEach((child: SimpleNativeComponent) => {
             child.updateComponent()
@@ -111,7 +117,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
      * state change emit vm change
      * */
     public setState(state: object): void {
-        // console.log(this)
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
             merge(this.$vm, state)
@@ -153,7 +158,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         setCurrentContext(this)
 
         this._bindVNode(this.$context.render.call(this, createVNode))
-        this._bindEl(this.$vnode.render().firstChild)
+        this._bindEl(this.$vnode.render())
 
         this._injectChildren(this.$vnode)
         // this._bindEvent()

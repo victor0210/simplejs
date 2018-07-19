@@ -85,14 +85,15 @@
 					]),
 				])
 			}
+		},
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					age: this.state.age + 1
+				})
+			}, 1000)
 		}
 	})
-
-	setTimeout(() => {
-		ComponentParent.setState({
-			age: ComponentParent.state.age + 1
-		})
-	}, 1000)
 
 
 	Simple.mount('#app', ComponentParent)

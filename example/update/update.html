@@ -37,6 +37,15 @@
 					}
 				}, ['state name is true'])
 			}
+		},
+
+		mounted() {
+			setInterval(() => {
+				this.setState({
+					name: !this.state.name,
+					count: this.state.count + 1
+				})
+			}, 1000)
 		}
 
 		/**
@@ -47,13 +56,6 @@
 		 * update with vnode diff
 		 * */
 	})
-
-	setInterval(() => {
-		Component_1.setState({
-			name: !Component_1.state.name,
-			count: Component_1.state.count + 1
-		})
-	}, 1000)
 	Simple.mount('#app', Component_1)
 </script>
 </body>

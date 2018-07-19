@@ -21,11 +21,11 @@ export default class SimpleComponent {
     // user options for the whole lifecycle
     public $context: any
 
+    private _hash: string
     private _lifeCycle: string
 
-    constructor(spec: any) {
-        ifKeysAllBelongValidator(spec, initSpecComparisonObject)
-
+    constructor(spec: any, hash: string) {
+        this._initHash(hash)
         this._initSpec(spec)
         this._inject()
 
@@ -35,6 +35,9 @@ export default class SimpleComponent {
     /**
      * inject global plugins && components before component create
      */
+    private _initHash(hash: string): void {
+        this._hash = hash
+    }
     private _inject(): void {
         let mixins = GlobalMixins.get()
         let components = GlobalComponents.get()

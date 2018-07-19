@@ -26,6 +26,10 @@
 			}, [
 				`My name is: ${this.state.name}, I am ${this.props.age} years old`
 			])
+		},
+
+		mounted() {
+			// console.log(this, 'child')
 		}
 	})
 
@@ -79,14 +83,15 @@
 					}
 				})
 			])
+		},
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					age: 20,
+				})
+			}, 1000)
 		}
 	})
-
-	setTimeout(() => {
-		Component_2.setState({
-			age: 20,
-		})
-	}, 1000)
 
 	Simple.mount('#app', Component_2)
 </script>

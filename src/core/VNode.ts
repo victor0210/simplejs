@@ -4,6 +4,7 @@ import {bindEvent} from "../utils/eventUtils";
 import {getCurrentContext} from "./RenderCurrent";
 import SimpleNativeComponent from "./SimpleNativeComponent";
 import {instanceOf} from "../utils/instanceOf";
+import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
 
 export default class VNode {
     public tagName: any
@@ -26,6 +27,7 @@ export default class VNode {
 
         if (this.tagName instanceof SimpleNativeComponent) {
             let component = this.tagName
+            component.injectProps(this.props.props)
             component.mountComponent()
             node = component.$el
         } else {
@@ -46,7 +48,7 @@ export default class VNode {
 
         if (this.children) this._renderChildren(node)
 
-        return root
+        return root.firstChild
     }
 
     private _renderChildren(parent: any) {
@@ -59,9 +61,10 @@ export default class VNode {
         children.forEach((child: any, idx: number) => {
             if (matchType(child, baseType.Function)) {
                 child = child.call(getCurrentContext())
+
                 if (
-                    !instanceOf(child, SimpleNativeComponent) ||
-                    !instanceOf(child.tagName, SimpleNativeComponent)
+                    !instanceOf(child, SimpleNativeComponentCreator) &&
+                    !instanceOf(child.tagName, SimpleNativeComponentCreator)
                 ) {
                     children[idx] = child
                     return
@@ -72,20 +75,19 @@ export default class VNode {
                 children[idx] = new VNode(child, {}, [], true)
             }
 
-            if (child instanceof SimpleNativeComponent) {
-                children[idx] = new VNode(child, {}, [])
+            if (child instanceof SimpleNativeComponentCreator) {
+                children[idx] = new VNode(child.fuck(), {}, [])
             }
 
-            if (child.tagName instanceof SimpleNativeComponent) {
-                child.tagName.injectProps(child.props.props)
-                children[idx] = child
+            if (child.tagName instanceof SimpleNativeComponentCreator) {
+                let component = child.tagName.fuck()
+                component.injectProps(child.props.props)
+                children[idx] = new VNode(component, {}, [])
             }
 
             if (child.children) {
                 this._convertToTextVNode(child.children)
             }
-
-
         })
     }
 }

@@ -1,8 +1,16 @@
 import VNode from "../core/VNode";
 import equal from "./equal";
+import {instanceOf} from "./instanceOf";
+import SimpleNativeComponentCreator from "../core/SimpleNativeComponentCreator";
+import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
 export const diffInTag = (oldVNode: VNode, newVNode: VNode) => {
     if (oldVNode && newVNode && !oldVNode.isText && !newVNode.isText) {
+        if (instanceOf(oldVNode.tagName, SimpleNativeComponent)
+            && instanceOf(newVNode.tagName, SimpleNativeComponent)) {
+            console.log(newVNode.tagName._hash, oldVNode.tagName._hash)
+            return !equal(newVNode.tagName._hash, oldVNode.tagName._hash)
+        }
         return !equal(oldVNode.tagName, newVNode.tagName)
     }
 
