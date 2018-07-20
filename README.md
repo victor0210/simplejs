@@ -12,7 +12,7 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * inject global injections / components && mixins => **done**
 * inject self injections / component && mixins => **done**
 * **LifeCycle: beforeCreate** (Suggest to do some global options without relationship to component)
-* init reactivities self and global state / methods / comoponents **done**
+* inject component creator hash && init reactivities self and global state / methods / comoponents **done**
 * **LifeCycle: created** (Suggest to do some data or event initialize)
 * start to mount 1: (autoBind if with el option or by **Simple.mount(el, component)**) **done**
 * start to mount 2: mountChild && inject props **mount done, inject todo**
@@ -23,12 +23,12 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * compile directive
 * render2: render vnode **done**
 * **LifeCycle: beforeMount** (with all component options but $el)
-* create el mount to container **done**
+* create el mount to container && counter component id**done**
 * bind event
 * **LifeCycle: mounted** (can do all)
 * on state / prop change **done**
 * **LifeCycle: beforeUpdate** (can do all)
-* rerender component with diff, create root el by apply patch **done**
+* rerender component with diff, create root el by apply patch, update children components **done**
 * **LifeCycle: updated** (can do all)
 * on destroy calling (autoDestroy todo??, done)
 * **LifeCycle: beforeDestory** (can use component options in the last time)

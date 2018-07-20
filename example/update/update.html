@@ -40,12 +40,18 @@
 		},
 
 		mounted() {
-			setInterval(() => {
+			setTimeout(() => {
 				this.setState({
 					name: !this.state.name,
 					count: this.state.count + 1
 				})
 			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name,
+					count: this.state.count + 1
+				})
+			}, 2000)
 		}
 
 		/**

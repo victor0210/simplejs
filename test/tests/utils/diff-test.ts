@@ -19,6 +19,12 @@ const t4 = new VNode('div', {}, ['hello', t4_new_vnode])
 
 const t5 = new VNode('div', {}, [])
 
+const t6 = new VNode('div', {
+    props: {
+        age: 1
+    }
+}, ['hello'])
+
 /**
  * mixin object into class
  * */
@@ -57,10 +63,7 @@ describe(utilDescribe('diff vnode'), () => {
                 diff(source, t3),
                 {
                     patch: new Patch(diffType.REPLACE, t3),
-                    sub: [{
-                        patch: new Patch(diffType.TEXT, 'hell'),
-                        sub: []
-                    }]
+                    sub: []
                 }
             )
         ).toBe(true)
@@ -95,6 +98,23 @@ describe(utilDescribe('diff vnode'), () => {
                     sub: [
                         {
                             patch: new Patch(diffType.REMOVE, null),
+                            sub: []
+                        }
+                    ]
+                }
+            )
+        ).toBe(true)
+    })
+
+    test('props diff', () => {
+        expect(
+            equal(
+                diff(source, t6),
+                {
+                    patch: new Patch(diffType.PROPS, t6.props, source.tagName),
+                    sub: [
+                        {
+                            patch: undefined,
                             sub: []
                         }
                     ]

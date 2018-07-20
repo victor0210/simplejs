@@ -12,9 +12,8 @@ const diff = (oldVNode: VNode, newVNode: VNode): Array<Patch> => {
     let patch = diffCore(oldVNode, newVNode)
     addPatch(patches, patch)
 
-    runDiffChildren(oldVNode, newVNode, patches.sub)
+    notReplace(patch) && runDiffChildren(oldVNode, newVNode, patches.sub)
 
-    console.log(patches)
     return patches
 }
 
@@ -27,7 +26,7 @@ const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
         addPatch(patches[i], patch)
 
         if (oldVNode.children[i] && newVNode.children[i]) {
-            runDiffChildren(oldVNode.children[i], newVNode.children[i], patches[i].sub)
+            notReplace(patch) && runDiffChildren(oldVNode.children[i], newVNode.children[i], patches[i].sub)
         }
     }
 }
