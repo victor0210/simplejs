@@ -29,9 +29,10 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * on state / prop change **done**
 * **LifeCycle: beforeUpdate** (can do all)
 * rerender component with diff, create root el by apply patch, update children components **done**
+* if component replaced, old component emit destroyed **done**
 * **LifeCycle: updated** (can do all)
 * on destroy calling (autoDestroy todo??, done)
-* **LifeCycle: beforeDestory** (can use component options in the last time)
+* **LifeCycle: beforeDestroy** (can use component options in the last time)
 * teardown injects / set lifeCycle 'destroyed' **todo**
 * teardown injects
 * teardown pass data relationship
