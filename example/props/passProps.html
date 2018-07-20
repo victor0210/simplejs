@@ -62,6 +62,11 @@
 		render: function (h) {
 			return h('div', {}, [
 				`I am parent, I am ${this.state.age} years old`,
+				h('p', {
+					props: {
+						age: this.state.age
+					}
+				}, ['p child']),
 				h(Component_1, {
 					props: {
 						age: this.state.age

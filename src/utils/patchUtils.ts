@@ -1,6 +1,8 @@
 import Patch from "../core/Patch";
 import diffType from "../statics/diffType";
 import {setAttrs} from "./domTransfer";
+import {instanceOf} from "./instanceOf";
+import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
 export const addPatch = (patches: any, patch: Patch = undefined) => {
     patches.patch = patch
@@ -65,7 +67,8 @@ const applyPatch = (patch: Patch, node: any, isRoot: boolean = false) => {
             //update dom props
             setAttrs(node, patch.patch.domProps)
 
-            //TODO: update child component props
+            //inject child component props
+            instanceOf(patch.source, SimpleNativeComponent) && patch.source.injectProps(patch.patch.props)
             break
         case diffType.TEXT:
             node.textContent = patch.patch

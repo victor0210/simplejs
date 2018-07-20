@@ -6,9 +6,11 @@
 export default class Patch {
     public type: string
     public patch: any
+    public source: any
 
-    constructor(type: string, patch: any) {
+    constructor(type: string, patch: any, source: any = null) {
         this.type = type
         this.patch = patch
+        this.source = source
     }
 }

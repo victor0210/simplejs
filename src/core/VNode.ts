@@ -82,7 +82,7 @@ export default class VNode {
             if (child.tagName instanceof SimpleNativeComponentCreator) {
                 let component = child.tagName.fuck()
                 component.injectProps(child.props.props)
-                children[idx] = new VNode(component, {}, [])
+                children[idx] = new VNode(component, child.props, child.children)
             }
 
             if (child.children) {

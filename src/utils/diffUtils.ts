@@ -8,13 +8,10 @@ export const diffInTag = (oldVNode: VNode, newVNode: VNode) => {
     if (oldVNode && newVNode && !oldVNode.isText && !newVNode.isText) {
         if (instanceOf(oldVNode.tagName, SimpleNativeComponent)
             && instanceOf(newVNode.tagName, SimpleNativeComponent)) {
-            console.log(newVNode.tagName._hash, oldVNode.tagName._hash)
             return !equal(newVNode.tagName._hash, oldVNode.tagName._hash)
         }
-        return !equal(oldVNode.tagName, newVNode.tagName)
+        return !equal(newVNode.tagName, oldVNode.tagName)
     }
-
-    return false
 }
 
 export const diffInProps = (oldVNode: VNode, newVNode: VNode) => {
