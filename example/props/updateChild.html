@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const Component_1 = new Simple({
+		state: {
+			name: 'Child 1'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: 'state name is true'
+				}
+			}, [
+				`My name is: ${this.state.name}, I am years old`,
+			])
+		}
+	})
+
+	const Component_2 = new Simple({
+		state: {
+			name: 'Child 1'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: 'state name is true'
+				}
+			}, [
+				`My name is: ${this.state.name}, I am years old`,
+			])
+		}
+	})
+
+	const ComponentParent = new Simple({
+		state: {
+			age: 10
+		},
+
+		render: function (h) {
+			if (this.state.age % 2 === 1) {
+				return h('div', {}, [
+					h('p', {
+						domProps: {
+							name: 'after'
+						}
+					}, [
+						h('p', {}, [
+							'1',
+						]),
+					]),
+					h('p', {}, [
+						h('p', {}, ['4']),
+						h('p', {}, ['5']),
+						h('p', {}, ['6']),
+						h('p', {}, ['7'])
+					])
+				])
+			} else {
+				return h('div', {}, [
+					h('p', {
+						domProps: {
+							name: 'before'
+						}
+					}, [
+						h('p', {}, [
+							'a',
+							'b',
+							'c'
+						]),
+						h('p', {}, ['b']),
+						h('p', {}, ['c']),
+					]),
+					h('p', {}, [
+						h('p', {}, ['f']),
+						h('p', {}, ['g'])
+					]),
+				])
+			}
+		},
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					age: this.state.age + 1
+				})
+			}, 1000)
+		}
+	})
+
+
+	Simple.mount('#app', ComponentParent)
+</script>
+</body>
+</html>

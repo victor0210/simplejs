@@ -1,60 +1,93 @@
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
-import any = jasmine.any;
+import {bindEvent} from "../utils/eventUtils";
+import {getCurrentContext} from "./RenderCurrent";
+import SimpleNativeComponent from "./SimpleNativeComponent";
+import {instanceOf} from "../utils/instanceOf";
+import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
 
 export default class VNode {
-    public tagName: string
+    public tagName: any
     public props: any
     public children: Array<string | VNode>
-    public orDom: any
-    public parent: any
     public isText: boolean
 
-    constructor(tagName: string, props: any, children: Array<any>, isText: boolean = false) {
+    constructor(tagName: any, props: any, children: Array<any>, isText: boolean = false) {
         this.tagName = tagName
         this.props = props
         this.children = children
         this.isText = isText
 
-        !this.isText && this.convertTextToTextVNode(this.children)
+        !this.isText && this._convertToTextVNode(this.children)
     }
 
-    convertTextToTextVNode(children: Array<any>) {
-        children.forEach((child: any, idx: number) => {
-            if (matchType(child, baseType.String)) {
-                this.children[idx] = new VNode(child, {}, [], true)
-            }
-
-            if (child.children) {
-                this.convertTextToTextVNode(child.children)
-            }
-        })
-    }
-
-    render() {
+    public render() {
+        let node: any
         let root: any = document.createDocumentFragment()
 
-        //render vnode to dom
-        let node: any = this.isText ? document.createTextNode(this.tagName) : document.createElement(this.tagName)
+        if (this.tagName instanceof SimpleNativeComponent) {
+            let component = this.tagName
+            component.injectProps(this.props.props)
+            component.mountComponent()
+            node = component.$el
+        } else {
+            node = this.isText ? document.createTextNode(this.tagName) : document.createElement(this.tagName)
+        }
 
         //render props
-        for (let key in this.props.props) {
-            node.setAttribute(key, this.props.props[key])
+        for (let key in this.props.domProps) {
+            node.setAttribute(key, this.props.domProps[key])
+        }
+
+        //bind events
+        for (let key in this.props.events) {
+            bindEvent(node, key, this.props.events[key].bind(getCurrentContext()))
         }
 
         root.appendChild(node)
 
-        if (this.children) this.renderChildren(node)
+        if (this.children) this._renderChildren(node)
 
-        this.orDom = node
-        this.parent = node.parentNode
-
-        return root
+        return root.firstChild
     }
 
-    renderChildren(parent: any) {
-        this.children.forEach((child: any) => {
+    private _renderChildren(parent: any) {
+        this.children.forEach((child: any, idx: number) => {
             parent.appendChild(child.render())
+        })
+    }
+
+    private _convertToTextVNode(children: Array<any>) {
+        children.forEach((child: any, idx: number) => {
+            if (matchType(child, baseType.Function)) {
+                child = child.call(getCurrentContext())
+
+                if (
+                    !instanceOf(child, SimpleNativeComponentCreator) &&
+                    !instanceOf(child.tagName, SimpleNativeComponentCreator)
+                ) {
+                    children[idx] = child
+                    return
+                }
+            }
+
+            if (matchType(child, baseType.String)) {
+                children[idx] = new VNode(child, {}, [], true)
+            }
+
+            if (child instanceof SimpleNativeComponentCreator) {
+                children[idx] = new VNode(child.fuck(), {}, [])
+            }
+
+            if (child.tagName instanceof SimpleNativeComponentCreator) {
+                let component = child.tagName.fuck()
+                component.injectProps(child.props.props)
+                children[idx] = new VNode(component, child.props, child.children)
+            }
+
+            if (child.children) {
+                this._convertToTextVNode(child.children)
+            }
         })
     }
 }

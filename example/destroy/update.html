@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Base</title>
+    <title>Update</title>
     <script src="../../dist/bundle.js"></script>
 </head>
 <body>
@@ -10,32 +10,42 @@
 <script>
 	const Component_1 = new Simple({
 		state: {
-			name: true
+			name: true,
+			count: 1
 		},
 		/**
 		 * render base
 		 * */
 		render: function (h) {
 			if (this.state.name) {
-				return h('div', {
-					props: {
-						name: 'state name is true'
-					}
-				}, [
-					'hello vnode',
+				return h('div', {}, [
 					h('p', {}, [
-						'first level p',
-						h('p', {}, ['second level p'])
+						h('p', {}, ['second level p']),
+						'hhh'
 					]),
-					'hahah'
 				])
 			} else {
-				return h('p', {
-					props: {
-						name: 'state name is false'
-					}
-				}, ['state name is true'])
+				return h('p', {}, [
+					h('div', {}, [
+						'second level dshkjadhk'
+					])
+				])
 			}
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name,
+					count: this.state.count + 1
+				})
+			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name,
+					count: this.state.count + 1
+				})
+			}, 2000)
 		}
 
 		/**
@@ -46,12 +56,6 @@
 		 * update with vnode diff
 		 * */
 	})
-
-	setTimeout(() => {
-		Component_1.setState({
-			name: !Component_1.state.name
-		})
-	}, 1000)
 	Simple.mount('#app', Component_1)
 </script>
 </body>

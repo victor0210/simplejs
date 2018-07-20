@@ -1,10 +1,10 @@
-import SimpleNativeComponent from "./SimpleNativeComponent"
 import applyMixin from "../utils/applyMixin";
 import ComponentRendererMixins from "./ComponentRendererMixins";
 import ComponentInjectMixins from "./ComponentInjectMixins";
+import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
 
 function Simple (spec: any) {
-    return new SimpleNativeComponent(spec)
+    return new SimpleNativeComponentCreator(spec)
 }
 
 applyMixin(Simple, ComponentRendererMixins)

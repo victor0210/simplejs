@@ -20,7 +20,7 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): void
     }
 
     updater()
-    current.pushWatcher(new Watcher(updater))
+    // current.pushWatcher(new Watcher(updater))
 }
 
 /**
@@ -30,7 +30,7 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): void
 export const compileElement = (el: any, current: SimpleNativeComponent): void => {
     const compiler = compileInline(el, current, true)
 
-    current.injectEvents(compiler.events)
+    // current.injectEvents(compiler.events)
 }
 
 /**
@@ -53,7 +53,7 @@ export const compileCustomComponent = (customEl: any, current: SimpleNativeCompo
 
     compiler()
 
-    current.pushWatcher(new Watcher(updater))
+    // current.pushWatcher(new Watcher(updater))
     // compileInline(customEl, childComponent)
     ComponentRendererMixins.mountChild(customEl, childComponent)
 }

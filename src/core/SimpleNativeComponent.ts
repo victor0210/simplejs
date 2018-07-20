@@ -1,21 +1,14 @@
-import ComponentDictionary, {getComponentByUID} from "./ComponentDictionary";
-import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
-import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
+import ComponentDictionary from "./ComponentDictionary";
 import lifeCycle from "../statics/lifeCycle";
-import baseType from "../statics/baseType";
 import throwIf from "../loggers/throwIf";
-import createComponent from "../utils/createComponent"
-import matchType from "../utils/matchType";
 import {setCurrentContext} from './RenderCurrent'
 import merge from "../utils/merge";
-import WatcherHub from "./WatcherHub";
-import {Watcher} from "./Watcher";
 import SimpleComponent from "./SimpleComponent";
-import removeFromArr from "../utils/removeFromArr";
-import {bindEvent, unbindEvent} from "../utils/eventUtils";
 import createVNode from "../utils/createVNode";
 import diff from "../utils/diff";
-import {applyPatch} from "../utils/patchUtils";
+import {applyPatches} from "../utils/patchUtils";
+import VNode from "./VNode";
+import {instanceOf} from "../utils/instanceOf";
 
 /**
  * component uid counter
@@ -31,9 +24,9 @@ let componentUID = 0
  * @param this.state / this.props / this.someMethod
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    readonly _uid: number = ++componentUID
+    public _uid: number
 
-    private _watcherHub: WatcherHub = new WatcherHub()
+    // private _watcherHub: WatcherHub = new WatcherHub()
     private _pendingState: any = {}
     private _events: any = []
 
@@ -47,8 +40,8 @@ export default class SimpleNativeComponent extends SimpleComponent {
     public state: any = {}
     public props: any = {}
 
-    constructor(spec: any) {
-        super(spec);
+    constructor(spec: any, creatorHash: any) {
+        super(spec, creatorHash);
 
         /**
          * inject self injections / component && mixins
@@ -84,12 +77,15 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._pendingState = Object.assign({}, this.$context.state)
     }
 
+    private _countUID() {
+        this._uid = ++componentUID
+    }
+
     public mountComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
+        this._countUID()
         this._renderComponent()
-
-        this._bindEvent()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
     }
@@ -102,49 +98,25 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.setLifeCycle(lifeCycle.UPDATED)
     }
 
-    public unmountComponent(): void {
+    //not replace the same component creator but should reinject new props
+    public updateChildren(): void {
+        this.$children && this.$children.forEach((child: SimpleNativeComponent) => {
+            child.updateComponent()
+        })
+    }
+
+    public destroy(): void {
         this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
 
-        this._teardown()
         this._destroy()
 
-        ComponentDictionary.destroyComponent(this)
-
         this.setLifeCycle(lifeCycle.DESTROYED)
-    }
-
-    public teardownChild(child: SimpleNativeComponent) {
-        // this.$children.forEach()
-    }
-
-    private _teardown(): void {
-        // TODO
-        // TODO teardown events listener => done
-        // TODO teardown watchers
-        // TODO teardown relationship
-        // TODO teardown pass data (props)
-        //
-        // if (this.$parent) {
-        //     this.$parent.teardownChild(this)
-        // } else {
-        //
-        // }
-        this._unbindEvent()
-    }
-
-    private _destroy(): void {
-        this.$el.remove()
-    }
-
-    public pushWatcher(watcher: Watcher): void {
-        this._watcherHub.addWatcher(watcher)
     }
 
     /**
      * state change emit vm change
      * */
     public setState(state: object): void {
-        // console.log(this)
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
             merge(this.$vm, state)
@@ -162,34 +134,20 @@ export default class SimpleNativeComponent extends SimpleComponent {
         merge(this.$vm, props)
     }
 
-    public injectEvents(events: Array<any>) {
-        this._events = [...this._events, ...events]
-    }
-
-    private _bindEvent() {
-        this._events.forEach((event: any) => {
-            let {el, handler, cb} = event
-            bindEvent(el, handler, cb)
-        })
-    }
-
-    private _unbindEvent() {
-        this._events.forEach((event: any) => {
-            let {el, handler, cb} = event
-            unbindEvent(el, handler, cb)
-        })
-
-        delete this._events
-    }
-
     public injectParent(parent: SimpleNativeComponent) {
         if (!this.$parent) this.$parent = parent
     }
 
     public injectChild(child: SimpleNativeComponent) {
-        if (this.$children.indexOf(child) === -1) {
-            this.$children.push(child)
-        }
+        this.$children.push(child)
+    }
+
+    private _bindEl(el: any) {
+        this.$el = el
+    }
+
+    private _bindVNode(vnode: VNode) {
+        this.$vnode = vnode
     }
 
     private _renderComponent() {
@@ -199,23 +157,41 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         setCurrentContext(this)
 
-        this.$vnode = this.$context.render.call(this, createVNode)
-        this.$el = this.$vnode.render().firstChild
-        // this.$el = this.$context.render.call(this, createComponent).firstChild
+        this._bindVNode(this.$context.render.call(this, createVNode))
+        this._bindEl(this.$vnode.render())
+
+        this._injectChildren(this.$vnode)
+        // this._bindEvent()
+    }
+
+    private _injectChildren(parent: any) {
+        parent.children.forEach((child: VNode) => {
+            if (instanceOf(child.tagName, SimpleNativeComponent)) {
+                this.injectChild(child.tagName)
+            } else {
+                if (child.children) this._injectChildren(child)
+            }
+        })
     }
 
     private _updateComponent() {
-        // this._watcherHub.notify()
+        setCurrentContext(this)
+
         let newVNode = this.$context.render.call(this, createVNode)
 
-        let newEl = applyPatch(
-            diff(
-                this.$vnode,
-                newVNode
-            )
+        let diffPatch = diff(
+            this.$vnode,
+            newVNode
         )
 
+        let npe = applyPatches(diffPatch, this.$el)
+        this.updateChildren()
+
         this.$vnode = newVNode
-        if (newEl) this.$el = newEl
+        if (npe) this.$el = npe
+    }
+
+    private _destroy() {
+        this.$el.remove()
     }
 }

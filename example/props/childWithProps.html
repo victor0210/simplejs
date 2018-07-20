@@ -15,7 +15,7 @@
 
 		render: function (h) {
 			return h('div', {
-				props: {
+				domProps: {
 					name: 'state name is true'
 				}
 			}, [
@@ -24,7 +24,20 @@
 		}
 	})
 
-	Simple.mount('#app', Component_1)
+	const Component_2 = new Simple({
+		state: {
+			name: 'Simple Js'
+		},
+
+		render: function (h) {
+			return h('div', {}, [
+				'I am parent',
+				Component_1
+			])
+		}
+	})
+
+	Simple.mount('#app', Component_2)
 </script>
 </body>
 </html>

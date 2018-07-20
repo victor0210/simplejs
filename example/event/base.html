@@ -16,10 +16,22 @@
 		render: function (h) {
 			return h('div', {
 				props: {
-					name: 'state name is true'
+					name: 'propName'
+				},
+				events: {
+					click: function () {
+						console.log(this.state.name)
+					}
 				}
 			}, [
 				`Welcome to ${this.state.name}`,
+				h('p', {
+					events: {
+						mouseover: function () {
+							console.log(this.state.name)
+						}
+					}
+				}, ['children'])
 			])
 		}
 	})

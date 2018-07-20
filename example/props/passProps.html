@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const Component_1 = new Simple({
+		state: {
+			name: 'Simple Js 1'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: this.props.age
+				},
+				events: {
+					click: () => {
+						this.props.up()
+					}
+				}
+			}, [
+				`My name is: ${this.state.name}, I am ${this.props.age} years old`
+			])
+		},
+
+		mounted() {
+			// console.log(this, 'child')
+		}
+	})
+
+	const Component_11 = new Simple({
+		state: {
+			name: 'Simple Js 11'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: this.props.age
+				},
+				events: {
+					click: () => {
+						console.log('hello')
+					}
+				}
+			}, [
+				`My name is: ${this.state.name}, I am ${this.props.age} years old`
+			])
+		}
+	})
+
+	const Component_2 = new Simple({
+		state: {
+			age: 10
+		},
+
+		render: function (h) {
+			return h('div', {}, [
+				`I am parent, I am ${this.state.age} years old`,
+				h('p', {
+					props: {
+						age: this.state.age
+					}
+				}, ['p child']),
+				h(Component_1, {
+					props: {
+						age: this.state.age,
+						up: () => {
+							console.log('up')
+						}
+					}
+				}),
+				(function () {
+					if (this.state.age === 10) {
+						return h(Component_1, {
+							props: {
+								age: this.state.age
+							}
+						})
+					} else {
+						return h(Component_11, {
+							props: {
+								age: this.state.age
+							}
+						})
+					}
+				})
+			])
+		},
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					age: 20,
+				})
+			}, 1000)
+		}
+	})
+
+	Simple.mount('#app', Component_2)
+</script>
+</body>
+</html>
