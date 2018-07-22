@@ -46,6 +46,11 @@ const applyChildren = (parent: any, children: Array<any>, patches: Array<any>) =
     })
 }
 
+/**
+ * abstract relationship methods
+ * TODO 1: build relationship with parent & children when component mount
+ * TODO 2: teardown relationship when component destroy
+ * */
 const applyPatch = (patch: Patch, node: any, isRoot: boolean = false) => {
     if (!patch) return
 
@@ -53,15 +58,24 @@ const applyPatch = (patch: Patch, node: any, isRoot: boolean = false) => {
 
     switch (patch.type) {
         case diffType.REMOVE:
-            node.remove()
+            if (instanceOf(patch.source, SimpleNativeComponent)) {
+                patch.source.destroy()
+            } else {
+                node.remove()
+            }
             break
         case diffType.INSERT:
             node.parentNode.appendChild(patch.patch.render())
             break
         case diffType.REPLACE:
             let npe = patch.patch.render()
+
             node.replaceWith(npe)
             if (isRoot) newReplaceEl = npe
+
+            if (instanceOf(patch.source, SimpleNativeComponent)) {
+                patch.source.destroy()
+            }
             break
         case diffType.PROPS:
             //update dom props

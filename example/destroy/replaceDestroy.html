@@ -12,7 +12,6 @@
 		render(h) {
 			return h('div', {}, ['child'])
 		},
-
 		beforeDestroy() {
 			console.log('child before destroy')
 		},
@@ -33,14 +32,27 @@
 				h('p', {}, [
 					h('p', {}, ['second level p']),
 					'hhh',
-					childComponent
+					(function () {
+						if (this.state.name) {
+							return childComponent
+						} else {
+							return 'abc'
+						}
+					})
 				]),
 			])
 		},
 
 		mounted() {
 			setTimeout(() => {
-				this.destroy()
+				this.setState({
+					name: !this.state.name
+				})
+			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name
+				})
 			}, 2000)
 		},
 

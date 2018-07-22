@@ -9,6 +9,7 @@ import diff from "../utils/diff";
 import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
 import {instanceOf} from "../utils/instanceOf";
+import removeFromArr from "../utils/removeFromArr";
 
 /**
  * @description component uid counter，plus when mounted
@@ -28,7 +29,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     // private _watcherHub: WatcherHub = new WatcherHub()
     private _pendingState: any = {}
-    private _events: any = []
 
     public $vnode: any
     public $el: any
@@ -50,8 +50,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this._initVM()
         this._initState()
-
-        ComponentDictionary.registerComponent(this)
 
         this.setLifeCycle(lifeCycle.CREATED)
     }
@@ -91,11 +89,13 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public updateComponent(): void {
+        console.log(this.$children)
         this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
 
         this._updateComponent()
 
         this.setLifeCycle(lifeCycle.UPDATED)
+        console.log(this.$children)
     }
 
     //not replace the same component creator but should reinject new props
@@ -147,7 +147,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     private _bindEl(el: any) {
-        this.$el = el
+        if (el) this.$el = el
     }
 
     private _bindVNode(vnode: VNode) {
@@ -165,6 +165,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._bindEl(this.$vnode.render())
 
         this._injectChildren(this.$vnode)
+        this._injectParentToChildren()
     }
 
     private _injectChildren(parent: any) {
@@ -177,32 +178,47 @@ export default class SimpleNativeComponent extends SimpleComponent {
         })
     }
 
+    private _injectParentToChildren() {
+        this.$children.forEach((child: any) => {
+            child.injectParent(this)
+        })
+    }
+
     private _updateComponent() {
         setCurrentContext(this)
 
         let newVNode = this.$context.render.call(this, createVNode)
 
-        let diffPatch = diff(
-            this.$vnode,
-            newVNode
+        let npe = applyPatches(
+            diff(
+                this.$vnode,
+                newVNode
+            ), this.$el
         )
 
-        let npe = applyPatches(diffPatch, this.$el)
         this.updateChildren()
 
-        this.$vnode = newVNode
-        if (npe) this.$el = npe
+        this._bindVNode(newVNode)
+        this._bindEl(npe)
     }
 
     private _destroy() {
+        this._removeFromParent()
         this._destroyChildren()
 
         this.$el.remove()
     }
 
     private _destroyChildren() {
-        this.$children.forEach((child: any) => {
-            child.destroy()
-        })
+        while (this.$children.length)
+            this.$children.pop().destroy()
+    }
+
+    private _removeFromParent() {
+        this.$parent && this.$parent._removeChild(this)
+    }
+
+    private _removeChild(child: SimpleNativeComponent) {
+        removeFromArr(this.$children, child)
     }
 }

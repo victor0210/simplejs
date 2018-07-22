@@ -33,11 +33,11 @@ const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
 
 const diffCore = (oldVNode: any, newVNode: any) => {
     if (!newVNode) {
-        return new Patch(diffType.REMOVE, null)
+        return new Patch(diffType.REMOVE, null, oldVNode.tagName)
     } else if (!oldVNode && newVNode) {
         return new Patch(diffType.INSERT, newVNode)
     } else if (diffInTag(oldVNode, newVNode)) {
-        return new Patch(diffType.REPLACE, newVNode)
+        return new Patch(diffType.REPLACE, newVNode, oldVNode.tagName)
     } else if (diffInProps(oldVNode, newVNode)) {
         return new Patch(diffType.PROPS, newVNode.props, oldVNode.tagName)
     } else if (diffInText(oldVNode, newVNode)) {
