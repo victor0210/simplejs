@@ -11,7 +11,7 @@ import VNode from "./VNode";
 import {instanceOf} from "../utils/instanceOf";
 
 /**
- * component uid counter
+ * @description component uid counter，plus when mounted
  * */
 let componentUID = 0
 
@@ -105,6 +105,10 @@ export default class SimpleNativeComponent extends SimpleComponent {
         })
     }
 
+    /**
+     * 1.self calling destroy
+     * TODO: vnode replace contains component
+     * */
     public destroy(): void {
         this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
 
@@ -161,7 +165,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._bindEl(this.$vnode.render())
 
         this._injectChildren(this.$vnode)
-        // this._bindEvent()
     }
 
     private _injectChildren(parent: any) {
@@ -192,6 +195,14 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     private _destroy() {
+        this._destroyChildren()
+
         this.$el.remove()
+    }
+
+    private _destroyChildren() {
+        this.$children.forEach((child: any) => {
+            child.destroy()
+        })
     }
 }

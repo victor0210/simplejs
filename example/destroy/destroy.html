@@ -8,6 +8,18 @@
 <body>
 <div id="app"></div>
 <script>
+	const childComponent = new Simple({
+		render(h) {
+			return h('div', {}, ['child'])
+		},
+
+		beforeDestroy() {
+			console.log('child before destroy')
+		},
+		destroyed() {
+			console.log('child destroyed')
+		}
+	})
 	const Component_1 = new Simple({
 		state: {
 			name: true,
@@ -17,35 +29,26 @@
 		 * render base
 		 * */
 		render: function (h) {
-			if (this.state.name) {
-				return h('div', {}, [
-					h('p', {}, [
-						h('p', {}, ['second level p']),
-						'hhh'
-					]),
-				])
-			} else {
-				return h('p', {}, [
-					h('div', {}, [
-						'second level dshkjadhk'
-					])
-				])
-			}
+			return h('div', {}, [
+				h('p', {}, [
+					h('p', {}, ['second level p']),
+					'hhh',
+					childComponent
+				]),
+			])
 		},
 
 		mounted() {
 			setTimeout(() => {
-				this.setState({
-					name: !this.state.name,
-					count: this.state.count + 1
-				})
-			}, 1000)
-			setTimeout(() => {
-				this.setState({
-					name: !this.state.name,
-					count: this.state.count + 1
-				})
+				this.destroy()
 			}, 2000)
+		},
+
+		beforeDestroy() {
+			console.log('beforeDestroy')
+		},
+		destroyed() {
+			console.log('destroyed')
 		}
 
 		/**
