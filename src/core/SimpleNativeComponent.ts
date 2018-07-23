@@ -1,4 +1,3 @@
-import ComponentDictionary from "./ComponentDictionary";
 import lifeCycle from "../statics/lifeCycle";
 import throwIf from "../loggers/throwIf";
 import {setCurrentContext} from './RenderCurrent'
@@ -9,9 +8,10 @@ import diff from "../utils/diff";
 import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
 import {instanceOf} from "../utils/instanceOf";
+import removeFromArr from "../utils/removeFromArr";
 
 /**
- * component uid counter
+ * @description component uid counter，plus when mounted
  * */
 let componentUID = 0
 
@@ -28,7 +28,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     // private _watcherHub: WatcherHub = new WatcherHub()
     private _pendingState: any = {}
-    private _events: any = []
 
     public $vnode: any
     public $el: any
@@ -50,8 +49,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this._initVM()
         this._initState()
-
-        ComponentDictionary.registerComponent(this)
 
         this.setLifeCycle(lifeCycle.CREATED)
     }
@@ -105,6 +102,10 @@ export default class SimpleNativeComponent extends SimpleComponent {
         })
     }
 
+    /**
+     * 1.self calling destroy
+     * TODO: vnode replace contains component
+     * */
     public destroy(): void {
         this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
 
@@ -135,7 +136,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public injectParent(parent: SimpleNativeComponent) {
-        if (!this.$parent) this.$parent = parent
+        this.$parent = parent
     }
 
     public injectChild(child: SimpleNativeComponent) {
@@ -143,7 +144,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     private _bindEl(el: any) {
-        this.$el = el
+        if (el) this.$el = el
     }
 
     private _bindVNode(vnode: VNode) {
@@ -157,14 +158,29 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         setCurrentContext(this)
 
-        this._bindVNode(this.$context.render.call(this, createVNode))
-        this._bindEl(this.$vnode.render())
+        const vnode = this.$context.render.call(this, createVNode)
 
-        this._injectChildren(this.$vnode)
-        // this._bindEvent()
+        this._loadComponentOptions(vnode, vnode.render())
     }
 
-    private _injectChildren(parent: any) {
+    private _loadComponentOptions(vnode: VNode, el: any) {
+        this._bindVNode(vnode)
+        this._bindEl(el)
+
+        this._buildRelationshipWithChildren()
+    }
+
+    private _buildRelationshipWithChildren() {
+        this._initChildren()
+        this._injectChildren()
+        this._injectParentToChildren()
+    }
+
+    private _initChildren() {
+        this.$children = []
+    }
+
+    private _injectChildren(parent: any = this.$vnode) {
         parent.children.forEach((child: VNode) => {
             if (instanceOf(child.tagName, SimpleNativeComponent)) {
                 this.injectChild(child.tagName)
@@ -174,24 +190,46 @@ export default class SimpleNativeComponent extends SimpleComponent {
         })
     }
 
+    private _injectParentToChildren() {
+        this.$children.forEach((child: any) => {
+            child.injectParent(this)
+        })
+    }
+
     private _updateComponent() {
         setCurrentContext(this)
 
         let newVNode = this.$context.render.call(this, createVNode)
 
-        let diffPatch = diff(
+        let patches = diff(
             this.$vnode,
             newVNode
         )
 
-        let npe = applyPatches(diffPatch, this.$el)
+        let npe = applyPatches(patches, this.$el)
+
         this.updateChildren()
 
-        this.$vnode = newVNode
-        if (npe) this.$el = npe
+        this._loadComponentOptions(newVNode, npe)
     }
 
     private _destroy() {
+        this._removeFromParent()
+        this._destroyChildren()
+
         this.$el.remove()
+    }
+
+    private _destroyChildren() {
+        while (this.$children.length)
+            this.$children.pop().destroy()
+    }
+
+    private _removeFromParent() {
+        this.$parent && this.$parent._removeChild(this)
+    }
+
+    private _removeChild(child: SimpleNativeComponent) {
+        removeFromArr(this.$children, child)
     }
 }

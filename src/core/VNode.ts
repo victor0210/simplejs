@@ -5,11 +5,12 @@ import {getCurrentContext} from "./RenderCurrent";
 import SimpleNativeComponent from "./SimpleNativeComponent";
 import {instanceOf} from "../utils/instanceOf";
 import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
+import Patch from "./Patch";
 
 export default class VNode {
     public tagName: any
     public props: any
-    public children: Array<string | VNode>
+    public children: Array<any>
     public isText: boolean
 
     constructor(tagName: any, props: any, children: Array<any>, isText: boolean = false) {
@@ -71,7 +72,7 @@ export default class VNode {
                 }
             }
 
-            if (matchType(child, baseType.String)) {
+            if (matchType(child, baseType.String) || matchType(child, baseType.Number)) {
                 children[idx] = new VNode(child, {}, [], true)
             }
 

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const childComponent = new Simple({
+		render(h) {
+			return h('div', {}, [
+				this.props.age.toString()
+			])
+		},
+		beforeDestroy() {
+			console.log('child before destroy')
+		},
+		destroyed() {
+			console.log('child destroyed')
+		}
+	})
+	const Component_1 = new Simple({
+		state: {
+			name: true,
+			count: 1
+		},
+		/**
+		 * render base
+		 * */
+		render: function (h) {
+			return h('div', {}, [
+				h('p', {}, [
+					h('p', {}, ['second level p']),
+					'hhh',
+					(function () {
+						if (this.state.name) {
+							return h(childComponent, {
+								props: {
+									age: 1
+								}
+							})
+						} else {
+							return h(childComponent, {
+								props: {
+									age: 2
+								}
+							})
+
+							// return h('div', {
+							// 	props: {
+							// 		age: 2
+							// 	}
+							// }, ['hahah'])
+						}
+					})
+				]),
+			])
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name
+				})
+			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name
+				})
+			}, 2000)
+		},
+
+		beforeDestroy() {
+			console.log('beforeDestroy')
+		},
+		destroyed() {
+			console.log('destroyed')
+		}
+
+		/**
+		 * render children
+		 * */
+
+		/**
+		 * update with vnode diff
+		 * */
+	})
+	Simple.mount('#app', Component_1)
+</script>
+</body>
+</html>
