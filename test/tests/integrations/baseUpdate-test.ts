@@ -19,19 +19,14 @@ describe('Render Test', () => {
                 this.setState({
                     name: 'after change'
                 })
-            },
-
-            updated() {
-                expect(getHtmlById('app')).toBe(renderHtml);
             }
         })
-
-        let renderHtml = getUpdatedHtml()
 
         // Set up our document body
         document.body.innerHTML = `<div id="app"></div>`
 
         Simple.mount('#app', component)
+        expect(getHtmlById('app')).toBe(getUpdatedHtml());
     })
 })
 
