@@ -15,9 +15,14 @@ describe('Render Test', () => {
             },
 
             mounted() {
+                // expect(getHtmlById('app')).toBe(getBeforeUpdateHtml());
                 this.setState({
                     name: 'after change'
                 })
+            },
+
+            updated() {
+                expect(getHtmlById('app')).toBe(renderHtml);
             }
         })
 
@@ -27,14 +32,12 @@ describe('Render Test', () => {
         document.body.innerHTML = `<div id="app"></div>`
 
         Simple.mount('#app', component)
-
-        // This module has a side-effect
-
-        // Assert that the fetchCurrentUser function was called, and that the
-        // #username span's inner text was updated as we'd expect it to.
-        expect(getHtmlById('app')).toBe(renderHtml);
     })
 })
+
+const getBeforeUpdateHtml = () => {
+    return `<div>Welcome to before change</div>`
+}
 
 const getUpdatedHtml = () => {
     return `<div>Welcome to after change</div>`
