@@ -1,4 +1,5 @@
 import Simple from '../../../src/core/Simple'
+import getHtmlById from "../../helpers/getHtmlById";
 
 describe('Render Test', () => {
     test('render with state', () => {
@@ -45,10 +46,6 @@ describe('Render Test', () => {
         expect(getHtmlById('app')).toBe(renderHtml);
     })
 })
-
-const getHtmlById = (id: string) => {
-    return document.getElementById(id).innerHTML.trim()
-}
 
 const getRenderHtml = () => {
     return `<div>I am parent<div name="state name is true">Welcome to Simple Js</div></div>`
