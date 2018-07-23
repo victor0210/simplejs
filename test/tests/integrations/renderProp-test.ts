@@ -2,7 +2,7 @@ import Simple from '../../../src/core/Simple'
 import getHtmlById from "../../helpers/getHtmlById";
 
 describe('Render Test', () => {
-    test('render with state', () => {
+    test('render with props', () => {
         const Component_1 = new Simple({
             render: function (h) {
                 return h('div', {}, [

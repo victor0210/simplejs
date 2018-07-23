@@ -2,7 +2,7 @@ import Simple from '../../../src/core/Simple'
 import {triggerEvent} from "../../../src/utils/eventUtils"
 
 describe('Render Test', () => {
-    test('render with state', () => {
+    test('render with event bind', () => {
         let clickTag: any
         let mouseTag: any
         let component = new Simple({

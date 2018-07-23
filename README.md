@@ -40,5 +40,6 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * **LifeCycle: destroyed** (suggest to clear global setter)
 
 # TODO
-1. rebuild vnode component relationship
-2. add compile for converting html-template to vnode
+1. directive
+2. rebuild vnode component relationship
+3. add compile for converting html-template to vnode
