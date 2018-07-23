@@ -62,7 +62,7 @@ describe(utilDescribe('diff vnode'), () => {
             equal(
                 diff(source, t3),
                 {
-                    patch: new Patch(diffType.REPLACE, t3),
+                    patch: new Patch(diffType.REPLACE, t3, source.tagName),
                     sub: []
                 }
             )
@@ -97,7 +97,7 @@ describe(utilDescribe('diff vnode'), () => {
                     patch: undefined,
                     sub: [
                         {
-                            patch: new Patch(diffType.REMOVE, null),
+                            patch: new Patch(diffType.REMOVE, null, source.children[0].tagName),
                             sub: []
                         }
                     ]

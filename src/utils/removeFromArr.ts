@@ -1,6 +1,8 @@
+import equal from "./equal";
+
 const removeFromArr = (arr: Array<any>, item: any) => {
     arr.some((el, idx) => {
-        if (el === item) {
+        if (equal(el, item)) {
             arr.splice(idx, 1)
             return true
         }

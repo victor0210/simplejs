@@ -7,21 +7,18 @@ import SimpleNativeComponent from "../core/SimpleNativeComponent";
 export const diffInTag = (oldVNode: VNode, newVNode: VNode) => {
     if (oldVNode
         && newVNode
-        && !oldVNode.isText
-        && !newVNode.isText
-        && instanceOf(oldVNode.tagName, SimpleNativeComponent)
-        && instanceOf(newVNode.tagName, SimpleNativeComponent)
+        && (!oldVNode.isText || !newVNode.isText)
     ) {
-        if (equal(newVNode.tagName._hash, oldVNode.tagName._hash)) {
+        if (
+            instanceOf(oldVNode.tagName, SimpleNativeComponent)
+            && instanceOf(newVNode.tagName, SimpleNativeComponent)
+        ) {
             //clone old component instance
             newVNode.tagName = oldVNode.tagName
-            return false
-        } else {
-            return true
+            return !equal(newVNode.tagName._hash, oldVNode.tagName._hash)
         }
+        return !equal(newVNode.tagName, oldVNode.tagName)
     }
-
-    return !equal(newVNode.tagName, oldVNode.tagName)
 }
 
 export const diffInProps = (oldVNode: VNode, newVNode: VNode) => {
