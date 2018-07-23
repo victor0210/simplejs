@@ -3,6 +3,9 @@ import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
 import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
 import guid from "../utils/guid";
 
+/**
+ * component building-proxy
+ * */
 export default class SimpleNativeComponentCreator {
     private _opts: any
     private _hash: any

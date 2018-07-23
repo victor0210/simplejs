@@ -38,3 +38,7 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * teardown pass data relationship
 * teardown events listener
 * **LifeCycle: destroyed** (suggest to clear global setter)
+
+# TODO
+1. rebuild vnode component relationship
+2. add compile for converting html-template to vnode
