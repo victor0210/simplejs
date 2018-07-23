@@ -10,7 +10,9 @@
 <script>
 	const childComponent = new Simple({
 		render(h) {
-			return h('div', {}, ['child'])
+			return h('div', {}, [
+				this.props.age.toString()
+			])
 		},
 		beforeDestroy() {
 			console.log('child before destroy')
@@ -34,9 +36,23 @@
 					'hhh',
 					(function () {
 						if (this.state.name) {
-							return childComponent
+							return h(childComponent, {
+								props: {
+									age: 1
+								}
+							})
 						} else {
-							return 'abc'
+							return h(childComponent, {
+								props: {
+									age: 2
+								}
+							})
+
+							// return h('div', {
+							// 	props: {
+							// 		age: 2
+							// 	}
+							// }, ['hahah'])
 						}
 					})
 				]),

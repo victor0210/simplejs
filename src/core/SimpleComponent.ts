@@ -1,6 +1,3 @@
-import Simple from "./Simple";
-import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
-import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
 import lifeCycle from "../statics/lifeCycle";

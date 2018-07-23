@@ -12,7 +12,13 @@ export const diffInTag = (oldVNode: VNode, newVNode: VNode) => {
         && instanceOf(oldVNode.tagName, SimpleNativeComponent)
         && instanceOf(newVNode.tagName, SimpleNativeComponent)
     ) {
-        return !equal(newVNode.tagName._hash, oldVNode.tagName._hash)
+        if (equal(newVNode.tagName._hash, oldVNode.tagName._hash)) {
+            //clone old component instance
+            newVNode.tagName = oldVNode.tagName
+            return false
+        } else {
+            return true
+        }
     }
 
     return !equal(newVNode.tagName, oldVNode.tagName)

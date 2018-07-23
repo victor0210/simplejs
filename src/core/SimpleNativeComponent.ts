@@ -1,4 +1,3 @@
-import ComponentDictionary from "./ComponentDictionary";
 import lifeCycle from "../statics/lifeCycle";
 import throwIf from "../loggers/throwIf";
 import {setCurrentContext} from './RenderCurrent'
@@ -89,13 +88,11 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public updateComponent(): void {
-        console.log(this.$children)
         this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
 
         this._updateComponent()
 
         this.setLifeCycle(lifeCycle.UPDATED)
-        console.log(this.$children)
     }
 
     //not replace the same component creator but should reinject new props
@@ -139,7 +136,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public injectParent(parent: SimpleNativeComponent) {
-        if (!this.$parent) this.$parent = parent
+        this.$parent = parent
     }
 
     public injectChild(child: SimpleNativeComponent) {
@@ -161,14 +158,29 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         setCurrentContext(this)
 
-        this._bindVNode(this.$context.render.call(this, createVNode))
-        this._bindEl(this.$vnode.render())
+        const vnode = this.$context.render.call(this, createVNode)
 
-        this._injectChildren(this.$vnode)
+        this._loadComponentOptions(vnode, vnode.render())
+    }
+
+    private _loadComponentOptions(vnode: VNode, el: any) {
+        this._bindVNode(vnode)
+        this._bindEl(el)
+
+        this._buildRelationshipWithChildren()
+    }
+
+    private _buildRelationshipWithChildren() {
+        this._initChildren()
+        this._injectChildren()
         this._injectParentToChildren()
     }
 
-    private _injectChildren(parent: any) {
+    private _initChildren() {
+        this.$children = []
+    }
+
+    private _injectChildren(parent: any = this.$vnode) {
         parent.children.forEach((child: VNode) => {
             if (instanceOf(child.tagName, SimpleNativeComponent)) {
                 this.injectChild(child.tagName)
@@ -189,17 +201,16 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         let newVNode = this.$context.render.call(this, createVNode)
 
-        let npe = applyPatches(
-            diff(
-                this.$vnode,
-                newVNode
-            ), this.$el
+        let patches = diff(
+            this.$vnode,
+            newVNode
         )
+
+        let npe = applyPatches(patches, this.$el)
 
         this.updateChildren()
 
-        this._bindVNode(newVNode)
-        this._bindEl(npe)
+        this._loadComponentOptions(newVNode, npe)
     }
 
     private _destroy() {
