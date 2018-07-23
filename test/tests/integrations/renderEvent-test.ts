@@ -3,8 +3,8 @@ import {triggerEvent} from "../../../src/utils/eventUtils"
 
 describe('Render Test', () => {
     test('render with state', () => {
-        let clickTag
-        let mouseTag
+        let clickTag: any
+        let mouseTag: any
         let component = new Simple({
             state: {
                 name: 'Simple Js'
