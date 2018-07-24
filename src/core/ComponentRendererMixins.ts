@@ -26,9 +26,7 @@ const ComponentRendererMixins: any = {
             ContainerDictionary.registerContainer(rootDom)
 
             let component = componentCreator.fuck()
-            component.mountComponent()
-
-            pushToDom(rootDom, component)
+            component.mountComponent(rootDom)
         } else {
             // dom's update
         }

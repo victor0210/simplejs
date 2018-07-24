@@ -9,6 +9,7 @@ import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
 import {instanceOf} from "../utils/instanceOf";
 import removeFromArr from "../utils/removeFromArr";
+import {pushToDom} from "../utils/domTransfer";
 
 /**
  * @description component uid counter，plus when mounted
@@ -78,13 +79,19 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._uid = ++componentUID
     }
 
-    public mountComponent(): void {
+    public mountComponent(dom?: any): void {
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
         this._countUID()
         this._renderComponent()
 
+        this._mountToContainer(dom)
+
         this.setLifeCycle(lifeCycle.MOUNTED)
+    }
+
+    private _mountToContainer(dom?: any) {
+        if (dom) pushToDom(dom, this)
     }
 
     public updateComponent(): void {

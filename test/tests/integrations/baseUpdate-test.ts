@@ -15,10 +15,14 @@ describe('Render Test', () => {
             },
 
             mounted() {
-                // expect(getHtmlById('app')).toBe(getBeforeUpdateHtml());
+                expect(getHtmlById('app')).toBe(getBeforeUpdateHtml());
                 this.setState({
                     name: 'after change'
                 })
+            },
+
+            updated() {
+                expect(getHtmlById('app')).toBe(getUpdatedHtml());
             }
         })
 
@@ -26,7 +30,6 @@ describe('Render Test', () => {
         document.body.innerHTML = `<div id="app"></div>`
 
         Simple.mount('#app', component)
-        expect(getHtmlById('app')).toBe(getUpdatedHtml());
     })
 })
 

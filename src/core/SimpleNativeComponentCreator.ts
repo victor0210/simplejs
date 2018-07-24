@@ -2,6 +2,7 @@ import SimpleNativeComponent from "./SimpleNativeComponent";
 import ifKeysAllBelongValidator from "../validators/ifKeysAllBelongValidator";
 import initSpecComparisonObject from "../validators/comparisons/initSpecComparisonObject";
 import guid from "../utils/guid";
+import {getDom} from "../utils/domTransfer";
 
 /**
  * component building-proxy
@@ -19,5 +20,12 @@ export default class SimpleNativeComponentCreator {
 
     public fuck() {
         return new SimpleNativeComponent(this._opts, this._hash)
+    }
+
+    public $mount(selector: any) {
+        let component = new SimpleNativeComponent(this._opts, this._hash)
+        let dom = getDom(selector)
+        component.mountComponent(dom)
+        return component
     }
 }
