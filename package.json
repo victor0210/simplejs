@@ -14,7 +14,7 @@
     "testRegex": "/test/.*-test\\.ts$"
   },
   "scripts": {
-    "dev": "webpack -w --mode=development",
+    "dev": "rollup -c -w",
     "test": "jest --notify --coverage"
   },
   "repository": {
@@ -43,6 +43,9 @@
     "eslint-plugin-standard": "^3.1.0",
     "jest": "^23.2.0",
     "regenerator-runtime": "^0.12.0",
+    "rollup": "^0.63.4",
+    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-typescript": "^0.8.1",
     "ts-jest": "^23.0.0",
     "ts-loader": "^4.4.1",
     "typescript": "^2.9.2",
