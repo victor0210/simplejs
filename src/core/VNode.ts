@@ -6,12 +6,14 @@ import SimpleNativeComponent from "./SimpleNativeComponent";
 import {instanceOf} from "../utils/instanceOf";
 import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
 import Patch from "./Patch";
+import GlobalDirectives from "./GlobalDirectives";
 
 export default class VNode {
     public tagName: any
     public props: any
     public children: Array<any>
     public isText: boolean
+    public node: any
 
     constructor(tagName: any, props: any, children: Array<any>, isText: boolean = false) {
         this.tagName = tagName
@@ -46,6 +48,7 @@ export default class VNode {
         }
 
         root.appendChild(node)
+        this.node = node
 
         if (this.children) this._renderChildren(node)
 
@@ -53,7 +56,7 @@ export default class VNode {
     }
 
     private _renderChildren(parent: any) {
-        this.children.forEach((child: any, idx: number) => {
+        this.children.forEach((child: any) => {
             parent.appendChild(child.render())
         })
     }
@@ -89,6 +92,34 @@ export default class VNode {
             if (child.children) {
                 this._convertToTextVNode(child.children)
             }
+        })
+    }
+
+    public actionDirective() {
+        let ds = this.props.directives
+        ds && ds.forEach((dopt: any) => {
+            let d = GlobalDirectives.get(dopt.key)
+            if (d) {
+                d.cbs.insert && d.cbs.insert(this.node, dopt.condition)
+            }
+        })
+
+        this.children && this.children.forEach((vnode: VNode) => {
+            vnode.actionDirective()
+        })
+    }
+
+    public updateDirective() {
+        let ds = this.props.directives
+        ds && ds.forEach((dopt: any) => {
+            let d = GlobalDirectives.get(dopt.key)
+            if (d) {
+                d.cbs.insert && d.cbs.update(this.node, dopt.condition)
+            }
+        })
+
+        this.children && this.children.forEach((vnode: VNode) => {
+            vnode.updateDirective()
         })
     }
 }

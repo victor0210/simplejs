@@ -87,7 +87,17 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this._mountToContainer(dom)
 
+        this._actionDirective()
+
         this.setLifeCycle(lifeCycle.MOUNTED)
+    }
+
+    private _actionDirective() {
+        this.$vnode.actionDirective()
+    }
+
+    private _updateDirective() {
+        this.$vnode.updateDirective()
     }
 
     private _mountToContainer(dom?: any) {
@@ -215,9 +225,25 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         let npe = applyPatches(patches, this.$el)
 
+        if (!newVNode.node){
+            newVNode.node = this.$vnode.node
+        }
+
+        this._patchChildrenVNodes(newVNode.children, this.$vnode.children)
+
         this.updateChildren()
 
         this._loadComponentOptions(newVNode, npe)
+
+        this._updateDirective()
+    }
+
+    private _patchChildrenVNodes(newVC: Array<VNode>, oldVC: Array<VNode>) {
+        newVC.forEach((v: VNode, idx: number) =>{
+            if (!v.node){
+                v.node = oldVC[idx].node
+            }
+        })
     }
 
     private _destroy() {

@@ -1,5 +1,4 @@
 import {utilDescribe} from "../../assrtions/describeConfig";
-import applyMixin from "../../../src/utils/applyMixin";
 import VNode from "../../../src/core/VNode";
 import equal from "../../../src/utils/equal";
 import diffType from "../../../src/statics/diffType";
