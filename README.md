@@ -42,6 +42,11 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 # TODO
 1. lifeCycle hook test (done half)
 2. mount method bug(append to child after mounted lifecycle which cause can`t find $el in mounted lifecycle hook) done
-3. directive (bind to el done, todo: bind to component auto reflow to compoennt.$el's root)
+3. directive (bind to el done, todo: bind to component auto reflow to component.$el's root) and lifecycle hooks
+
+* bind
+* update
+* unbind
+
 4. rebuild vnode component relationship
 5. add compile for converting html-template to vnode
