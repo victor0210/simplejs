@@ -1,14 +1,13 @@
 import Directive from "./Directive";
-
-let directives: any = {}
+import GlobalInjectionUtil from "./GlobalInjection";
 
 const GlobalDirectives = {
     set(key: string, directive: Directive) {
-        directives[key] = directive
+        GlobalInjectionUtil.setDirective(key, directive)
     },
 
     get(key: string): any {
-        return directives[key]
+        return GlobalInjectionUtil.getDirective(key)
     }
 }
 
