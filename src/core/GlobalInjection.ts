@@ -4,7 +4,7 @@ import SimpleNativeComponent from "./SimpleNativeComponent";
 const GlobalInjection: any = {
     directives: {},
     components: {},
-    mixin: {}
+    mixins: {}
 }
 
 const GlobalInjectionUtil = {
@@ -28,7 +28,7 @@ const GlobalInjectionUtil = {
     },
 
     mixin(mixin: object) {
-        Object.assign(GlobalInjection.mixin, mixin)
+        Object.assign(GlobalInjection.mixins, mixin)
     }
 }
 

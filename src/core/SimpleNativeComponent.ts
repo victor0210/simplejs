@@ -9,77 +9,111 @@ import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
 import {instanceOf} from "../utils/instanceOf";
 import removeFromArr from "../utils/removeFromArr";
-import {pushToDom} from "../utils/domTransfer";
+import {getDom, pushToDom} from "../utils/domTransfer";
+import filterLifeCycleHooks from "../utils/filterLifeCycleHooks";
+import baseType from "../statics/baseType";
+import matchType from "../utils/matchType";
+import {compile} from "../utils/compileUtils";
 
 /**
- * @description component uid counter，plus when mounted
+ * @description primary key for mounted component
  * */
 let componentUID = 0
 
 /**
  * @description
  * return a component instance
- * component should be mounted manually if there is not has el option
- *
- * @param context: user spec during the whole component lifeCycle
- * @param this.state / this.props / this.someMethod
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    public _uid: number
+    private _uid: number
+    private _hash: string
 
     // private _watcherHub: WatcherHub = new WatcherHub()
-    private _pendingState: any = {}
-
+    // private _pendingState: any = {}
+    //
     public $vnode: any
     public $el: any
-    public $vm: any
-    public $parent: SimpleNativeComponent
-    public $children: Array<SimpleNativeComponent> = []
+    // public $parent: SimpleNativeComponent
+    // public $children: Array<SimpleNativeComponent> = []
+    //
+    // // only state could be mutated
+    // public state: any = {}
+    // public props: any = {}
 
-    // only state could be mutated
-    public state: any = {}
-    public props: any = {}
+    /**
+     * @param[spec]:
+     *      el,
+     *      mixin,done => context
+     *      components,done => context
+     *      lifeCycleHooks, => context
+     *      template | render => context
+     *      state,done => vm
+     *      methods,done => vm
+     * */
+    constructor(spec: any, hash: any) {
+        super(spec);
 
-    constructor(spec: any, creatorHash: any) {
-        super(spec, creatorHash);
-
-        /**
-         * inject self injections / component && mixins
-         * */
-        this.injectCurrent()
-
-        this._initVM()
-        this._initState()
+        this._initHash(hash)
+        this._initContext(spec)
+        this._initVM(spec)
 
         this.setLifeCycle(lifeCycle.CREATED)
     }
 
-    private injectCurrent(): void {
-        merge(this.$injections.mixins, Object.assign({},
-            this.$context.mixins,
-            this.$context.state,
-            this.$context.methods,
-        ))
-
-        merge(this.$injections.components, this.$context.components)
+    /**
+     * @description[hash]: same when created by same ComponentProxy
+     * */
+    private _initHash(hash: string): void {
+        this._hash = hash
     }
 
-    private _initVM() {
-        this.$vm = Object.assign({}, this.$injections.mixins)
+    /**
+     * @description: mixin user spec and global injections into $context
+     * */
+    private _initContext(spec: any): void {
+        Object.assign(this.$context.components, this.$injections.components, spec.components)
+        Object.assign(this.$context.mixins, this.$injections.mixins, spec.mixins)
+        this.$context.renderProxy = spec.template || spec.render
     }
 
-    private _initState() {
-        this.state = Object.assign({}, this.$context.state)
+    /**
+     * @description: create action scope
+     * TODO：merge vm to component instance prototype
+     * */
+    private _initVM(spec: any): void {
+        this.$vm = this._parseVM(spec)
+    }
 
-        // _pendingState is an old state for setState compare
-        this._pendingState = Object.assign({}, this.$context.state)
+    private _setVNode(vnode: VNode) {
+        this.$vnode = vnode
     }
 
     private _countUID() {
         this._uid = ++componentUID
     }
 
-    public mountComponent(dom?: any): void {
+    private _createVNode() {
+        throwIf(
+            !this.$context.renderProxy,
+            'not found "render" function or "template" for render'
+        )
+
+        setCurrentContext(this)
+
+        if (matchType(this.$context.renderProxy, baseType.Function)) {
+            this._setVNode(
+                this.$context.renderProxy.call(this.$vm, createVNode)
+            )
+        } else {
+            this._setVNode(
+               compile.call(this.$vm, this.$context.renderProxy)
+            )
+        }
+    }
+
+    public mountComponent(dom: any): void {
+        this._createVNode()
+
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
         this._countUID()
@@ -87,182 +121,180 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
         this._mountToContainer(dom)
 
-        this._actionDirective()
-
         this.setLifeCycle(lifeCycle.MOUNTED)
     }
-
-    private _actionDirective() {
-        this.$vnode.actionDirective()
-    }
-
-    private _updateDirective() {
-        this.$vnode.updateDirective()
-    }
-
-    private _mountToContainer(dom?: any) {
+    //
+    // private _actionDirective() {
+    //     this.$vnode.actionDirective()
+    // }
+    //
+    // private _updateDirective() {
+    //     this.$vnode.updateDirective()
+    // }
+    //
+    private _mountToContainer(dom: any) {
         if (dom) pushToDom(dom, this)
     }
-
-    public updateComponent(): void {
-        this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
-
-        this._updateComponent()
-
-        this.setLifeCycle(lifeCycle.UPDATED)
-    }
-
-    //not replace the same component creator but should reinject new props
-    public updateChildren(): void {
-        this.$children && this.$children.forEach((child: SimpleNativeComponent) => {
-            child.updateComponent()
-        })
-    }
+    //
+    // public updateComponent(): void {
+    //     this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
+    //
+    //     this._updateComponent()
+    //
+    //     this.setLifeCycle(lifeCycle.UPDATED)
+    // }
+    //
+    // //not replace the same component creator but should reinject new props
+    // public updateChildren(): void {
+    //     this.$children && this.$children.forEach((child: SimpleNativeComponent) => {
+    //         child.updateComponent()
+    //     })
+    // }
+    //
+    // /**
+    //  * 1.self calling destroy
+    //  * TODO: vnode replace contains component
+    //  * */
+    // public destroy(): void {
+    //     this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
+    //
+    //     this._destroy()
+    //
+    //     this.setLifeCycle(lifeCycle.DESTROYED)
+    // }
+    //
+    // /**
+    //  * state change emit vm change
+    //  * */
+    // public setState(state: object): void {
+    //     if (merge(this._pendingState, state)) {
+    //         merge(this.state, state)
+    //         merge(this.$vm, state)
+    //         this.updateComponent()
+    //     }
+    // }
+    //
+    // public injectPropsAndParent(parent: any, props: object) {
+    //     this.injectParent(parent)
+    //     this.injectProps(props)
+    // }
+    //
+    // public injectProps(props: object) {
+    //     merge(this.props, props)
+    //     merge(this.$vm, props)
+    // }
+    //
+    // public injectParent(parent: SimpleNativeComponent) {
+    //     this.$parent = parent
+    // }
+    //
+    // public injectChild(child: SimpleNativeComponent) {
+    //     this.$children.push(child)
+    // }
+    //
+    //
+    // private _bindVNode(vnode: VNode) {
+    //     this.$vnode = vnode
+    // }
+    //
 
     /**
-     * 1.self calling destroy
-     * TODO: vnode replace contains component
+     * @transaction: 1. create vnode
+     * @transaction: 2. convert vnode to dom
+     * @transaction: 3. mount vnode.el to root
      * */
-    public destroy(): void {
-        this.setLifeCycle(lifeCycle.BEFORE_DESTROY)
-
-        this._destroy()
-
-        this.setLifeCycle(lifeCycle.DESTROYED)
-    }
-
-    /**
-     * state change emit vm change
-     * */
-    public setState(state: object): void {
-        if (merge(this._pendingState, state)) {
-            merge(this.state, state)
-            merge(this.$vm, state)
-            this.updateComponent()
-        }
-    }
-
-    public injectPropsAndParent(parent: any, props: object) {
-        this.injectParent(parent)
-        this.injectProps(props)
-    }
-
-    public injectProps(props: object) {
-        merge(this.props, props)
-        merge(this.$vm, props)
-    }
-
-    public injectParent(parent: SimpleNativeComponent) {
-        this.$parent = parent
-    }
-
-    public injectChild(child: SimpleNativeComponent) {
-        this.$children.push(child)
+    private _renderComponent() {
+        this._bindEl(this.$vnode.render())
+        // this._actionDirective()
     }
 
     private _bindEl(el: any) {
         if (el) this.$el = el
     }
 
-    private _bindVNode(vnode: VNode) {
-        this.$vnode = vnode
-    }
-
-    private _renderComponent() {
-        throwIf(!this.$context.render,
-            'not found "render" function when init a component'
-        )
-
-        setCurrentContext(this)
-
-        const vnode = this.$context.render.call(this, createVNode)
-
-        this._loadComponentOptions(vnode, vnode.render())
-    }
-
     private _loadComponentOptions(vnode: VNode, el: any) {
-        this._bindVNode(vnode)
-        this._bindEl(el)
+        // this._bindVNode(vnode)
+        // this._bindEl(el)
 
-        this._buildRelationshipWithChildren()
+        // this._buildRelationshipWithChildren()
     }
-
-    private _buildRelationshipWithChildren() {
-        this._initChildren()
-        this._injectChildren()
-        this._injectParentToChildren()
-    }
-
-    private _initChildren() {
-        this.$children = []
-    }
-
-    private _injectChildren(parent: any = this.$vnode) {
-        parent.children.forEach((child: VNode) => {
-            if (instanceOf(child.tagName, SimpleNativeComponent)) {
-                this.injectChild(child.tagName)
-            } else {
-                if (child.children) this._injectChildren(child)
-            }
-        })
-    }
-
-    private _injectParentToChildren() {
-        this.$children.forEach((child: any) => {
-            child.injectParent(this)
-        })
-    }
-
-    private _updateComponent() {
-        setCurrentContext(this)
-
-        let newVNode = this.$context.render.call(this, createVNode)
-
-        let patches = diff(
-            this.$vnode,
-            newVNode
-        )
-
-        let npe = applyPatches(patches, this.$el)
-
-        if (!newVNode.node){
-            newVNode.node = this.$vnode.node
-        }
-
-        this._patchChildrenVNodes(newVNode.children, this.$vnode.children)
-
-        this.updateChildren()
-
-        this._loadComponentOptions(newVNode, npe)
-
-        this._updateDirective()
-    }
-
-    private _patchChildrenVNodes(newVC: Array<VNode>, oldVC: Array<VNode>) {
-        newVC.forEach((v: VNode, idx: number) =>{
-            if (!v.node){
-                v.node = oldVC[idx].node
-            }
-        })
-    }
-
-    private _destroy() {
-        this._removeFromParent()
-        this._destroyChildren()
-
-        this.$el.remove()
-    }
-
-    private _destroyChildren() {
-        while (this.$children.length)
-            this.$children.pop().destroy()
-    }
-
-    private _removeFromParent() {
-        this.$parent && this.$parent._removeChild(this)
-    }
-
-    private _removeChild(child: SimpleNativeComponent) {
-        removeFromArr(this.$children, child)
-    }
+    //
+    // private _buildRelationshipWithChildren() {
+    //     this._initChildren()
+    //     this._injectChildren()
+    //     this._injectParentToChildren()
+    // }
+    //
+    // private _initChildren() {
+    //     this.$children = []
+    // }
+    //
+    // private _injectChildren(parent: any = this.$vnode) {
+    //     parent.children.forEach((child: VNode) => {
+    //         if (instanceOf(child.tagName, SimpleNativeComponent)) {
+    //             this.injectChild(child.tagName)
+    //         } else {
+    //             if (child.children) this._injectChildren(child)
+    //         }
+    //     })
+    // }
+    //
+    // private _injectParentToChildren() {
+    //     this.$children.forEach((child: any) => {
+    //         child.injectParent(this)
+    //     })
+    // }
+    //
+    // private _updateComponent() {
+    //     setCurrentContext(this)
+    //
+    //     let newVNode = this.$context.render.call(this, createVNode)
+    //
+    //     let patches = diff(
+    //         this.$vnode,
+    //         newVNode
+    //     )
+    //
+    //     let npe = applyPatches(patches, this.$el)
+    //
+    //     if (!newVNode.node){
+    //         newVNode.node = this.$vnode.node
+    //     }
+    //
+    //     this._patchChildrenVNodes(newVNode.children, this.$vnode.children)
+    //
+    //     this.updateChildren()
+    //
+    //     this._loadComponentOptions(newVNode, npe)
+    //
+    //     this._updateDirective()
+    // }
+    //
+    // private _patchChildrenVNodes(newVC: Array<VNode>, oldVC: Array<VNode>) {
+    //     newVC.forEach((v: VNode, idx: number) =>{
+    //         if (!v.node){
+    //             v.node = oldVC[idx].node
+    //         }
+    //     })
+    // }
+    //
+    // private _destroy() {
+    //     this._removeFromParent()
+    //     this._destroyChildren()
+    //
+    //     this.$el.remove()
+    // }
+    //
+    // private _destroyChildren() {
+    //     while (this.$children.length)
+    //         this.$children.pop().destroy()
+    // }
+    //
+    // private _removeFromParent() {
+    //     this.$parent && this.$parent._removeChild(this)
+    // }
+    //
+    // private _removeChild(child: SimpleNativeComponent) {
+    //     removeFromArr(this.$children, child)
+    // }
 }

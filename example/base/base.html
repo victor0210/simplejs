@@ -8,23 +8,49 @@
 <body>
 <div id="app"></div>
 <script>
-	const Component_1 = new Simple({
+	//render
+	new Simple({
+		el: '#app',
+
 		state: {
 			name: 'Simple Js'
 		},
 
 		render: function (h) {
 			return h('div', {
-				props: {
+				domProps: {
 					name: 'state name is true'
 				}
 			}, [
 				`Welcome to ${this.state.name}`,
+				(function () {
+					return `Welcome to ${this.state.name}`
+				}),
+				(function () {
+					return (function () {
+						return `Welcome to ${this.state.name}`
+					})
+				})
 			])
 		}
 	})
 
-	Simple.mount('#app', Component_1)
+	//template
+/*	new Simple({
+		el: '#app',
+
+		template: `
+            <div>
+                welcome to { this.state.name }
+            </div>
+        `,
+
+		state: {
+			name: 'Simple Js'
+		}
+	})*/
+
+	// Simple.mount('#app', Component_1)
 </script>
 </body>
 </html>

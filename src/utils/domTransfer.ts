@@ -7,7 +7,7 @@ const rootTag: string = 'div'
 
 export const transToFragment = (documentString: string): DocumentFragment => {
     let container = document.createElement(rootTag)
-    container.innerHTML = documentString
+    container.innerHTML = documentString.trim()
 
     let fragment = document.createDocumentFragment()
     fragment.appendChild(container.firstChild)

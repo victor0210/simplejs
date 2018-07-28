@@ -1,7 +1,7 @@
 /**
  * native component lifecycle map
  * */
-const lifeCycle = {
+const lifeCycle: any = {
     UNMOUNT: 'unmount',
 
     BEFORE_CREATE: 'beforeCreate',

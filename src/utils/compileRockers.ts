@@ -11,13 +11,9 @@ export const extractVariable = (exp: string, vm: any): string => {
     let escapedString = STRING_NULL
 
     duckVariables.forEach((duck: string, idx: number) => {
-        duck = duck.trim()
+        duck = duck.trim().replace('this.', '')
 
         if (!isTempString(duck)) {
-            throwIf(!(duck in vm),
-                `"${duck}" is not defined but use in the instance`
-            )
-
             escapedString = escapedString === STRING_NULL ? getVM(duck, vm) : escapedString + getVM(duck, vm)
         } else {
             escapedString += duck.slice(1, -1)
