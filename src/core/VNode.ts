@@ -1,6 +1,10 @@
 import {bindEvent} from "../utils/eventUtils";
 import {getCurrentContext} from "./RenderCurrent";
 import SimpleNativeComponent from "./SimpleNativeComponent";
+import directiveLifeCycle from "../statics/directievLifeCycle";
+import GlobalDirectives from "./GlobalDirectives";
+import matchType from "../utils/matchType";
+import baseType from "../statics/baseType";
 
 /**
  * @param[props]:
@@ -19,6 +23,7 @@ export default class VNode {
     public componentInstance: SimpleNativeComponent
 
     public node: any
+    public directives: any
 
     constructor(tagName: any = null,
                 props: any = {},
@@ -35,9 +40,13 @@ export default class VNode {
     }
 
     public render() {
+        this._injectDirective()
+
         this.node = this._createNode()
 
         this._injectProps()
+
+        this._compileDirective(directiveLifeCycle.INSERT)
 
         if (this.children) this._renderChildren()
 
@@ -60,10 +69,23 @@ export default class VNode {
         return this.isText ? document.createTextNode(this.tagName) : document.createElement(this.tagName)
     }
 
+    private _compileDirective(type: string) {
+        let _this = this
+        this.directives && Object.keys(this.directives).forEach((key: string) => {
+            let directive = GlobalDirectives.get(key)
+
+            if (directive && directive.cbs) {
+                let func = directive.cbs[type]
+                if (matchType(func, baseType.Function)) {
+                    func(this.node, _this.directives[key])
+                }
+            }
+        })
+    }
+
     private _injectProps() {
         this._injectDomProps()
         this._injectEvents()
-        this._injectDirective()
     }
 
     private _injectDomProps() {
@@ -79,6 +101,6 @@ export default class VNode {
     }
 
     private _injectDirective() {
-
+        this.directives = this.props.directives
     }
 }

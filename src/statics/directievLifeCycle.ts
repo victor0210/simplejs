@@ -1,24 +1,12 @@
 /**
- * native component lifecycle map
+ * directive lifecycle map
  * */
-const lifeCycle: any = {
-    UNMOUNT: 'unmount',
+const directiveLifeCycle: any = {
+    INSERT: 'insert',
 
-    BEFORE_CREATE: 'beforeCreate',
+    UPDATE: 'update',
 
-    CREATED: 'created',
-
-    BEFORE_MOUNT: 'beforeMount',
-
-    MOUNTED: 'mounted',
-
-    BEFORE_UPDATE: 'beforeUpdate',
-
-    UPDATED: 'updated',
-
-    BEFORE_DESTROY: 'beforeDestroy',
-
-    DESTROYED: 'destroyed'
+    REMOVE: 'destroy'
 }
 
-export default lifeCycle
+export default directiveLifeCycle

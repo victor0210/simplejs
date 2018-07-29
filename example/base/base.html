@@ -8,18 +8,42 @@
 <body>
 <div id="app"></div>
 <script>
+	Simple.directive('show', () => {
+		const checkShow = (el, value) => {
+			if (value) {
+				el.style.display = 'block'
+			} else {
+				el.style.display = 'none'
+			}
+		}
+
+		return {
+			insert: (el, value) => {
+				checkShow(el, value)
+			},
+
+			update: (el, value) => {
+				checkShow(el, value)
+			}
+		}
+	})
+
 	//render
 	new Simple({
 		el: '#app',
 
 		state: {
-			name: 'Simple Js'
+			name: 'Simple Js',
+			ifShow: false
 		},
 
 		render: function (h) {
 			return h('div', {
 				domProps: {
 					name: 'state name is true'
+				},
+				directives: {
+					show: this.state.ifShow
 				}
 			}, [
 				`Welcome to ${this.state.name}`,
@@ -36,19 +60,19 @@
 	})
 
 	//template
-/*	new Simple({
-		el: '#app',
+	/*	new Simple({
+            el: '#app',
 
-		template: `
-            <div>
-                welcome to { this.state.name }
-            </div>
-        `,
+            template: `
+                <div>
+                    welcome to { this.state.name }
+                </div>
+            `,
 
-		state: {
-			name: 'Simple Js'
-		}
-	})*/
+            state: {
+                name: 'Simple Js'
+            }
+        })*/
 
 	// Simple.mount('#app', Component_1)
 </script>
