@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let child = new Simple({
+		state: {
+			name: 'child component => compile with state'
+		},
+
+		render: function (h) {
+			return h('div', null, [
+				this.state.name,
+				h('br'),
+				this.props.name
+			])
+		}
+	})
+
+	//render
+	new Simple({
+		el: '#app',
+
+		state: {
+			name: 'Simple Js'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: 'state name is true'
+				}
+			}, [
+				`Welcome to ${this.state.name}`,
+				h(child, {
+					props: {
+						name: 'child component => compile with props'
+					}
+				})
+			])
+		}
+	})
+</script>
+</body>
+</html>

@@ -25,6 +25,8 @@ export default class ComponentProxy {
      * @description: component will auto mount if has "el" option
      * */
     private _autoMount(el: any): void {
+        if (!el) return
+
         const _el = getDom(el)
         throwIf(!_el,
             'el option must be an available selector or element'

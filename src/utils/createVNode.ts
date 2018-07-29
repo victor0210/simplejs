@@ -4,24 +4,28 @@ import {getCurrentContext} from "../core/RenderCurrent";
 import baseType from "../statics/baseType";
 import {instanceOf} from "./instanceOf";
 import matchType from "./matchType";
+import ComponentProxy from "../core/ComponentProxy";
 
-const createVNode = (tagName: any, props: any = {}, children: Array<string | VNode> = []) => {
+const createVNode = (tagName: any, props: any, children: Array<string | VNode>) => {
     let _vnode = new VNode(
         tagName,
-        props,
-        children,
+        props || {},
+        children || [],
         false,
         false,
         getCurrentContext()
     )
 
     convertChildren(_vnode.children, _vnode.componentInstance)
+    console.log(_vnode)
 
     return _vnode
 }
 
 const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): any => {
-    if (instanceOf(param, VNode)) return param
+    if (instanceOf(param, VNode)
+        && !instanceOf(param.tagName, ComponentProxy)
+    ) return param
 
     if (matchType(param, baseType.Function)) {
         return convert2VNode(
@@ -37,15 +41,20 @@ const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): an
             false,
             componentInstance
         )
-    } else if (instanceOf(param, SimpleNativeComponent)) {
+    } else if (instanceOf(param, ComponentProxy)) {
         return new VNode(
-            SimpleNativeComponent,
+            param.fuck(),
             {},
             [],
             false,
             true,
             componentInstance
         )
+    } else if (instanceOf(param.tagName, ComponentProxy)) {
+        param.tagName = param.tagName.fuck()
+        param.isComponent = true
+
+        return param
     }
 }
 

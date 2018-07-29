@@ -112,6 +112,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     public mountComponent(dom: any): void {
+        console.log(dom,'dsa')
         this._createVNode()
 
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
@@ -179,10 +180,9 @@ export default class SimpleNativeComponent extends SimpleComponent {
     //     this.injectProps(props)
     // }
     //
-    // public injectProps(props: object) {
-    //     merge(this.props, props)
-    //     merge(this.$vm, props)
-    // }
+    public injectProps(props: object) {
+        this.$vm.props = props
+    }
     //
     // public injectParent(parent: SimpleNativeComponent) {
     //     this.$parent = parent

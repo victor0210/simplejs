@@ -39,30 +39,35 @@ export default class VNode {
         this.componentInstance = componentInstance
     }
 
-    public render() {
+    public render(parent?: any) {
         this._injectDirective()
 
-        this.node = this._createNode()
+        this.node = this._createNode(parent)
 
         this._injectProps()
 
         this._compileDirective(directiveLifeCycle.INSERT)
 
-        if (this.children) this._renderChildren()
+        if (this.children && !this.isText && !this.isComponent) this._renderChildren()
 
         return this.node
     }
 
     private _renderChildren() {
         this.children.forEach((child: any) => {
-            this.node.appendChild(child.render())
+            if (child.isComponent) {
+                child.render(this.node)
+            } else {
+                this.node.appendChild(child.render())
+            }
         })
     }
 
-    private _createNode() {
+    private _createNode(parent?: any) {
         if (this.isComponent) {
             let component = this.tagName
             component.injectProps(this.props.props)
+            console.log(component, 'by inje')
             component.mountComponent(parent)
             return component.$el
         }
