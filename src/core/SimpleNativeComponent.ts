@@ -7,85 +7,123 @@ import createVNode from "../utils/createVNode";
 import diff from "../utils/diff";
 import {applyPatches} from "../utils/patchUtils";
 import VNode from "./VNode";
-import {instanceOf} from "../utils/instanceOf";
-import removeFromArr from "../utils/removeFromArr";
+import {removeComponentFromArr} from "../utils/removeFromArr";
+import {pushToDom} from "../utils/domTransfer";
+import baseType from "../statics/baseType";
+import matchType from "../utils/matchType";
+import {compile} from "../utils/compileUtils";
 
 /**
- * @description component uid counter，plus when mounted
+ * @description primary key for mounted component
  * */
 let componentUID = 0
 
 /**
  * @description
  * return a component instance
- * component should be mounted manually if there is not has el option
  *
- * @param context: user spec during the whole component lifeCycle
- * @param this.state / this.props / this.someMethod
+ * @param[_hash]: type tag, same createProxy create same simple
  * */
 export default class SimpleNativeComponent extends SimpleComponent {
-    public _uid: number
+    private _uid: number
+    private _hash: string
 
-    // private _watcherHub: WatcherHub = new WatcherHub()
     private _pendingState: any = {}
 
     public $vnode: any
     public $el: any
-    public $vm: any
-    public $parent: SimpleNativeComponent
     public $children: Array<SimpleNativeComponent> = []
+    public $parent: SimpleNativeComponent
 
-    // only state could be mutated
+    // // only state could be mutated
     public state: any = {}
     public props: any = {}
 
-    constructor(spec: any, creatorHash: any) {
-        super(spec, creatorHash);
+    /**
+     * @param[spec]:
+     *      el,
+     *      mixin,done => context
+     *      components,done => context
+     *      lifeCycleHooks, => context
+     *      template | render => context
+     *      state,done => vm
+     *      methods,done => vm
+     * */
+    constructor(spec: any, hash: any) {
+        super(spec);
 
-        /**
-         * inject self injections / component && mixins
-         * */
-        this.injectCurrent()
-
-        this._initVM()
-        this._initState()
+        this._initHash(hash)
+        this._initContext(spec)
+        this._initVM(spec)
 
         this.setLifeCycle(lifeCycle.CREATED)
     }
 
-    private injectCurrent(): void {
-        merge(this.$injections.mixins, Object.assign({},
-            this.$context.mixins,
-            this.$context.state,
-            this.$context.methods,
-        ))
-
-        merge(this.$injections.components, this.$context.components)
+    /**
+     * @description[hash]: same when created by same ComponentProxy
+     * */
+    private _initHash(hash: string): void {
+        this._hash = hash
     }
 
-    private _initVM() {
-        this.$vm = Object.assign({}, this.$injections.mixins)
+    /**
+     * @description: mixin user spec and global injections into $context
+     * */
+    private _initContext(spec: any): void {
+        Object.assign(this.$context.components, this.$injections.components, spec.components)
+        Object.assign(this.$context.mixins, this.$injections.mixins, spec.mixins)
+        this.$context.renderProxy = spec.template || spec.render
     }
 
-    private _initState() {
-        this.state = Object.assign({}, this.$context.state)
+    /**
+     * @description: create action scope
+     * TODO：merge vm to component instance prototype
+     * */
+    private _initVM(spec: any): void {
+        this.$vm = this._parseVM(spec)
+        this.state = this.$vm.state
+    }
 
-        // _pendingState is an old state for setState compare
-        this._pendingState = Object.assign({}, this.$context.state)
+    private _setVNode(vnode: VNode) {
+        this.$vnode = vnode
     }
 
     private _countUID() {
         this._uid = ++componentUID
     }
 
-    public mountComponent(): void {
+    private _createVNode() {
+        throwIf(
+            !this.$context.renderProxy,
+            'not found "render" function or "template" for render'
+        )
+
+        setCurrentContext(this)
+
+        if (matchType(this.$context.renderProxy, baseType.Function)) {
+            return this.$context.renderProxy.call(this.$vm, createVNode)
+        } else {
+            return compile.call(this.$vm, this.$context.renderProxy)
+        }
+    }
+
+    public mountComponent(dom: any): void {
+        this._setVNode(
+            this._createVNode()
+        )
+
         this.setLifeCycle(lifeCycle.BEFORE_MOUNT)
 
         this._countUID()
         this._renderComponent()
+        this._mountToContainer(dom)
+        this._buildRelationshipWithChildren()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
+
+        this.setLifeCycle(lifeCycle.PENDING)
     }
+
 
     public updateComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
@@ -93,11 +131,15 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._updateComponent()
 
         this.setLifeCycle(lifeCycle.UPDATED)
+        this.setLifeCycle(lifeCycle.PENDING)
     }
 
-    //not replace the same component creator but should reinject new props
-    public updateChildren(): void {
-        this.$children && this.$children.forEach((child: SimpleNativeComponent) => {
+    private _mountToContainer(dom: any) {
+        if (dom) pushToDom(dom, this.$el)
+    }
+
+    public _updateChildren(): void {
+        this.$children.forEach((child: SimpleNativeComponent) => {
             child.updateComponent()
         })
     }
@@ -120,19 +162,14 @@ export default class SimpleNativeComponent extends SimpleComponent {
     public setState(state: object): void {
         if (merge(this._pendingState, state)) {
             merge(this.state, state)
-            merge(this.$vm, state)
+            merge(this.$vm.state, state)
             this.updateComponent()
         }
     }
 
-    public injectPropsAndParent(parent: any, props: object) {
-        this.injectParent(parent)
-        this.injectProps(props)
-    }
-
     public injectProps(props: object) {
-        merge(this.props, props)
-        merge(this.$vm, props)
+        this.$vm.props = props
+        this.props = props
     }
 
     public injectParent(parent: SimpleNativeComponent) {
@@ -143,31 +180,17 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.$children.push(child)
     }
 
+    /**
+     * @transaction: 1. create vnode
+     * @transaction: 2. convert vnode to dom
+     * @transaction: 3. mount vnode.el to root
+     * */
+    private _renderComponent() {
+        this._bindEl(this.$vnode.render())
+    }
+
     private _bindEl(el: any) {
         if (el) this.$el = el
-    }
-
-    private _bindVNode(vnode: VNode) {
-        this.$vnode = vnode
-    }
-
-    private _renderComponent() {
-        throwIf(!this.$context.render,
-            'not found "render" function when init a component'
-        )
-
-        setCurrentContext(this)
-
-        const vnode = this.$context.render.call(this, createVNode)
-
-        this._loadComponentOptions(vnode, vnode.render())
-    }
-
-    private _loadComponentOptions(vnode: VNode, el: any) {
-        this._bindVNode(vnode)
-        this._bindEl(el)
-
-        this._buildRelationshipWithChildren()
     }
 
     private _buildRelationshipWithChildren() {
@@ -182,7 +205,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     private _injectChildren(parent: any = this.$vnode) {
         parent.children.forEach((child: VNode) => {
-            if (instanceOf(child.tagName, SimpleNativeComponent)) {
+            if (child.isComponent) {
                 this.injectChild(child.tagName)
             } else {
                 if (child.children) this._injectChildren(child)
@@ -199,18 +222,19 @@ export default class SimpleNativeComponent extends SimpleComponent {
     private _updateComponent() {
         setCurrentContext(this)
 
-        let newVNode = this.$context.render.call(this, createVNode)
+        let _vnode = this._createVNode()
 
         let patches = diff(
             this.$vnode,
-            newVNode
+            _vnode
         )
 
-        let npe = applyPatches(patches, this.$el)
+        this._bindEl(
+            applyPatches(patches, this.$el)
+        )
 
-        this.updateChildren()
-
-        this._loadComponentOptions(newVNode, npe)
+        this._buildRelationshipWithChildren()
+        this._updateChildren()
     }
 
     private _destroy() {
@@ -230,6 +254,6 @@ export default class SimpleNativeComponent extends SimpleComponent {
     }
 
     private _removeChild(child: SimpleNativeComponent) {
-        removeFromArr(this.$children, child)
+        removeComponentFromArr(this.$children, child)
     }
 }

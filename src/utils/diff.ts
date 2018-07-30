@@ -22,7 +22,7 @@ const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
 
     for (let i = 0; i < levelLen; i++) {
         if (!patches[i]) patches[i] = {}
-        let patch = diffCore(oldVNode.children[i], newVNode.children[i])
+        let patch = diffCore(oldVNode.children[i], newVNode.children[i], oldVNode)
         addPatch(patches[i], patch)
 
         if (oldVNode.children[i] && newVNode.children[i]) {
@@ -31,17 +31,17 @@ const runDiffChildren = (oldVNode: any, newVNode: any, patches: Array<any>) => {
     }
 }
 
-const diffCore = (oldVNode: any, newVNode: any) => {
+const diffCore = (oldVNode: VNode, newVNode: VNode, oldVNodeParent?: VNode) => {
     if (!newVNode) {
-        return new Patch(diffType.REMOVE, null, oldVNode.tagName)
-    } else if (!oldVNode && newVNode) {
-        return new Patch(diffType.INSERT, newVNode)
+        return new Patch(diffType.REMOVE, oldVNode, newVNode)
+    } else if (!oldVNode) {
+        return new Patch(diffType.INSERT, oldVNodeParent, newVNode)
     } else if (diffInTag(oldVNode, newVNode)) {
-        return new Patch(diffType.REPLACE, newVNode, oldVNode.tagName)
+        return new Patch(diffType.REPLACE, oldVNode, newVNode)
     } else if (diffInProps(oldVNode, newVNode)) {
-        return new Patch(diffType.PROPS, newVNode.props, oldVNode.tagName)
+        return new Patch(diffType.PROPS, oldVNode, newVNode)
     } else if (diffInText(oldVNode, newVNode)) {
-        return new Patch(diffType.TEXT, newVNode.tagName)
+        return new Patch(diffType.TEXT, oldVNode, newVNode)
     }
 }
 

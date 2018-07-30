@@ -1,18 +1,8 @@
-import merge from "../utils/merge";
-
-let mixins: any = {}
+import GlobalInjectionUtil from "./GlobalInjection";
 
 const GlobalMixins = {
     set(mixin: any) {
-        merge(mixins, Object.assign({}, {
-            mixins: mixin.mixins,
-            state: mixin.mixins,
-            methods: mixin.methods
-        }))
-    },
-
-    get(): any {
-        return mixins
+        GlobalInjectionUtil.mixin(mixin)
     }
 }
 

@@ -14,27 +14,9 @@ const ComponentRendererMixins: any = {
      * */
     mount(selector: any, componentCreator: SimpleNativeComponentCreator): void {
         let rootDom = getDom(selector)
-        let rootKey = getDomAttr(rootDom, COMPONENT_KEY)
-        let container
 
-        if (isParentNode(selector)) {
-            container = ContainerDictionary.getContainerByRootId(rootKey)
-        }
-
-        if (!container) {
-            // dom's first mounted
-            ContainerDictionary.registerContainer(rootDom)
-
-            let component = componentCreator.fuck()
-            component.mountComponent()
-
-            pushToDom(rootDom, component)
-        } else {
-            // dom's update
-        }
-    },
-
-    teardown(): void {
+        let component = componentCreator.fuck()
+        component.mountComponent(rootDom)
     },
 
     mountChild(node: any, childComponent: SimpleNativeComponent): void {

@@ -1,4 +1,4 @@
-import removeFromArr from "../../../src/utils/removeFromArr";
+import {removeFromArr}from "../../../src/utils/removeFromArr";
 import {utilDescribe} from "../../assrtions/describeConfig";
 import equal from "../../../src/utils/equal";
 

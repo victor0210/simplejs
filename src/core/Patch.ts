@@ -3,14 +3,16 @@
  * @param {patch}: new dom / new text / new props / null
  * @param {node}: dom who helps do patch currently
  * */
+import VNode from "./VNode";
+
 export default class Patch {
     public type: string
-    public patch: any
-    public source: any
+    public oldVNode: VNode
+    public newVNode: VNode
 
-    constructor(type: string, patch: any, source: any = null) {
+    constructor(type: string, oldVNode: VNode, newVNode: VNode) {
         this.type = type
-        this.patch = patch
-        this.source = source
+        this.oldVNode = oldVNode
+        this.newVNode = newVNode
     }
 }
