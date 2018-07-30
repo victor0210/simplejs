@@ -4,6 +4,7 @@
   "description": "fe web mvvm framework",
   "main": "index.js",
   "jest": {
+    "testURL": "http://localhost/",
     "moduleFileExtensions": [
       "ts",
       "js"
