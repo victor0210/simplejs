@@ -1,19 +1,23 @@
 import Patch from "../core/Patch";
 import diffType from "../statics/diffType";
 import {setAttrs} from "./domTransfer";
-import {instanceOf} from "./instanceOf";
-import SimpleNativeComponent from "../core/SimpleNativeComponent";
+import {removeComponentFromArr} from "./removeFromArr";
 
 export const addPatch = (patches: any, patch: Patch = undefined) => {
     patches.patch = patch
     patches.sub = []
 }
 
+/**
+ * @description:
+ *      1. apply patch to dom
+ *      2. apply patch to vnode
+ * */
 export const applyPatches = (patches: any, rootNode: any): any => {
     let npe
 
     if (patches.patch) {
-        npe = applyPatch(patches.patch, rootNode, true)
+        npe = applyPatch(patches.patch, true)
     }
 
     applyChildren(rootNode, rootNode.childNodes, patches.sub)
@@ -46,46 +50,46 @@ const applyChildren = (parent: any, children: Array<any>, patches: Array<any>) =
     })
 }
 
-/**
- * abstract relationship methods
- * TODO 1: build relationship with parent & children when component mount
- * TODO 2: teardown relationship when component destroy
- * */
-const applyPatch = (patch: Patch, node: any, isRoot: boolean = false) => {
+const applyPatch = (patch: Patch, isRoot: boolean = false) => {
     if (!patch) return
 
     let newReplaceEl
+    let {oldVNode, newVNode} = patch
 
     switch (patch.type) {
         case diffType.REMOVE:
-            if (instanceOf(patch.source, SimpleNativeComponent)) {
-                patch.source.destroy()
-            } else {
-                node.remove()
-            }
+            oldVNode.destroy()
+
+            //apply patch vnode
+            oldVNode.parent && removeComponentFromArr(oldVNode.parent.children, oldVNode)
             break
         case diffType.INSERT:
-            node.parentNode.appendChild(patch.patch.render())
+            oldVNode.node.appendChild(newVNode.render())
+
+            //apply patch vnode
+            oldVNode.children.push(newVNode)
             break
         case diffType.REPLACE:
-            let npe = patch.patch.render()
-
-            node.replaceWith(npe)
+            let npe = newVNode.render()
+            oldVNode.node.replaceWith(npe)
             if (isRoot) newReplaceEl = npe
+            oldVNode.destroy()
 
-            if (instanceOf(patch.source, SimpleNativeComponent)) {
-                patch.source.destroy()
-            }
+            //apply patch vnode
+            Object.assign(oldVNode, newVNode)
             break
         case diffType.PROPS:
-            //update dom props
-            setAttrs(node, patch.patch.domProps)
+            //apply patch vnode
+            oldVNode.props = newVNode.props
 
-            //inject child component props
-            instanceOf(patch.source, SimpleNativeComponent) && patch.source.injectProps(patch.patch.props)
+            oldVNode.update()
+            oldVNode.isComponent && oldVNode.tagName.injectProps(newVNode.props.props)
             break
         case diffType.TEXT:
-            node.textContent = patch.patch
+            oldVNode.node.textContent = newVNode.tagName
+
+            //apply patch vnode
+            oldVNode.tagName = newVNode.tagName
             break
         default:
             break

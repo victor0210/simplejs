@@ -1,6 +1,7 @@
 import equal from "./equal";
+import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
-const removeFromArr = (arr: Array<any>, item: any) => {
+export const removeFromArr = (arr: Array<any>, item: any) => {
     arr.some((el, idx) => {
         if (equal(el, item)) {
             arr.splice(idx, 1)
@@ -9,4 +10,10 @@ const removeFromArr = (arr: Array<any>, item: any) => {
     })
 }
 
-export default removeFromArr
+export const removeComponentFromArr = (arr: Array<any>, item: any) => {
+    let idx = arr.indexOf(item)
+
+    if (idx !== -1) {
+        arr.splice(idx, 1)
+    }
+}

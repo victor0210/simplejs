@@ -1,6 +1,10 @@
 # Simple.js
 Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework 
 
+# Flow
+![avatar](./starter/flow.png)
+
+
 # Global
 
 * init self methods (mount / inject...) done
@@ -40,7 +44,4 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * **LifeCycle: destroyed** (suggest to clear global setter)
 
 # TODO
-1. mount method bug(append to child after mounted lifecycle which cause can`t find $el in mounted lifecycle hook)
-1. directive
-2. rebuild vnode component relationship
-3. add compile for converting html-template to vnode
+1. add compile for converting html-template to vnode

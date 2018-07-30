@@ -5,21 +5,57 @@ import {extractFunction, extractVariable} from "./compileRockers";
 import ComponentRendererMixins from "../core/ComponentRendererMixins";
 import {isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
-import {removeAttr} from "./domTransfer";
+import {removeAttr, transToFragment} from "./domTransfer";
+import {ElementNodeType, TextNodeType} from "../statics/nodeType";
+import equal from "./equal";
+import VNode from "../core/VNode";
+import {getCurrentContext} from "../core/RenderCurrent";
 
+export const compile = (template: string) => {
+    let fragment = transToFragment(template)
+
+    let vnode = new VNode()
+
+    compileChildren(fragment, getCurrentContext())
+}
+
+export const compileChildren = (node: DocumentFragment, componentInstance: SimpleNativeComponent) => {
+    node.childNodes.forEach((child: any) => {
+        if (equal(child.nodeType, ElementNodeType)) {
+            if (isCustomComponent(child.tagName, componentInstance.$context.components)) {
+                console.log('compile cus component')
+                // compileCustomComponent(child, this.current)
+            } else {
+                console.log('compile element', child)
+                // compileElement(child, this.current)
+            }
+        } else if (equal(child.nodeType, TextNodeType)) {
+            console.log(compileText(child, componentInstance))
+        }
+
+        if (child.childNodes) compileChildren(child, componentInstance)
+    })
+}
 /**
  * @description: compile text node , replace vm to variable
  * */
-export const compileText = (textNode: any, current: SimpleNativeComponent): void => {
+export const compileText = (textNode: any, current: SimpleNativeComponent): VNode => {
     let template = textNode.textContent
 
-    let updater = function () {
-        text(textNode, template.replace(COMPILE_REG, (m: any, exp: any) => {
-            return extractVariable(exp, current.$vm)
-        }))
-    }
+    let textContent = template.replace(COMPILE_REG, (m: any, exp: any) => {
+        return extractVariable(exp, current.$vm)
+    })
 
-    updater()
+    return new VNode(
+        textContent,
+        {},
+        [],
+        true,
+        false,
+        current
+    )
+    //
+    // updater()
     // current.pushWatcher(new Watcher(updater))
 }
 
@@ -95,4 +131,9 @@ const compileInline = (el: any, current: SimpleNativeComponent, isElement: boole
         props: props,
         events: events
     }
+}
+
+const isCustomComponent = (tagName: string, componentsMap: any): boolean => {
+    console.log(componentsMap, 'componentsMap')
+    return tagName.toLowerCase() in componentsMap
 }

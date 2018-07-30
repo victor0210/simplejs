@@ -2,73 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Update</title>
+    <title>Base</title>
     <script src="../../dist/bundle.js"></script>
 </head>
 <body>
 <div id="app"></div>
 <script>
-	const child = new Simple({
+	const Component_2 = new Simple({
 		state: {
-			name: 'Simple Js'
+			name: 'Simple Js',
+			count: 1,
 		},
 
 		render: function (h) {
 			return h('div', {
-				domProps: {
+				props: {
 					name: 'state name is true'
 				}
 			}, [
-				`Welcome to ${this.state.name}`,
+				h('p', {}, ['child']),
 			])
 		}
 	})
+
 	const Component_1 = new Simple({
-		el: '#app',
 		state: {
-			name: true,
-			count: 1
+			name: 'Simple Js',
+			ifShow: false,
+			count: 1,
 		},
-		/**
-		 * render base
-		 * */
+
 		render: function (h) {
-			if (this.state.name) {
-				return h('div', {
+			return h('div', {
+				props: {
+					name: 'state name is true'
+				}
+			}, [
+				h(Component_2, {
 					props: {
-						name: 'state'
+						ifShow: this.state.ifShow
+					},
+					directives: {
+						if: this.state.ifShow
 					}
-				}, ['dsahjdksajh'])
-			} else {
-				return h('div', {
-					props: {
-						name: 'state name is true'
-					}
-				}, [this.state.count, child])
-			}
+				}),
+				`if show : ${this.state.ifShow} ${this.state.count}`,
+			])
 		},
 
 		mounted() {
 			setTimeout(() => {
 				this.setState({
-					name: !this.state.name,
+					ifShow: !this.state.ifShow,
 					count: this.state.count + 1
 				})
 			}, 1000)
 			setTimeout(() => {
 				this.setState({
-					name: !this.state.name,
+					ifShow: !this.state.ifShow,
 					count: this.state.count + 1
 				})
 			}, 2000)
-			setTimeout(() => {
-				this.setState({
-					name: !this.state.name,
-					count: this.state.count + 1
-				})
-			}, 3000)
 		}
 	})
+
+	Simple.mount('#app', Component_1)
 </script>
 </body>
 </html>

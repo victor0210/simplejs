@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	//render
+	new Simple({
+		el: '#app',
+
+		state: {
+			name: 'Simple Js',
+			ifShow: false
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: this.state.ifShow
+				}
+			}, [
+				`Welcome to ${this.state.name} 1`,
+				(function () {
+					return h('p', {
+						directives: {
+							if: this.state.ifShow
+						}
+					}, [`Welcome to ${this.state.name} 2`])
+				}),
+				(function () {
+					return (function () {
+						return `Welcome to ${this.state.name} 3`
+					})
+				})
+			])
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow
+				})
+			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow
+				})
+			}, 2000)
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow
+				})
+			}, 3000)
+		}
+	})
+</script>
+</body>
+</html>

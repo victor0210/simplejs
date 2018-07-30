@@ -1,4 +1,4 @@
-import Simple from '../../../src/core/Simple'
+import '../../../src/index'
 import getHtmlById from "../../helpers/getHtmlById";
 
 describe('Render Test', () => {
