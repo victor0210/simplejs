@@ -8,7 +8,23 @@
 <body>
 <div id="app"></div>
 <script>
+	const child = new Simple({
+		state: {
+			name: 'Simple Js'
+		},
+
+		render: function (h) {
+			return h('div', {
+				domProps: {
+					name: 'state name is true'
+				}
+			}, [
+				`Welcome to ${this.state.name}`,
+			])
+		}
+	})
 	const Component_1 = new Simple({
+		el: '#app',
 		state: {
 			name: true,
 			count: 1
@@ -20,22 +36,15 @@
 			if (this.state.name) {
 				return h('div', {
 					props: {
+						name: 'state'
+					}
+				}, ['dsahjdksajh'])
+			} else {
+				return h('div', {
+					props: {
 						name: 'state name is true'
 					}
-				}, [
-					'hello vnode',
-					h('p', {}, [
-						'first level p',
-						h('p', {}, ['second level p'])
-					]),
-					`count is ${this.state.count}`
-				])
-			} else {
-				return h('p', {
-					props: {
-						name: 'state name is false'
-					}
-				}, ['state name is true'])
+				}, [this.state.count, child])
 			}
 		},
 
@@ -52,17 +61,14 @@
 					count: this.state.count + 1
 				})
 			}, 2000)
+			setTimeout(() => {
+				this.setState({
+					name: !this.state.name,
+					count: this.state.count + 1
+				})
+			}, 3000)
 		}
-
-		/**
-		 * render children
-		 * */
-
-		/**
-		 * update with vnode diff
-		 * */
 	})
-	Simple.mount('#app', Component_1)
 </script>
 </body>
 </html>

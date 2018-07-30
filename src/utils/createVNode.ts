@@ -6,7 +6,7 @@ import {instanceOf} from "./instanceOf";
 import matchType from "./matchType";
 import ComponentProxy from "../core/ComponentProxy";
 
-const createVNode = (tagName: any, props: any, children: Array<string | VNode>) => {
+const createVNode = (tagName: any, props: any, children: Array<string | VNode>): VNode => {
     let _vnode = new VNode(
         tagName,
         props || {},
@@ -16,13 +16,12 @@ const createVNode = (tagName: any, props: any, children: Array<string | VNode>) 
         getCurrentContext()
     )
 
-    convertChildren(_vnode.children, _vnode.componentInstance)
-    console.log(_vnode)
+    convertChildren(_vnode, _vnode.children, _vnode.componentInstance)
 
     return _vnode
 }
 
-const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): any => {
+const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): VNode => {
     if (instanceOf(param, VNode)
         && !instanceOf(param.tagName, ComponentProxy)
     ) return param
@@ -32,7 +31,7 @@ const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): an
             param.call(componentInstance.$vm),
             componentInstance
         )
-    } else if (matchType(param, baseType.String)) {
+    } else if (matchType(param, baseType.String) || matchType(param, baseType.Number)) {
         return new VNode(
             param,
             {},
@@ -58,15 +57,17 @@ const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): an
     }
 }
 
-const convertChildren = (children: Array<any>, componentInstance: SimpleNativeComponent): Array<VNode> => {
+const convertChildren = (parent: VNode, children: Array<any>, componentInstance: SimpleNativeComponent): Array<VNode> => {
     children.forEach((child: any, idx: number) => {
         let _vnode = convert2VNode(child, componentInstance)
+
+        _vnode.parent = parent
 
         if (_vnode)
             children[idx] = _vnode
 
         if (child.children)
-            convertChildren(child.children, componentInstance)
+            convertChildren(child, child.children, componentInstance)
     })
     return
 }

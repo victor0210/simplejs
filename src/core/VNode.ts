@@ -24,6 +24,7 @@ export default class VNode {
 
     public node: any
     public directives: any
+    public parent: VNode
 
     constructor(tagName: any = null,
                 props: any = {},
@@ -53,6 +54,15 @@ export default class VNode {
         return this.node
     }
 
+    public destroy() {
+        console.log(this, this.isComponent)
+        if (this.isComponent) {
+            this.tagName.destroy()
+        } else {
+            this.node.remove()
+        }
+    }
+
     private _renderChildren() {
         this.children.forEach((child: any) => {
             if (child.isComponent) {
@@ -67,7 +77,6 @@ export default class VNode {
         if (this.isComponent) {
             let component = this.tagName
             component.injectProps(this.props.props)
-            console.log(component, 'by inje')
             component.mountComponent(parent)
             return component.$el
         }

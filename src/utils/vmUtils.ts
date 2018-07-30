@@ -8,10 +8,12 @@ export const getVM = (exp: string, vm: any): any => {
     let value = vm
 
     for (let i in vals) {
-        throwIf(!(vals[i] in value),
-            `"${vals[i]}" is not defined`
-        )
-        if (vals[i].trim() !== STRING_NULL) value = value[vals[i]]
+        if (vals[i]) {
+            throwIf(!(vals[i] in value),
+                `"${vals[i]}" is not defined`
+            )
+            if (vals[i].trim() !== STRING_NULL) value = value[vals[i]]
+        }
     }
 
     return value

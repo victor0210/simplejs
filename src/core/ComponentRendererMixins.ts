@@ -12,14 +12,11 @@ const ComponentRendererMixins: any = {
      * 1. TODO: register (doing)
      * 2. TODO: update
      * */
-    $mount(selector: any, componentCreator: SimpleNativeComponentCreator): void {
+    mount(selector: any, componentCreator: SimpleNativeComponentCreator): void {
         let rootDom = getDom(selector)
 
         let component = componentCreator.fuck()
         component.mountComponent(rootDom)
-    },
-
-    $teardown(): void {
     },
 
     mountChild(node: any, childComponent: SimpleNativeComponent): void {
