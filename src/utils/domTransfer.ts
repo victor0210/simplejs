@@ -26,7 +26,7 @@ export const getDomAttr = (dom: any, key: string) => {
 }
 
 export const pushToDom = (dom: any, el: any) => {
-    dom.append(el)
+    if (el) dom.append(el)
 }
 
 export const replaceChild = (parent: any, newDom: any, oldDom: any) => {

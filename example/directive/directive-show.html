@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	const Component_1 = new Simple({
+		state: {
+			name: 'Simple Js',
+			ifShow: false,
+			count: 1,
+		},
+
+		render: function (h) {
+			return h('div', {
+				props: {
+					name: 'state name is true'
+				},
+				directives: {
+					show: this.state.ifShow
+				}
+			}, [
+				h('p', {}, ['static not update'])
+			])
+		},
+
+		mounted() {
+			setInterval(() => {
+				this.setState({
+					ifShow: !this.state.ifShow,
+					count: this.state.count + 1
+				})
+			}, 1000)
+		}
+	})
+
+	Simple.mount('#app', Component_1)
+</script>
+</body>
+</html>

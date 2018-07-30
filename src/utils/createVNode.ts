@@ -5,6 +5,7 @@ import baseType from "../statics/baseType";
 import {instanceOf} from "./instanceOf";
 import matchType from "./matchType";
 import ComponentProxy from "../core/ComponentProxy";
+import directiveLifeCycle from "../statics/directievLifeCycle";
 
 const createVNode = (tagName: any, props: any, children: Array<string | VNode>): VNode => {
     let _vnode = new VNode(
@@ -16,23 +17,23 @@ const createVNode = (tagName: any, props: any, children: Array<string | VNode>):
         getCurrentContext()
     )
 
+    _vnode.compileDirective(directiveLifeCycle.BIND)
+
     convertChildren(_vnode, _vnode.children, _vnode.componentInstance)
 
     return _vnode
 }
 
 const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): VNode => {
-    if (instanceOf(param, VNode)
-        && !instanceOf(param.tagName, ComponentProxy)
-    ) return param
+    let vnode = param
 
     if (matchType(param, baseType.Function)) {
-        return convert2VNode(
+        vnode = convert2VNode(
             param.call(componentInstance.$vm),
             componentInstance
         )
     } else if (matchType(param, baseType.String) || matchType(param, baseType.Number)) {
-        return new VNode(
+        vnode = new VNode(
             param,
             {},
             [],
@@ -41,8 +42,9 @@ const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): VN
             componentInstance
         )
     } else if (instanceOf(param, ComponentProxy)) {
-        return new VNode(
-            param.fuck(),
+        let component = param.fuck()
+        vnode = new VNode(
+            component,
             {},
             [],
             false,
@@ -50,11 +52,13 @@ const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): VN
             componentInstance
         )
     } else if (instanceOf(param.tagName, ComponentProxy)) {
-        param.tagName = param.tagName.fuck()
-        param.isComponent = true
-
-        return param
+        vnode.tagName = vnode.tagName.fuck()
+        vnode.isComponent = true
     }
+
+    vnode.compileDirective(directiveLifeCycle.BIND)
+
+    return vnode
 }
 
 const convertChildren = (parent: VNode, children: Array<any>, componentInstance: SimpleNativeComponent): Array<VNode> => {

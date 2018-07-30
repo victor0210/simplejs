@@ -8,26 +8,6 @@
 <body>
 <div id="app"></div>
 <script>
-	Simple.directive('show', () => {
-		const checkShow = (el, value) => {
-			if (value) {
-				el.style.display = 'block'
-			} else {
-				el.style.display = 'none'
-			}
-		}
-
-		return {
-			insert: (el, value) => {
-				checkShow(el, value)
-			},
-
-			update: (el, value) => {
-				checkShow(el, value)
-			}
-		}
-	})
-
 	//render
 	new Simple({
 		el: '#app',
@@ -40,22 +20,41 @@
 		render: function (h) {
 			return h('div', {
 				domProps: {
-					name: 'state name is true'
-				},
-				directives: {
-					show: this.state.ifShow
+					name: this.state.ifShow
 				}
 			}, [
-				`Welcome to ${this.state.name}`,
+				`Welcome to ${this.state.name} 1`,
 				(function () {
-					return `Welcome to ${this.state.name}`
+					return h('p', {
+						directives: {
+							if: this.state.ifShow
+						}
+					}, [`Welcome to ${this.state.name} 2`])
 				}),
 				(function () {
 					return (function () {
-						return `Welcome to ${this.state.name}`
+						return `Welcome to ${this.state.name} 3`
 					})
 				})
 			])
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow
+				})
+			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow
+				})
+			}, 2000)
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow
+				})
+			}, 3000)
 		}
 	})
 </script>

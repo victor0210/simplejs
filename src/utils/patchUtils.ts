@@ -1,7 +1,7 @@
 import Patch from "../core/Patch";
 import diffType from "../statics/diffType";
 import {setAttrs} from "./domTransfer";
-import {removeComponentFromArr, removeFromArr} from "./removeFromArr";
+import {removeComponentFromArr} from "./removeFromArr";
 
 export const addPatch = (patches: any, patch: Patch = undefined) => {
     patches.patch = patch
@@ -79,14 +79,11 @@ const applyPatch = (patch: Patch, isRoot: boolean = false) => {
             Object.assign(oldVNode, newVNode)
             break
         case diffType.PROPS:
-            setAttrs(
-                oldVNode.node,
-                newVNode.props.domProps
-            )
-            oldVNode.isComponent && oldVNode.tagName.injectProps(newVNode.props.props)
-
             //apply patch vnode
             oldVNode.props = newVNode.props
+
+            oldVNode.update()
+            oldVNode.isComponent && oldVNode.tagName.injectProps(newVNode.props.props)
             break
         case diffType.TEXT:
             oldVNode.node.textContent = newVNode.tagName

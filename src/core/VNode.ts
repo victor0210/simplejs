@@ -5,6 +5,7 @@ import directiveLifeCycle from "../statics/directievLifeCycle";
 import GlobalDirectives from "./GlobalDirectives";
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
+import {pushToDom, setAttrs} from "../utils/domTransfer";
 
 /**
  * @param[props]:
@@ -38,29 +39,35 @@ export default class VNode {
         this.isText = isText
         this.isComponent = isComponent
         this.componentInstance = componentInstance
+
+        this._injectDirective()
     }
 
     public render(parent?: any) {
-        this._injectDirective()
-
         this.node = this._createNode(parent)
 
         this._injectProps()
 
-        this._compileDirective(directiveLifeCycle.INSERT)
+        this.compileDirective(directiveLifeCycle.INSERT)
 
         if (this.children && !this.isText && !this.isComponent) this._renderChildren()
 
         return this.node
     }
 
+    public update() {
+        this._injectDomProps()
+        this._injectDirective()
+        this.compileDirective(directiveLifeCycle.UPDATE)
+    }
+
     public destroy() {
-        console.log(this, this.isComponent)
         if (this.isComponent) {
             this.tagName.destroy()
         } else {
             this.node.remove()
         }
+        this.compileDirective(directiveLifeCycle.UNBIND)
     }
 
     private _renderChildren() {
@@ -68,7 +75,7 @@ export default class VNode {
             if (child.isComponent) {
                 child.render(this.node)
             } else {
-                this.node.appendChild(child.render())
+                pushToDom(this.node, child.render())
             }
         })
     }
@@ -83,15 +90,14 @@ export default class VNode {
         return this.isText ? document.createTextNode(this.tagName) : document.createElement(this.tagName)
     }
 
-    private _compileDirective(type: string) {
-        let _this = this
+    public compileDirective(type: string) {
         this.directives && Object.keys(this.directives).forEach((key: string) => {
             let directive = GlobalDirectives.get(key)
 
             if (directive && directive.cbs) {
                 let func = directive.cbs[type]
                 if (matchType(func, baseType.Function)) {
-                    func(this.node, _this.directives[key])
+                    func(this.node, this.directives[key], this)
                 }
             }
         })
@@ -103,8 +109,11 @@ export default class VNode {
     }
 
     private _injectDomProps() {
-        for (let key in this.props.domProps) {
-            this.node.setAttribute(key, this.props.domProps[key])
+        if (!this.isText) {
+            setAttrs(
+                this.node,
+                this.props.domProps
+            )
         }
     }
 

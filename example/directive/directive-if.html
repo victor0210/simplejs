@@ -8,28 +8,6 @@
 <body>
 <div id="app"></div>
 <script>
-	Simple.directive('if', () => {
-		let parentNode
-		let cacheDom = document.createTextNode('')
-
-		return {
-			insert: (el, value) => {
-				parentNode = el.parentNode
-				if (!value) {
-					parentNode.replaceChild(cacheDom, el)
-				}
-			},
-
-			update: (el, value) => {
-				if (value) {
-					parentNode.replaceChild(el, cacheDom)
-				} else {
-					parentNode.replaceChild(cacheDom, el)
-				}
-			}
-		}
-	})
-
 	const Component_2 = new Simple({
 		state: {
 			name: 'Simple Js',
@@ -42,15 +20,7 @@
 					name: 'state name is true'
 				}
 			}, [
-				h('p', {
-					directives: [
-						{
-							key: 'if',
-							condition: this.props.ifShow
-						}
-					]
-				}, ['hello']),
-				`if show : ${this.props.ifShow} ${this.state.count}`
+				h('p', {}, ['child']),
 			])
 		}
 	})
@@ -71,20 +41,28 @@
 				h(Component_2, {
 					props: {
 						ifShow: this.state.ifShow
+					},
+					directives: {
+						if: this.state.ifShow
 					}
 				}),
 				`if show : ${this.state.ifShow} ${this.state.count}`,
-				h('p', {}, ['static not update'])
 			])
 		},
 
 		mounted() {
-			setInterval(() => {
+			setTimeout(() => {
 				this.setState({
 					ifShow: !this.state.ifShow,
 					count: this.state.count + 1
 				})
 			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					ifShow: !this.state.ifShow,
+					count: this.state.count + 1
+				})
+			}, 2000)
 		}
 	})
 
