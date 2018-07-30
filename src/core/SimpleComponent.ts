@@ -6,6 +6,7 @@ import GlobalMixins from "./GlobalMixins";
 import GlobalComponents from "./GlobalComponents";
 import GlobalInjectionUtil from "./GlobalInjection";
 import filterLifeCycleHooks from "../utils/filterLifeCycleHooks";
+import equal from "../utils/equal";
 
 /**
  * @description: do initialize => $injections, $context, state
