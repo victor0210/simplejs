@@ -1,5 +1,5 @@
 {
-  "name": "trouter",
+  "name": "simplejs",
   "version": "1.0.0",
   "description": "fe web mvvm framework",
   "main": "index.js",
@@ -23,7 +23,7 @@
     "type": "git",
     "url": "git+https://github.com/Bennnis/simplejs.git"
   },
-  "author": "",
+  "author": "bennnis",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Bennnis/simplejs/issues"
