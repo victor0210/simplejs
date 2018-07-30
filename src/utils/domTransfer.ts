@@ -6,13 +6,17 @@ import SimpleNativeComponent from "../core/SimpleNativeComponent";
 const rootTag: string = 'div'
 
 export const transToFragment = (documentString: string): DocumentFragment => {
+    let fragment = document.createDocumentFragment()
+    fragment.appendChild(transToDom(documentString))
+
+    return fragment
+}
+
+export const transToDom = (documentString: string): any => {
     let container = document.createElement(rootTag)
     container.innerHTML = documentString.trim()
 
-    let fragment = document.createDocumentFragment()
-    fragment.appendChild(container.firstChild)
-
-    return fragment
+    return container.firstChild
 }
 
 export const getDom = (selectorOrEl: any) => {

@@ -7,13 +7,17 @@ import matchType from "./matchType";
 import ComponentProxy from "../core/ComponentProxy";
 import directiveLifeCycle from "../statics/directievLifeCycle";
 
-const createVNode = (tagName: any, props: any, children: Array<string | VNode>): VNode => {
+const createVNode = (tagName: any,
+                     props: any,
+                     children: Array<string | VNode>,
+                     isText: boolean = false,
+                     isComponent: boolean = false): VNode => {
     let _vnode = new VNode(
         tagName,
         props || {},
         children || [],
-        false,
-        false,
+        isText,
+        isComponent,
         getCurrentContext()
     )
 
