@@ -7,7 +7,7 @@ const rootTag: string = 'div'
 
 export const transToFragment = (documentString: string): DocumentFragment => {
     let container = document.createElement(rootTag)
-    container.innerHTML = documentString
+    container.innerHTML = documentString.trim()
 
     let fragment = document.createDocumentFragment()
     fragment.appendChild(container.firstChild)
@@ -25,8 +25,8 @@ export const getDomAttr = (dom: any, key: string) => {
     return dom.attributes[COMPONENT_KEY]
 }
 
-export const pushToDom = (dom: any, component: SimpleNativeComponent) => {
-    dom.append(component.$el)
+export const pushToDom = (dom: any, el: any) => {
+    if (el) dom.append(el)
 }
 
 export const replaceChild = (parent: any, newDom: any, oldDom: any) => {

@@ -1,9 +1,11 @@
-let Current = {}
+import SimpleNativeComponent from "./SimpleNativeComponent";
 
-export const setCurrentContext = (component: any): void => {
+let Current: SimpleNativeComponent
+
+export const setCurrentContext = (component: SimpleNativeComponent): void => {
     Current = component
 }
 
-export const getCurrentContext = ():any => {
+export const getCurrentContext = (): SimpleNativeComponent => {
     return Current
 }

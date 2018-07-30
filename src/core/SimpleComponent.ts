@@ -4,58 +4,50 @@ import lifeCycle from "../statics/lifeCycle";
 import merge from "../utils/merge";
 import GlobalMixins from "./GlobalMixins";
 import GlobalComponents from "./GlobalComponents";
+import GlobalInjectionUtil from "./GlobalInjection";
+import filterLifeCycleHooks from "../utils/filterLifeCycleHooks";
 
 /**
  * @description: do initialize => $injections, $context, state
  * */
 export default class SimpleComponent {
     // global injections
-    public $injections: any = {
-        components: {},
-        mixins: {}
-    }
+    public $injections: any
 
     // user options for the whole lifecycle
-    public $context: any
+    public $context: any = {
+        components: {},
+        mixins: {},
+        lifeCycleHooks: {},
+        renderProxy: null
+    }
 
-    private _hash: string
+    public $vm: any
+
     private _lifeCycle: string
 
-    constructor(spec: any, hash: string) {
-        this._initHash(hash)
-        this._initSpec(spec)
+    constructor(spec: any) {
         this._inject()
+        this._initLifeCycle(spec)
 
         this.setLifeCycle(lifeCycle.BEFORE_CREATE)
     }
 
-    /**
-     * inject global plugins && components before component create
-     */
-    private _initHash(hash: string): void {
-        this._hash = hash
-    }
     private _inject(): void {
-        let mixins = GlobalMixins.get()
-        let components = GlobalComponents.get()
-
-        merge(this.$injections.mixins, Object.assign({},
-            mixins.mixins,
-            mixins.state,
-            mixins.methods,
-        ))
-
-        this.$injections.components = components
+        this.$injections = GlobalInjectionUtil.get()
     }
 
-    private _initSpec(spec: any): void {
-        this.$context = Object.assign({}, spec)
+    private _initLifeCycle(spec: any): void {
+        Object.assign(this.$context.lifeCycleHooks, filterLifeCycleHooks(spec))
     }
 
     private runLifeCycleHook(): void {
-        if (this._lifeCycle === lifeCycle.UNMOUNT) return
+        if (
+            equal(this._lifeCycle, lifeCycle.UNMOUNT)
+            || equal(this._lifeCycle, lifeCycle.PENDING)
+        ) return
 
-        let lifeCycleHook = this.$context[this._lifeCycle]
+        let lifeCycleHook = this.$context.lifeCycleHooks[this._lifeCycle]
         if (lifeCycleHook && matchType(lifeCycleHook, baseType.Function)) {
             lifeCycleHook.call(this)
         }
@@ -64,5 +56,17 @@ export default class SimpleComponent {
     public setLifeCycle(lifeCycle: string): void {
         this._lifeCycle = lifeCycle
         this.runLifeCycleHook()
+    }
+
+    public _parseVM(spec: any): object {
+        let _vm = {
+            methods: {},
+            state: {}
+        }
+
+        Object.assign(_vm.methods, this.$context.mixins.methods, spec.methods)
+        Object.assign(_vm.state, this.$context.mixins.state, spec.state)
+
+        return _vm
     }
 }

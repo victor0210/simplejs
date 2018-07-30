@@ -1,94 +1,129 @@
-import matchType from "../utils/matchType";
-import baseType from "../statics/baseType";
 import {bindEvent} from "../utils/eventUtils";
 import {getCurrentContext} from "./RenderCurrent";
 import SimpleNativeComponent from "./SimpleNativeComponent";
-import {instanceOf} from "../utils/instanceOf";
-import SimpleNativeComponentCreator from "./SimpleNativeComponentCreator";
-import Patch from "./Patch";
+import directiveLifeCycle from "../statics/directievLifeCycle";
+import GlobalDirectives from "./GlobalDirectives";
+import matchType from "../utils/matchType";
+import baseType from "../statics/baseType";
+import {pushToDom, setAttrs} from "../utils/domTransfer";
 
+/**
+ * @param[props]:
+ *      props => only inject into child component
+ *      domProps => inject into element
+ *      events => bind to native dom
+ *      directive => bind to native dom
+ *      TODO: on => add custom listener
+ * */
 export default class VNode {
     public tagName: any
     public props: any
     public children: Array<any>
     public isText: boolean
+    public isComponent: boolean
+    public componentInstance: SimpleNativeComponent
 
-    constructor(tagName: any, props: any, children: Array<any>, isText: boolean = false) {
+    public node: any
+    public directives: any
+    public parent: VNode
+
+    constructor(tagName: any = null,
+                props: any = {},
+                children: Array<any> = [],
+                isText: boolean = false,
+                isComponent: boolean = false,
+                componentInstance?: SimpleNativeComponent) {
         this.tagName = tagName
         this.props = props
         this.children = children
         this.isText = isText
+        this.isComponent = isComponent
+        this.componentInstance = componentInstance
 
-        !this.isText && this._convertToTextVNode(this.children)
+        this._injectDirective()
     }
 
-    public render() {
-        let node: any
-        let root: any = document.createDocumentFragment()
+    public render(parent?: any) {
+        this.node = this._createNode(parent)
 
-        if (this.tagName instanceof SimpleNativeComponent) {
+        this._injectProps()
+
+        this.compileDirective(directiveLifeCycle.INSERT)
+
+        if (this.children && !this.isText && !this.isComponent) this._renderChildren()
+
+        return this.node
+    }
+
+    public update() {
+        this._injectDomProps()
+        this._injectDirective()
+        this.compileDirective(directiveLifeCycle.UPDATE)
+    }
+
+    public destroy() {
+        if (this.isComponent) {
+            this.tagName.destroy()
+        } else {
+            this.node.remove()
+        }
+        this.compileDirective(directiveLifeCycle.UNBIND)
+    }
+
+    private _renderChildren() {
+        this.children.forEach((child: any) => {
+            if (child.isComponent) {
+                child.render(this.node)
+            } else {
+                pushToDom(this.node, child.render())
+            }
+        })
+    }
+
+    private _createNode(parent?: any) {
+        if (this.isComponent) {
             let component = this.tagName
             component.injectProps(this.props.props)
-            component.mountComponent()
-            node = component.$el
-        } else {
-            node = this.isText ? document.createTextNode(this.tagName) : document.createElement(this.tagName)
+            component.mountComponent(parent)
+            return component.$el
         }
-
-        //render props
-        for (let key in this.props.domProps) {
-            node.setAttribute(key, this.props.domProps[key])
-        }
-
-        //bind events
-        for (let key in this.props.events) {
-            bindEvent(node, key, this.props.events[key].bind(getCurrentContext()))
-        }
-
-        root.appendChild(node)
-
-        if (this.children) this._renderChildren(node)
-
-        return root.firstChild
+        return this.isText ? document.createTextNode(this.tagName) : document.createElement(this.tagName)
     }
 
-    private _renderChildren(parent: any) {
-        this.children.forEach((child: any, idx: number) => {
-            parent.appendChild(child.render())
-        })
-    }
+    public compileDirective(type: string) {
+        this.directives && Object.keys(this.directives).forEach((key: string) => {
+            let directive = GlobalDirectives.get(key)
 
-    private _convertToTextVNode(children: Array<any>) {
-        children.forEach((child: any, idx: number) => {
-            if (matchType(child, baseType.Function)) {
-                child = child.call(getCurrentContext())
-
-                if (
-                    !instanceOf(child, SimpleNativeComponentCreator) &&
-                    !instanceOf(child.tagName, SimpleNativeComponentCreator)
-                ) {
-                    children[idx] = child
-                    return
+            if (directive && directive.cbs) {
+                let func = directive.cbs[type]
+                if (matchType(func, baseType.Function)) {
+                    func(this.node, this.directives[key], this)
                 }
             }
-
-            if (matchType(child, baseType.String) || matchType(child, baseType.Number)) {
-                children[idx] = new VNode(child, {}, [], true)
-            }
-
-            if (child instanceof SimpleNativeComponentCreator) {
-                children[idx] = new VNode(child.fuck(), {}, [])
-            }
-
-            if (child.tagName instanceof SimpleNativeComponentCreator) {
-                let component = child.tagName.fuck()
-                component.injectProps(child.props.props)
-                children[idx] = new VNode(component, child.props, child.children)
-            }
-
-            if (child.children) {
-                this._convertToTextVNode(child.children)
-            }
         })
+    }
+
+    private _injectProps() {
+        this._injectDomProps()
+        this._injectEvents()
+    }
+
+    private _injectDomProps() {
+        if (!this.isText) {
+            setAttrs(
+                this.node,
+                this.props.domProps
+            )
+        }
+    }
+
+    private _injectEvents() {
+        for (let key in this.props.events) {
+            bindEvent(this.node, key, this.props.events[key].bind(getCurrentContext()))
+        }
+    }
+
+    private _injectDirective() {
+        this.directives = this.props.directives
     }
 }

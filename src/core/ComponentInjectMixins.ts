@@ -1,26 +1,26 @@
-import ComponentGlobalDictionary from "./ComponentGlobalDictionary";
 import SimpleNativeComponent from "./SimpleNativeComponent";
-import throwIf from "../loggers/throwIf";
-import merge from "../utils/merge";
 import GlobalMixins from "./GlobalMixins";
+import baseType from "../statics/baseType";
+import matchType from "../utils/matchType";
+import GlobalDirectives from "./GlobalDirectives";
+import Directive from "./Directive";
 
 const ComponentInjectMixins: any = {
-    //inject global plugins
-    // inject(injection: any): void {
-    //     throwIf(!injection.install,
-    //         'injection must has install method'
-    //     )
-    //
-    //     injection.install()
-    // },
-
     mixin(mixin: any): void {
         GlobalMixins.set(mixin)
     },
 
-    //inject global components
     component(key: any, component: SimpleNativeComponent): void {
         GlobalMixins.set(component)
+    },
+
+    directive(key: any, directiveLifeHooks: any): void {
+        GlobalDirectives.set(key, new Directive(
+            key,
+            matchType(directiveLifeHooks, baseType.Function)
+                ? directiveLifeHooks()
+                : directiveLifeHooks)
+        )
     }
 }
 
