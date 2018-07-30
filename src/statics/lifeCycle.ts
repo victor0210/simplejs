@@ -12,6 +12,8 @@ const lifeCycle: any = {
 
     MOUNTED: 'mounted',
 
+    PENDING: 'pending',
+
     BEFORE_UPDATE: 'beforeUpdate',
 
     UPDATED: 'updated',

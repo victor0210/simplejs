@@ -42,7 +42,10 @@ export default class SimpleComponent {
     }
 
     private runLifeCycleHook(): void {
-        if (this._lifeCycle === lifeCycle.UNMOUNT) return
+        if (
+            equal(this._lifeCycle, lifeCycle.UNMOUNT)
+            || equal(this._lifeCycle, lifeCycle.PENDING)
+        ) return
 
         let lifeCycleHook = this.$context.lifeCycleHooks[this._lifeCycle]
         if (lifeCycleHook && matchType(lifeCycleHook, baseType.Function)) {

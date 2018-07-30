@@ -120,6 +120,8 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._buildRelationshipWithChildren()
 
         this.setLifeCycle(lifeCycle.MOUNTED)
+
+        this.setLifeCycle(lifeCycle.PENDING)
     }
 
 
@@ -129,6 +131,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this._updateComponent()
 
         this.setLifeCycle(lifeCycle.UPDATED)
+        this.setLifeCycle(lifeCycle.PENDING)
     }
 
     private _mountToContainer(dom: any) {
