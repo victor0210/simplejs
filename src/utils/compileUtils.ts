@@ -1,41 +1,80 @@
-import {Watcher} from "../core/Watcher";
-import {text} from "./compileSetters";
 import {COMPILE_REG} from "../statics/regexp";
 import {extractFunction, extractVariable} from "./compileRockers";
 import ComponentRendererMixins from "../core/ComponentRendererMixins";
 import {isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
-import {removeAttr, transToFragment} from "./domTransfer";
+import {removeAttr, transToDom} from "./domTransfer";
 import {ElementNodeType, TextNodeType} from "../statics/nodeType";
 import equal from "./equal";
 import VNode from "../core/VNode";
-import {getCurrentContext} from "../core/RenderCurrent";
+import createVNode from "./createVNode";
 
-export const compile = (template: string) => {
-    let fragment = transToFragment(template)
+export const compile2VNode = (template: string) => {
+    let dom = transToDom(template)
 
-    let vnode = new VNode()
-
-    compileChildren(fragment, getCurrentContext())
+    return compile(dom)
 }
 
-export const compileChildren = (node: DocumentFragment, componentInstance: SimpleNativeComponent) => {
-    node.childNodes.forEach((child: any) => {
-        if (equal(child.nodeType, ElementNodeType)) {
-            if (isCustomComponent(child.tagName, componentInstance.$context.components)) {
-                console.log('compile cus component')
-                // compileCustomComponent(child, this.current)
-            } else {
-                console.log('compile element', child)
-                // compileElement(child, this.current)
-            }
-        } else if (equal(child.nodeType, TextNodeType)) {
-            console.log(compileText(child, componentInstance))
-        }
+const compile = (dom: any): VNode => {
+    let tagName: any
+    let isText: boolean
+    let isComponent: boolean
 
-        if (child.childNodes) compileChildren(child, componentInstance)
+    if (dom.nodeType === ElementNodeType) {
+        tagName = dom.tagName.toLowerCase()
+    } else if (dom.nodeType === TextNodeType) {
+        tagName = dom.textContent
+        isText = true
+    }
+    return createVNode(tagName, compileProps(dom), compileChildren(dom.childNodes), isText, isComponent)
+}
+
+const compileProps = (dom: any) => {
+    let props: any = {
+        props: {},
+        domProps: {},
+        on: {},
+        events: {}
+    }
+
+    dom.attributes && Array.from(dom.attributes).forEach((attr: any) => {
+        props.domProps[attr.name] = attr.value
     })
+
+    return props
 }
+
+const compileChildren = (children: any): Array<VNode> => {
+    let vnodeChildren: Array<VNode> = []
+    children.forEach((child: any) => {
+        if (child) {
+            vnodeChildren.push(compile(child))
+        }
+    })
+
+    return vnodeChildren
+}
+
+/**
+ * -------------------------------------------------------------------------------------- previous
+ * */
+// export const compileChildren = (node: DocumentFragment, componentInstance: SimpleNativeComponent) => {
+//     node.childNodes.forEach((child: any) => {
+//         if (equal(child.nodeType, ElementNodeType)) {
+//             if (isCustomComponent(child.tagName, componentInstance.$context.components)) {
+//                 console.log('compile cus component')
+//                 // compileCustomComponent(child, this.current)
+//             } else {
+//                 console.log('compile element', child)
+//                 // compileElement(child, this.current)
+//             }
+//         } else if (equal(child.nodeType, TextNodeType)) {
+//             console.log(compileText(child, componentInstance))
+//         }
+//
+//         if (child.childNodes) compileChildren(child, componentInstance)
+//     })
+// }
 /**
  * @description: compile text node , replace vm to variable
  * */

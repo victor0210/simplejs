@@ -4,7 +4,8 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 # Flow
 ![avatar](./starter/flow.png)
 
-
+# Compile
+![avatar](./starter/compile.png)
 # Global
 
 * init self methods (mount / inject...) done

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	//render
+	new Simple({
+		el: '#app',
+
+        template: `
+            <div name="hello">base</div>
+        `,
+
+		state: {
+			name: 'Simple Js'
+		}
+	})
+</script>
+</body>
+</html>

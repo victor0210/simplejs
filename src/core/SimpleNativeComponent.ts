@@ -11,7 +11,7 @@ import {removeComponentFromArr} from "../utils/removeFromArr";
 import {pushToDom} from "../utils/domTransfer";
 import baseType from "../statics/baseType";
 import matchType from "../utils/matchType";
-import {compile} from "../utils/compileUtils";
+import {compile2VNode} from "../utils/compileUtils";
 
 /**
  * @description primary key for mounted component
@@ -103,7 +103,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         if (matchType(this.$context.renderProxy, baseType.Function)) {
             return this.$context.renderProxy.call(this.$vm, createVNode)
         } else {
-            return compile.call(this.$vm, this.$context.renderProxy)
+            return compile2VNode.call(this.$vm, this.$context.renderProxy)
         }
     }
 
