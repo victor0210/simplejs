@@ -1,5 +1,6 @@
 import Directive from "./Directive";
 import SimpleNativeComponent from "./SimpleNativeComponent";
+import ComponentProxy from "./ComponentProxy";
 
 const GlobalInjection: any = {
     directives: {},
@@ -19,7 +20,7 @@ const GlobalInjectionUtil = {
         return GlobalInjection.directives[key]
     },
 
-    setComponent(key: string, component: SimpleNativeComponent) {
+    setComponent(key: string, component: ComponentProxy) {
         GlobalInjection.components[key] = component
     },
 

@@ -1,12 +1,12 @@
 import {COMPILE_REG} from "../statics/regexp";
 import {extractFunction, extractVariable} from "./compileRockers";
-import ComponentRendererMixins from "../core/ComponentRendererMixins";
 import {isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
 import {removeAttr, transToDom} from "./domTransfer";
 import {ElementNodeType, TextNodeType} from "../statics/nodeType";
 import equal from "./equal";
 import VNode from "../core/VNode";
+import createVNode from "./createVNode";
 
 export const compile2VNode = (template: string, component: SimpleNativeComponent) => {
     let dom = transToDom(template)
@@ -36,13 +36,12 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): VNod
         return extractVariable(exp, current.$vm)
     })
 
-    return new VNode(
+    return createVNode(
         textContent,
         {},
         [],
         true,
-        false,
-        current
+        false
     )
 }
 
@@ -50,39 +49,34 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): VNod
  * @description: compile native element's directive && events bind
  * */
 
-export const compileElement = (el: any, current: SimpleNativeComponent): VNode => {
-    return compileInline(el, current, true)
+export const compileElement = (el: any, component: SimpleNativeComponent): VNode => {
+    return createVNode(
+        el.tagName.toLowerCase(),
+        compileInline(el, component, true),
+        compileChildren(el.childNodes, component)
+    )
 }
 
 /**
  * @description: compile custom components with directive && events && props
  * */
-export const compileCustomComponent = (customEl: any, current: SimpleNativeComponent) => {
+export const compileCustomComponent = (customEl: any, component: SimpleNativeComponent): VNode => {
     let tagName = customEl.tagName.toLowerCase()
-    let childComponent = current.$injections.components[tagName]
-
-    const compiler = () => {
-        const {props} = compileInline(customEl, current)
-        current.injectChild(childComponent)
-        childComponent.injectPropsAndParent(current, props)
-    }
-
-    let updater = () => {
-        compiler()
-        childComponent.updateComponent()
-    }
-
-    compiler()
-
-    // current.pushWatcher(new Watcher(updater))
-    // compileInline(customEl, childComponent)
-    ComponentRendererMixins.mountChild(customEl, childComponent)
+    let props = compileInline(customEl, component)
+    console.log(props, 'props')
+    return createVNode(
+        component.$context.components[tagName],
+        props,
+        [],
+        false,
+        true
+    )
 }
 
 /**
  * @description: directive / event / props compile util
  * */
-const compileInline = (el: any, component: SimpleNativeComponent, isElement: boolean = false): VNode => {
+const compileInline = (el: any, component: SimpleNativeComponent, isElement: boolean = false): object => {
     let props: any = {};
     let domProps: any = {};
     let events: Array<any> = [];
@@ -97,9 +91,9 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
 
             if (isProps(exp)) {
                 if (isElement) {
-                    props[key] = extractVariable(val, component.$vm)
-                } else {
                     domProps[key] = extractVariable(val, component.$vm)
+                } else {
+                    props[key] = extractVariable(val, component.$vm)
                 }
             } else if (isEvent(exp)) {
                 let event = isElement
@@ -114,18 +108,18 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
             }
         } else {
             if (isElement) {
-                props[exp] = val
-            } else {
                 domProps[exp] = val
+            } else {
+                props[exp] = val
             }
         }
     })
 
-    return new VNode(el.tagName.toLowerCase(), {
+    return {
         props: props,
         events: events,
         domProps: domProps
-    }, compileChildren(el.childNodes, component))
+    }
 }
 
 const compileChildren = (children: any, component: SimpleNativeComponent): Array<VNode> => {
