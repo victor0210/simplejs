@@ -103,7 +103,7 @@ export default class SimpleNativeComponent extends SimpleComponent {
         if (matchType(this.$context.renderProxy, baseType.Function)) {
             return this.$context.renderProxy.call(this.$vm, createVNode)
         } else {
-            return compile2VNode.call(this.$vm, this.$context.renderProxy)
+            return compile2VNode(this.$context.renderProxy, this)
         }
     }
 

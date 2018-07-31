@@ -1,6 +1,5 @@
 import Patch from "../core/Patch";
 import diffType from "../statics/diffType";
-import {setAttrs} from "./domTransfer";
 import {removeComponentFromArr} from "./removeFromArr";
 
 export const addPatch = (patches: any, patch: Patch = undefined) => {

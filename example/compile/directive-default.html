@@ -13,19 +13,29 @@
 		el: '#app',
 
 		template: `
-            <div :name="state.name">{ state.name }</div>
+            <div :name="state.name">
+                <p ~if="state.isShow">if: { state.name }</p>
+                <p ~show="state.isShow">show: { state.name }</p>
+                <p ~text="state.name"></p>
+            </div>
         `,
 
 		state: {
+			isShow: true,
 			name: 'Simple Js'
 		},
 
 		mounted() {
 			setTimeout(() => {
 				this.setState({
-					name: 'change'
+					isShow: !this.state.isShow
 				})
 			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					isShow: !this.state.isShow
+				})
+			}, 2000)
 		}
 	})
 </script>

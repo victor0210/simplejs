@@ -1,5 +1,3 @@
-import any = jasmine.any;
-
 export const bindEvent = (el: any, handler: string, cb: Function) => {
     if (el.addEventListener) {
         el.addEventListener(handler, cb);

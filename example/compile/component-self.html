@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let component = new Simple({
+		template: `
+            <div>{props.name}</div>
+        `,
+
+		destroyed() {
+			console.log('destroyed child')
+		}
+	})
+
+	//render
+	new Simple({
+		el: '#app',
+
+		components: {
+			'test-component': component
+		},
+
+		template: `
+            <div :name="state.name">{ state.name }
+                <test-component :name="state.name"></test-component>
+                <test-component name="not cross vm"></test-component>
+            </div>
+        `,
+
+		state: {
+			name: 'Simple Js'
+		},
+
+		mounted() {
+			this.destroy()
+		},
+
+		destroyed() {
+			console.log('destroyed self')
+		}
+	})
+</script>
+</body>
+</html>

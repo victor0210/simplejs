@@ -1,7 +1,6 @@
 import VNode from "../core/VNode";
 import equal from "./equal";
 import {instanceOf} from "./instanceOf";
-import SimpleNativeComponentCreator from "../core/SimpleNativeComponentCreator";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
 export const diffInTag = (oldVNode: VNode, newVNode: VNode) => {

@@ -2,7 +2,7 @@ import '../../../src/index'
 import getHtmlById from "../../helpers/getHtmlById";
 
 describe('Render Test', () => {
-    test('destroy component', () => {
+    test('destroy component & create by render', () => {
         let component = new Simple({
             state: {
                 name: 'before change'
@@ -13,6 +13,29 @@ describe('Render Test', () => {
                     `Welcome to ${this.state.name}`
                 ])
             },
+
+            mounted() {
+                this.destroy()
+                expect(getHtmlById('app')).toBe(renderHtml)
+            }
+        })
+
+        let renderHtml = getUpdatedHtml()
+
+        // Set up our document body
+        document.body.innerHTML = `<div id="app"></div>`
+
+        Simple.mount('#app', component)
+    })
+    test('destroy component & create by template', () => {
+        let component = new Simple({
+            state: {
+                name: 'before change'
+            },
+
+            template:`
+                <div>Welcome to {state.name}</div>
+            `,
 
             mounted() {
                 this.destroy()
