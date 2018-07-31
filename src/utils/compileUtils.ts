@@ -63,7 +63,6 @@ export const compileElement = (el: any, component: SimpleNativeComponent): VNode
 export const compileCustomComponent = (customEl: any, component: SimpleNativeComponent): VNode => {
     let tagName = customEl.tagName.toLowerCase()
     let props = compileInline(customEl, component)
-    console.log(props, 'props')
     return createVNode(
         component.$context.components[tagName],
         props,
