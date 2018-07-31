@@ -35,12 +35,10 @@ const listenerGenerator = (exp: any, current: SimpleNativeComponent, autoRun: bo
 
             if (el !== STRING_NULL) {
                 if (!isTempString(el) && !isTempNumber(el) && el.indexOf('(') === -1) {
-                    console.log(el, 'varibal')
                     inputArguments[idx] = getVM(el, current.$vm)
                 } else if (isTempFunction(el)) {
                     inputArguments[idx] = listenerGenerator(el, current, true)
                 } else {
-                    console.log(el, 'string or number')
                     inputArguments[idx] = el
                 }
             }

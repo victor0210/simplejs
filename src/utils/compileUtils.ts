@@ -89,7 +89,6 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
         let attributeIDentifier = exp[0]
         if (isReactiveIDentifier(attributeIDentifier)) {
             let key = exp.split(attributeIDentifier)[1]
-            console.log('dire', exp)
             if (isProps(exp)) {
                 if (isElement) {
                     domProps[key] = extractVariable(val, component.$vm)
@@ -97,15 +96,7 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
                     props[key] = extractVariable(val, component.$vm)
                 }
             } else if (isEvent(exp)) {
-                let event = isElement
-                    ? Object.assign({
-                        el: el,
-                        handler: key
-                    }, extractFunction(val, component))
-                    : extractFunction(val, component)
-
-                events.push(event)
-                removeAttr(el, exp)
+                events[key] = extractFunction(val, component)
             } else if (isDirective(exp)) {
                 directives[key] = extractVariable(val, component.$vm)
             }

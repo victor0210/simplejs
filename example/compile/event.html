@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	//render
+	new Simple({
+		el: '#app',
+		//TODO: compile events variable
+		//DONE: <div :name="state.name" @click="methods.handleClick(a, b, c...)">
+		//{ methods.getName() }
+		//{ methods.getName(a, b, c) }
+		template: `
+            <div :name="state.name" @click="methods.handleClick(state.name2, state.name)">
+                <p>{ state.name }</p>
+                <p>{ state.name2 }</p>
+            </div>
+        `,
+
+		state: {
+			isShow: true,
+			name: 'Click Me: I am name1 !!!',
+			name2: 'Click Me HaHaHa: I am name2 !!!'
+		},
+
+		methods: {
+			handleClick(name1, name2) {
+				this.setState({
+					name: name1,
+					name2: name2
+				})
+			}
+		}
+	})
+</script>
+</body>
+</html>
