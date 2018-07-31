@@ -1,7 +1,6 @@
 import matchType from "./matchType";
 import baseType from "../statics/baseType";
 import {COMPONENT_KEY} from "../statics/injectionKey";
-import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
 const rootTag: string = 'div'
 

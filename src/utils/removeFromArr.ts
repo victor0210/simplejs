@@ -1,5 +1,4 @@
 import equal from "./equal";
-import SimpleNativeComponent from "../core/SimpleNativeComponent";
 
 export const removeFromArr = (arr: Array<any>, item: any) => {
     arr.some((el, idx) => {
