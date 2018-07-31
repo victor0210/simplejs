@@ -12,12 +12,20 @@
 	new Simple({
 		el: '#app',
 
-        template: `
-            <div name="hello">base</div>
+		template: `
+            <div :name="state.name">{ state.name }</div>
         `,
 
 		state: {
 			name: 'Simple Js'
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					name: 'change'
+				})
+			}, 1000)
 		}
 	})
 </script>

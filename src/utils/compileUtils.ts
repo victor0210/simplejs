@@ -7,74 +7,25 @@ import {removeAttr, transToDom} from "./domTransfer";
 import {ElementNodeType, TextNodeType} from "../statics/nodeType";
 import equal from "./equal";
 import VNode from "../core/VNode";
-import createVNode from "./createVNode";
 
-export const compile2VNode = (template: string) => {
+export const compile2VNode = (template: string, component: SimpleNativeComponent) => {
     let dom = transToDom(template)
 
-    return compile(dom)
+    return compile(dom, component)
 }
 
-const compile = (dom: any): VNode => {
-    let tagName: any
-    let isText: boolean
-    let isComponent: boolean
-
-    if (dom.nodeType === ElementNodeType) {
-        tagName = dom.tagName.toLowerCase()
-    } else if (dom.nodeType === TextNodeType) {
-        tagName = dom.textContent
-        isText = true
-    }
-    return createVNode(tagName, compileProps(dom), compileChildren(dom.childNodes), isText, isComponent)
-}
-
-const compileProps = (dom: any) => {
-    let props: any = {
-        props: {},
-        domProps: {},
-        on: {},
-        events: {}
-    }
-
-    dom.attributes && Array.from(dom.attributes).forEach((attr: any) => {
-        props.domProps[attr.name] = attr.value
-    })
-
-    return props
-}
-
-const compileChildren = (children: any): Array<VNode> => {
-    let vnodeChildren: Array<VNode> = []
-    children.forEach((child: any) => {
-        if (child) {
-            vnodeChildren.push(compile(child))
+const compile = (dom: any, component: SimpleNativeComponent): VNode => {
+    if (equal(dom.nodeType, ElementNodeType)) {
+        if (isCustomComponent(dom.tagName, component.$context.components)) {
+            return compileCustomComponent(dom, component)
+        } else {
+            return compileElement(dom, component)
         }
-    })
-
-    return vnodeChildren
+    } else if (equal(dom.nodeType, TextNodeType)) {
+        return compileText(dom, component)
+    }
 }
 
-/**
- * -------------------------------------------------------------------------------------- previous
- * */
-// export const compileChildren = (node: DocumentFragment, componentInstance: SimpleNativeComponent) => {
-//     node.childNodes.forEach((child: any) => {
-//         if (equal(child.nodeType, ElementNodeType)) {
-//             if (isCustomComponent(child.tagName, componentInstance.$context.components)) {
-//                 console.log('compile cus component')
-//                 // compileCustomComponent(child, this.current)
-//             } else {
-//                 console.log('compile element', child)
-//                 // compileElement(child, this.current)
-//             }
-//         } else if (equal(child.nodeType, TextNodeType)) {
-//             console.log(compileText(child, componentInstance))
-//         }
-//
-//         if (child.childNodes) compileChildren(child, componentInstance)
-//     })
-// }
 /**
  * @description: compile text node , replace vm to variable
  * */
@@ -93,19 +44,14 @@ export const compileText = (textNode: any, current: SimpleNativeComponent): VNod
         false,
         current
     )
-    //
-    // updater()
-    // current.pushWatcher(new Watcher(updater))
 }
 
 /**
  * @description: compile native element's directive && events bind
  * */
 
-export const compileElement = (el: any, current: SimpleNativeComponent): void => {
-    const compiler = compileInline(el, current, true)
-
-    // current.injectEvents(compiler.events)
+export const compileElement = (el: any, current: SimpleNativeComponent): VNode => {
+    return compileInline(el, current, true)
 }
 
 /**
@@ -136,8 +82,9 @@ export const compileCustomComponent = (customEl: any, current: SimpleNativeCompo
 /**
  * @description: directive / event / props compile util
  * */
-const compileInline = (el: any, current: SimpleNativeComponent, isElement: boolean = false): any => {
+const compileInline = (el: any, component: SimpleNativeComponent, isElement: boolean = false): VNode => {
     let props: any = {};
+    let domProps: any = {};
     let events: Array<any> = [];
 
     Array.from(el.attributes).forEach((attr: any) => {
@@ -149,30 +96,49 @@ const compileInline = (el: any, current: SimpleNativeComponent, isElement: boole
             let key = exp.split(attributeIDentifier)[1]
 
             if (isProps(exp)) {
-                props[key] = extractVariable(val, current.$vm)
+                if (isElement) {
+                    props[key] = extractVariable(val, component.$vm)
+                } else {
+                    domProps[key] = extractVariable(val, component.$vm)
+                }
             } else if (isEvent(exp)) {
                 let event = isElement
                     ? Object.assign({
                         el: el,
                         handler: key
-                    }, extractFunction(val, current))
-                    : extractFunction(val, current)
+                    }, extractFunction(val, component))
+                    : extractFunction(val, component)
 
                 events.push(event)
                 removeAttr(el, exp)
             }
         } else {
-            props[exp] = val
+            if (isElement) {
+                props[exp] = val
+            } else {
+                domProps[exp] = val
+            }
         }
     })
 
-    return {
+    return new VNode(el.tagName.toLowerCase(), {
         props: props,
-        events: events
-    }
+        events: events,
+        domProps: domProps
+    }, compileChildren(el.childNodes, component))
+}
+
+const compileChildren = (children: any, component: SimpleNativeComponent): Array<VNode> => {
+    let vnodeChildren: Array<VNode> = []
+    children.forEach((child: any) => {
+        if (child) {
+            vnodeChildren.push(compile(child, component))
+        }
+    })
+
+    return vnodeChildren
 }
 
 const isCustomComponent = (tagName: string, componentsMap: any): boolean => {
-    console.log(componentsMap, 'componentsMap')
     return tagName.toLowerCase() in componentsMap
 }
