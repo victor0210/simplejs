@@ -1,6 +1,6 @@
 import {COMPILE_REG} from "../statics/regexp";
 import {extractFunction, extractVariable} from "./compileRockers";
-import {isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
+import {isDirective, isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
 import {removeAttr, transToDom} from "./domTransfer";
 import {ElementNodeType, TextNodeType} from "../statics/nodeType";
@@ -79,6 +79,7 @@ export const compileCustomComponent = (customEl: any, component: SimpleNativeCom
 const compileInline = (el: any, component: SimpleNativeComponent, isElement: boolean = false): object => {
     let props: any = {};
     let domProps: any = {};
+    let directives: any = {};
     let events: Array<any> = [];
 
     Array.from(el.attributes).forEach((attr: any) => {
@@ -88,7 +89,7 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
         let attributeIDentifier = exp[0]
         if (isReactiveIDentifier(attributeIDentifier)) {
             let key = exp.split(attributeIDentifier)[1]
-
+            console.log('dire', exp)
             if (isProps(exp)) {
                 if (isElement) {
                     domProps[key] = extractVariable(val, component.$vm)
@@ -105,6 +106,8 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
 
                 events.push(event)
                 removeAttr(el, exp)
+            } else if (isDirective(exp)) {
+                directives[key] = extractVariable(val, component.$vm)
             }
         } else {
             if (isElement) {
@@ -118,7 +121,8 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
     return {
         props: props,
         events: events,
-        domProps: domProps
+        domProps: domProps,
+        directives: directives
     }
 }
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	//render
+	new Simple({
+		el: '#app',
+
+		template: `
+            <div :name="state.name">
+                <p ~if="state.isShow">if: { state.name }</p>
+                <p ~show="state.isShow">show: { state.name }</p>
+                <p ~text="state.name"></p>
+            </div>
+        `,
+
+		state: {
+			isShow: true,
+			name: 'Simple Js'
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					isShow: !this.state.isShow
+				})
+			}, 1000)
+			setTimeout(() => {
+				this.setState({
+					isShow: !this.state.isShow
+				})
+			}, 2000)
+		}
+	})
+</script>
+</body>
+</html>

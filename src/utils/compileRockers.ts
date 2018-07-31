@@ -4,8 +4,20 @@ import isTempString from "./isTempString";
 import {getVM} from "./vmUtils";
 import {STRING_NULL} from "../statics/helperType";
 import listenerGenerator from "./listenerGenerator";
+import isTempNumber from "./isTempNumber";
+import isTempBoolean from "./isTempBoolean";
 
-export const extractVariable = (exp: string, vm: any): string => {
+export const extractVariable = (exp: string, vm: any): any => {
+    //deal boolean specially
+    if (isTempBoolean(exp)) {
+        return transToBoolean(exp)
+    }
+
+    //deal number specially
+    if (isTempNumber(exp)) {
+        return Number(exp)
+    }
+
     let duckVariables: Array<string> = exp.split(EXP_SEPARATOR)
 
     let escapedString = STRING_NULL
@@ -38,4 +50,8 @@ export const arrayExpFormat = (arr: Array<string>): void => {
             arr.splice(idx, 1)
         }
     })
+}
+
+const transToBoolean = (exp: string): boolean => {
+    return exp === 'true'
 }
