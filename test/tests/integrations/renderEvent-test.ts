@@ -47,7 +47,7 @@ describe('Render Test', () => {
             },
 
             template: `
-                <div @click="methods.handleClick" @mouseover="methods.handleMouseOver">
+                <div @click="handleClick" @mouseover="handleMouseOver">
                     Welcome to {state.name}
                 </div>
             `,

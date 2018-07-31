@@ -12,11 +12,11 @@
 	new Simple({
 		el: '#app',
 		//TODO: compile events variable
-		//DONE: <div :name="state.name" @click="methods.handleClick(a, b, c...)">
-		//{ methods.getName() }
-		//{ methods.getName(a, b, c) }
+		//DONE: <div :name="state.name" @click="handleClick(a, b, c...)">
+		//{ getName() }
+		//{ getName(a, b, c) }
 		template: `
-            <div :name="state.name" @click="methods.handleClick(state.name2, state.name)">
+            <div :name="state.name" @click="handleClick(state.name2, state.name)">
                 <p>{ state.name }</p>
                 <p>{ state.name2 }</p>
             </div>

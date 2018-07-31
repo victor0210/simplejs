@@ -59,14 +59,26 @@ export default class SimpleComponent {
         this.runLifeCycleHook()
     }
 
+    /**
+     * vm structure would be {
+     *      ...methods
+     *      state: {
+     *          ...states
+     *      },
+     *      props: {
+     *          ...props
+     *      }
+     * }
+     * */
     public _parseVM(spec: any): object {
         let _vm = {
-            methods: {},
             state: {}
+            //props will injected by parent component, so we are not init prop when init vm
+            //props: {}
         }
 
-        Object.assign(_vm.methods, this.$context.mixins.methods, spec.methods)
         Object.assign(_vm.state, this.$context.mixins.state, spec.state)
+        Object.assign(_vm, this.$context.mixins.methods, spec.methods)
 
         return _vm
     }
