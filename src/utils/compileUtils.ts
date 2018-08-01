@@ -1,12 +1,14 @@
 import {COMPILE_REG} from "../statics/regexp";
 import {extractFunction, extractVariable} from "./compileRockers";
-import {isDirective, isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
+import {isClass, isDirective, isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
 import {removeAttr, transToDom} from "./domTransfer";
 import {ElementNodeType, TextNodeType} from "../statics/nodeType";
 import equal from "./equal";
 import VNode from "../core/VNode";
 import createVNode from "./createVNode";
+import {SPACE_SEPARATOR} from "../statics/separators";
+import isTempArray from "./isTempArray";
 
 export const compile2VNode = (template: string, component: SimpleNativeComponent) => {
     let dom = transToDom(template)
@@ -78,6 +80,7 @@ export const compileCustomComponent = (customEl: any, component: SimpleNativeCom
 const compileInline = (el: any, component: SimpleNativeComponent, isElement: boolean = false): object => {
     let props: any = {};
     let domProps: any = {};
+    let classes: any = [];
     let directives: any = {};
     let events: Array<any> = [];
 
@@ -89,10 +92,20 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
         if (isReactiveIDentifier(attributeIDentifier)) {
             let key = exp.split(attributeIDentifier)[1]
             if (isProps(exp)) {
-                if (isElement) {
-                    domProps[key] = extractVariable(val, component.$vm)
+                if (isClass(exp) && isElement) {
+                    if (isTempArray(val)) {
+                        val.trim().slice(1, -1).split(',').forEach((className: string) => {
+                            classes.push(extractVariable(className, component.$vm))
+                        })
+                    } else {
+                        classes.push(extractVariable(val, component.$vm))
+                    }
                 } else {
-                    props[key] = extractVariable(val, component.$vm)
+                    if (isElement) {
+                        domProps[key] = extractVariable(val, component.$vm)
+                    } else {
+                        props[key] = extractVariable(val, component.$vm)
+                    }
                 }
             } else if (isEvent(exp)) {
                 events[key] = extractFunction(val, component)
@@ -100,10 +113,14 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
                 directives[key] = extractVariable(val, component.$vm)
             }
         } else {
-            if (isElement) {
-                domProps[exp] = val
+            if (isClass(exp) && isElement) {
+                classes = val.split(SPACE_SEPARATOR)
             } else {
-                props[exp] = val
+                if (isElement) {
+                    domProps[exp] = val
+                } else {
+                    props[exp] = val
+                }
             }
         }
     })
@@ -112,6 +129,7 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
         props: props,
         events: events,
         domProps: domProps,
+        classes: classes,
         directives: directives
     }
 }

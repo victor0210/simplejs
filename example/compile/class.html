@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let component = new Simple({
+		template: `
+            <div :class="['child-class', props.name]">{props.name}</div>
+        `
+	})
+
+	Simple.component('test-component', component)
+
+	//render
+	new Simple({
+		el: '#app',
+
+        //class="xxx"
+        //:class="xxx"
+        //:class="[xxx, xxx]"
+        //pass props to class <child></child>
+		template: `
+            <div class="className">
+                <div class="static-class" name="hello">{ state.className }</div>
+                <div :class="state.className" name="hello">{ state.className }</div>
+                <div :class="[state.className, 'red']" name="hello">{ state.className }</div>
+                <test-component :name="state.className">{ state.className }</test-component>
+            </div>
+        `,
+
+		state: {
+			className: 'parent-class'
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					className: 'change-class'
+				})
+			}, 1000)
+		}
+	})
+</script>
+</body>
+</html>

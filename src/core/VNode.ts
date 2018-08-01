@@ -5,7 +5,7 @@ import directiveLifeCycle from "../statics/directievLifeCycle";
 import GlobalDirectives from "./GlobalDirectives";
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
-import {pushToDom, setAttrs} from "../utils/domTransfer";
+import {pushToDom, setAttrs, setClasses} from "../utils/domTransfer";
 
 /**
  * @param[props]:
@@ -56,6 +56,7 @@ export default class VNode {
     }
 
     public update() {
+        this._injectDomClasses()
         this._injectDomProps()
         this._injectDirective()
         this.compileDirective(directiveLifeCycle.UPDATE)
@@ -104,8 +105,18 @@ export default class VNode {
     }
 
     private _injectProps() {
+        this._injectDomClasses()
         this._injectDomProps()
         this._injectEvents()
+    }
+
+    private _injectDomClasses() {
+        if (!this.isText) {
+            setClasses(
+                this.node,
+                this.props.classes
+            )
+        }
     }
 
     private _injectDomProps() {

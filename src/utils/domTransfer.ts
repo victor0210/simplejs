@@ -49,3 +49,22 @@ export const setAttrs = (el: any, attrs: any) => {
         el.setAttribute(key, attrs[key])
     }
 }
+
+export const setClasses = (el: any, classes: any) => {
+    let classContainer = ''
+    if (Array.isArray(classes)) {
+        classes.forEach((className: string, index: number) => {
+            classContainer = ` ${classContainer} ${className} `.trim()
+        })
+    } else {
+        classContainer = classes
+    }
+
+    setClass(el, classContainer)
+}
+
+export const setClass = (el: any, className: string) => {
+    if (el.className.indexOf(className) === -1) {
+        el.className = `${className.trim()}`.trim()
+    }
+}
