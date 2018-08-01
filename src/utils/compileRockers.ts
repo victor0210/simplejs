@@ -1,13 +1,9 @@
 import {EXP_SEPARATOR, METHOD_STARTER} from "../statics/separators";
-import isTempString from "./isTempString";
 import {getVM} from "./vmUtils";
 import {STRING_NULL, STRING_TRUE} from "../statics/helperType";
-import isTempNumber from "./isTempNumber";
-import isTempBoolean from "./isTempBoolean";
 import equal from "./equal";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
-import baseType from "../statics/baseType";
-import matchType from "./matchType";
+import {isTempBoolean, isTempNumber, isTempString} from "./tempMatcher";
 
 export const extractVariable = (exp: string, vm: any): any => {
     if (!exp) return

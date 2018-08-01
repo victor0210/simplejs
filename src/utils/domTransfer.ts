@@ -1,6 +1,7 @@
 import matchType from "./matchType";
 import baseType from "../statics/baseType";
 import {COMPONENT_KEY} from "../statics/injectionKey";
+import throwIf from "../loggers/throwIf";
 
 const rootTag: string = 'div'
 
@@ -64,7 +65,21 @@ export const setClasses = (el: any, classes: any) => {
 }
 
 export const setClass = (el: any, className: string) => {
+    if (!className) return
+    
     if (el.className.indexOf(className) === -1) {
         el.className = `${className.trim()}`.trim()
+    }
+}
+
+export const setStyles = (el: any, styles: any) => {
+    if (!styles) return
+
+    throwIf(!matchType(styles, baseType.Object),
+        'styles must be object'
+    )
+
+    for(let key in styles) {
+        el.style[key] = styles[key]
     }
 }

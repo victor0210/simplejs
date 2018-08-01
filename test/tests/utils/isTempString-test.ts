@@ -1,6 +1,6 @@
 import {baseTester} from "../../helpers/baseTester";
-import isTempString from "../../../src/utils/isTempString";
 import TestCreator from "../../helpers/TestCreator";
+import {isTempString} from "../../../src/utils/tempMatcher";
 
 let cases = [
     {

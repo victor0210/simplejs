@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	//render
+	new Simple({
+		el: '#app',
+
+		//style="xxx"
+		//:style="{key: value}"
+		template: `
+            <div class="className">
+                <div style="color: red" name="hello">{ state.msg }</div>
+                <div :style="{
+                    color: 'yellow',
+                    backgroundColor: state.backgroundColor
+                }" name="hello">{ state.msg }</div>
+            </div>
+        `,
+
+		state: {
+			msg: 'begin-style',
+			backgroundColor: 'pink'
+		},
+
+		mounted() {
+			setTimeout(() => {
+				this.setState({
+					msg: 'change-style',
+					backgroundColor: 'green'
+				})
+			}, 1000)
+		}
+	})
+</script>
+</body>
+</html>
