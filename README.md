@@ -45,4 +45,4 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * **LifeCycle: destroyed** (suggest to clear global setter)
 
 # TODO
-1. add compile for converting html-template to vnode
+1. rollup config for development and production
