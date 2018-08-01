@@ -1,12 +1,10 @@
-import isTempString from "./isTempString";
 import {getVM} from "./vmUtils";
-import isTempNumber from "./isTempNumber";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
 import throwIf from "../loggers/throwIf";
 import matchType from "./matchType";
 import baseType from "../statics/baseType";
-import isTempFunction from "./isTempFunction";
 import {STRING_NULL} from "../statics/helperType";
+import {isTempFunction} from "./tempMatcher";
 
 const listenerGenerator = (exp: any, current: SimpleNativeComponent, autoRun: boolean = false) => {
     let funcName

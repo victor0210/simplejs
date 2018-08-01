@@ -1,12 +1,15 @@
 import {COMPILE_REG} from "../statics/regexp";
 import {extractFunction, extractVariable} from "./compileRockers";
-import {isDirective, isEvent, isProps, isReactiveIDentifier} from "./attributeUtils";
+import {isClass, isDirective, isEvent, isProps, isReactiveIDentifier, isStyle} from "./attributeUtils";
 import SimpleNativeComponent from "../core/SimpleNativeComponent";
-import {removeAttr, transToDom} from "./domTransfer";
+import {transToDom} from "./domTransfer";
 import {ElementNodeType, TextNodeType} from "../statics/nodeType";
 import equal from "./equal";
 import VNode from "../core/VNode";
 import createVNode from "./createVNode";
+import {isTempArray, isTempObject, isTempString} from "./tempMatcher";
+import convertStringToJson from "./converStringToJson";
+import throwIf from "../loggers/throwIf";
 
 export const compile2VNode = (template: string, component: SimpleNativeComponent) => {
     let dom = transToDom(template)
@@ -77,7 +80,9 @@ export const compileCustomComponent = (customEl: any, component: SimpleNativeCom
  * */
 const compileInline = (el: any, component: SimpleNativeComponent, isElement: boolean = false): object => {
     let props: any = {};
+    let styles: any = {}
     let domProps: any = {};
+    let classes: any = [];
     let directives: any = {};
     let events: Array<any> = [];
 
@@ -89,7 +94,11 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
         if (isReactiveIDentifier(attributeIDentifier)) {
             let key = exp.split(attributeIDentifier)[1]
             if (isProps(exp)) {
-                if (isElement) {
+                if (isStyle(exp) && isElement) {
+                    styles = compileStyles(val, component)
+                } else if (isClass(exp) && isElement) {
+                    classes = compileClasses(val, component)
+                } else if (isElement) {
                     domProps[key] = extractVariable(val, component.$vm)
                 } else {
                     props[key] = extractVariable(val, component.$vm)
@@ -112,6 +121,8 @@ const compileInline = (el: any, component: SimpleNativeComponent, isElement: boo
         props: props,
         events: events,
         domProps: domProps,
+        classes: classes,
+        styles: styles,
         directives: directives
     }
 }
@@ -125,6 +136,40 @@ const compileChildren = (children: any, component: SimpleNativeComponent): Array
     })
 
     return vnodeChildren
+}
+
+const compileStyles = (stylesString: any, component: SimpleNativeComponent): any => {
+    throwIf(
+        !isTempObject(stylesString),
+        'style input must be object!'
+    )
+
+    let styles: any = {}
+    let comps = stylesString.trim().slice(1, -1).split(',')
+
+    comps.forEach((comp: any) => {
+        let kv = comp.split(':')
+        let key = kv[0].trim()
+        let val = kv[1].trim()
+
+        styles[key] = isTempString(val) ? val.trim().slice(1, -1) : extractVariable(val, component.$vm)
+    })
+
+    return styles
+}
+
+const compileClasses = (classesString: any, component: SimpleNativeComponent): any => {
+    let classes: Array<any> = []
+
+    if (isTempArray(classesString)) {
+        classesString.trim().slice(1, -1).split(',').forEach((className: string) => {
+            classes.push(extractVariable(className, component.$vm))
+        })
+    } else {
+        classes.push(extractVariable(classesString, component.$vm))
+    }
+
+    return classes
 }
 
 const isCustomComponent = (tagName: string, componentsMap: any): boolean => {

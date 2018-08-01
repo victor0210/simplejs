@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Base</title>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	//render
+	new Simple({
+		el: '#app',
+
+		state: {
+			name: 'Simple Js',
+			className: 'class-name'
+		},
+
+		render: function (h) {
+			return h('div', {
+					styles: {
+						color: 'red'
+					}
+				}, [
+					`Welcome to ${this.state.name}`,
+					(function () {
+						return `Welcome to ${this.state.name}`
+					}),
+					(function () {
+						return (function () {
+							return `Welcome to ${this.state.name}`
+						})
+					})
+				]
+			)
+		}
+	})
+</script>
+</body>
+</html>
