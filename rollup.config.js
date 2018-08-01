@@ -5,11 +5,6 @@ import ts from 'rollup-plugin-typescript'
  * TODO: divide dev & prod
  * */
 export default {
-  input: 'src/index.js',
-  output: {
-    file: 'dist/bundle.js',
-    format: 'cjs'
-  },
   plugins: [
     ts({
       include: 'src/**'
