@@ -36,6 +36,7 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * **LifeCycle: destroyed** (suggest to clear global setter)
 
 # TODO
+
 1. events hub just like
 
 ```javascript
