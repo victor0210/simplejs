@@ -66,6 +66,7 @@ const applyPatch = (patch: Patch, isRoot: boolean = false) => {
             oldVNode.node.appendChild(newVNode.render())
 
             //apply patch vnode
+            newVNode.injectParentVNode(oldVNode)
             oldVNode.children.push(newVNode)
             break
         case diffType.REPLACE:
