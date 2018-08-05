@@ -12,7 +12,7 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * init components / mixins / directives
 * inject into per native component
 
-# component init
+# Component LifeCycle FLow
 
 * inject global injections 
 * inject self injections && init events hub  
@@ -35,7 +35,7 @@ Simple to run, Simple to use, Simple to thought, Simplify MVVM js framework
 * teardown injects / set lifeCycle 'destroyed' / pass data relationship / remove events from hub
 * **LifeCycle: destroyed** (suggest to clear global setter)
 
-# TODO
+# Plan
 
 1. events hub just like
 
