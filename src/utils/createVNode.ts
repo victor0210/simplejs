@@ -71,7 +71,7 @@ const convertChildren = (parent: VNode, children: Array<any>, componentInstance:
     children.forEach((child: any, idx: number) => {
         let _vnode = convert2VNode(child, componentInstance)
 
-        _vnode.parent = parent
+        _vnode.injectParentVNode(parent)
 
         if (_vnode)
             children[idx] = _vnode
@@ -79,7 +79,6 @@ const convertChildren = (parent: VNode, children: Array<any>, componentInstance:
         if (child.children)
             convertChildren(child, child.children, componentInstance)
     })
-    return
 }
 
 export default createVNode

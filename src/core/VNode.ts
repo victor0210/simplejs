@@ -6,6 +6,7 @@ import GlobalDirectives from "./GlobalDirectives";
 import matchType from "../utils/matchType";
 import baseType from "../statics/baseType";
 import {pushToDom, setAttrs, setClasses, setStyles} from "../utils/domTransfer";
+import {removeComponentFromArr} from "../utils/removeFromArr";
 
 /**
  * @param[props]:
@@ -66,6 +67,7 @@ export default class VNode {
     public destroy() {
         if (this.isComponent) {
             this.tagName.destroy()
+            this.parent && removeComponentFromArr(this.parent.children, this)
         } else {
             this.node.remove()
         }
@@ -80,6 +82,10 @@ export default class VNode {
                 pushToDom(this.node, child.render())
             }
         })
+    }
+
+    public injectParentVNode(parentVNode: VNode) {
+        this.parent = parentVNode
     }
 
     private _createNode(parent?: any) {

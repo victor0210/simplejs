@@ -70,6 +70,7 @@
 		template: `
             <div id="box">
                 <button @click="addItem" class="btn">add</button>
+                <button @click="removeItem" class="btn">add</button>
                 <list :list="state.list"></list>
             </div>
         `,
@@ -83,6 +84,15 @@
 				this.setState({
 					list: this.state.list
 				})
+				console.log(this.state.list)
+			},
+			removeItem() {
+				this.state.list.splice(0, 1)
+				this.setState({
+					list: this.state.list
+				})
+
+				console.log(this.state.list)
 			}
 		}
 	})
