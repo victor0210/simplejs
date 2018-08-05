@@ -158,13 +158,15 @@ export default class SimpleNativeComponent extends SimpleComponent {
 
     /**
      * state change emit vm change
+     * TODO: bug fix of update condition
      * */
     public setState(state: object): void {
-        if (merge(this._pendingState, state)) {
+        // console.log(this._pendingState, state)
+        // if (merge(this._pendingState, state)) {
             merge(this.state, state)
             merge(this.$vm.state, state)
             this.updateComponent()
-        }
+        // }
     }
 
     public injectProps(props: object) {

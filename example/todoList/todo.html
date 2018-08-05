@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TODO LIST</title>
+    <style>
+        .btn {
+            width: 80px;
+            height: 30px;
+            background: #C21F39;
+            color: #fff;
+            border: 1px solid #eee;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .list-item {
+            margin: 5px;
+        }
+
+        #list {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+    </style>
+    <script src="../../dist/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+	let Item = new Simple({
+		template: `
+            <span class="list-item">{ props.name }</span>
+        `
+	})
+
+	let List = new Simple({
+		render(h) {
+			let list = []
+			this.props.list.forEach((item) => {
+				list.push(h(Item, {
+					props: {
+						name: item.name
+					}
+				}))
+			})
+
+			return h(
+				'div', {
+					domProps: {
+						id: 'list'
+					}
+				}, list
+			)
+		}
+	})
+
+	new Simple({
+		el: '#app',
+
+		components: {
+			'list': List
+		},
+		state: {
+			list: [],
+			count: 1
+		},
+
+		template: `
+            <div id="box">
+                <button @click="addItem" class="btn">add</button>
+                <list :list="state.list"></list>
+            </div>
+        `,
+
+		methods: {
+			addItem() {
+				this.state.list.push({
+					name: this.state.count++
+				})
+
+				this.setState({
+					list: this.state.list
+				})
+			}
+		}
+	})
+</script>
+</body>
+</html>

@@ -6,6 +6,8 @@ import {instanceOf} from "./instanceOf";
 import matchType from "./matchType";
 import ComponentProxy from "../core/ComponentProxy";
 import directiveLifeCycle from "../statics/directievLifeCycle";
+import TextVNode from "../core/TextVNode";
+import ComponentVNode from "../core/ComponentVNode";
 
 const createVNode = (tagName: any,
                      props: any,
@@ -31,33 +33,33 @@ const createVNode = (tagName: any,
 const convert2VNode = (param: any, componentInstance: SimpleNativeComponent): VNode => {
     let vnode = param
 
+    if (!vnode) return
+
     if (matchType(param, baseType.Function)) {
         vnode = convert2VNode(
             param.call(componentInstance.$vm),
             componentInstance
-        )
+        ) || new TextVNode('', componentInstance)
     } else if (matchType(param, baseType.String) || matchType(param, baseType.Number)) {
-        vnode = new VNode(
+        vnode = new TextVNode(
             param,
-            {},
-            [],
-            true,
-            false,
             componentInstance
         )
     } else if (instanceOf(param, ComponentProxy)) {
         let component = param.fuck()
-        vnode = new VNode(
+        vnode = new ComponentVNode(
             component,
             {},
             [],
-            false,
-            true,
             componentInstance
         )
     } else if (instanceOf(param.tagName, ComponentProxy)) {
-        vnode.tagName = vnode.tagName.fuck()
-        vnode.isComponent = true
+        vnode = new ComponentVNode(
+            vnode.tagName.fuck(),
+            vnode.props,
+            vnode.children,
+            componentInstance
+        )
     }
 
     vnode.compileDirective(directiveLifeCycle.BIND)
