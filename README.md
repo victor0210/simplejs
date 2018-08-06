@@ -46,3 +46,5 @@ this.$on('fucker', cb)
 // fire event
 this.$emit('fucker', ...params)
 ```
+
+2. integrate all changes and update once in next tick
