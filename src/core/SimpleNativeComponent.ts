@@ -124,7 +124,9 @@ export default class SimpleNativeComponent extends SimpleComponent {
         this.setLifeCycle(lifeCycle.PENDING)
     }
 
-
+    /**
+     * TODO: integrate all changes and update once in next tick
+     * */
     public updateComponent(): void {
         this.setLifeCycle(lifeCycle.BEFORE_UPDATE)
 
